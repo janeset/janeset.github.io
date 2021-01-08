@@ -1,0 +1,204 @@
+body{
+margin: 0;
+text-align: center;
+font-family: 'Montserrat', sans-serif;
+
+}
+
+h1
+{
+  margin-top: 50px;
+  font-family: 'Raleway', sans-serif;
+
+}
+
+/*-- Containers -- */
+.top-container
+{
+    background-color: #222831;
+    position: relative;
+    padding-top: 100px;
+    height: 400px;
+    color: white;
+}
+
+.middle-container
+{
+    background-color: #eeeeee;
+    position: relative;
+}
+
+.bottom-container
+{
+    color: white;
+    background-color: #393e46;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+/*-- top Container elements -- */
+.moon-top
+{
+  height: 100px;
+  width:100px;
+  position: absolute;
+  right: 150px;
+  top: 80px;
+
+}
+
+.cloud-bottom
+{
+  height: 120px;
+  width:120px;
+  position: absolute;
+  left: 200px;
+  bottom: 300px;
+}
+
+.penguin-1
+{
+  height: 50px;
+  width:50px;
+position: absolute;
+left: 250px;
+top: 449px;
+
+}
+
+.penguin-2
+{
+  height: 40px;
+  width:40px;
+  position: absolute;
+  left: 200px;
+  top: 460px;
+}
+
+.igloo
+{
+  height: 120px;
+  width:120px;
+  position: absolute;
+  right: 200px;
+  top: 383px;
+}
+
+.profile-picture
+{
+  height: 150px;
+  width:150px;
+  border-radius: 50%;
+}
+
+/*-- middle Container elements -- */
+
+.hello
+{
+  padding-top: 30px;
+  height: 120px;
+  width:120px;
+}
+
+.tigerpic
+{
+  height: 120px;
+  width:120px;
+  margin: 0px;
+}
+
+.skills
+{
+  position: relative;
+}
+
+.c
+{
+  height: 80px;
+  width:80px;
+  margin: 10px;
+}
+
+
+.cpp
+{
+  height: 80px;
+  width:80px;
+  margin: 10px;
+
+}
+
+.csharp
+{
+  height: 80px;
+  width:80px;
+  margin: 10px;
+
+}
+
+.mysql
+{
+  height: 80px;
+  width:80px;
+  margin: 10px;
+
+}
+
+.html
+{
+  height: 80px;
+  width:80px;
+  margin: 10px;
+}
+
+.css
+{
+  height: 80px;
+  width:80px;
+  margin: 10px;
+}
+
+.javascript
+{
+  height: 80px;
+  width:80px;
+  margin: 10px;
+}
+
+.php
+{
+  height: 80px;
+  width:80px;
+  margin: 10px;
+}
+
+.profile
+{
+  background-color: #eff8ff;
+  padding: 30px;
+}
+
+.skills
+{
+  color: white;
+  background-color: #393e46;
+      padding: 10px;
+}
+
+.myProjects
+{
+  color: white;
+  background-color: #393e46;
+      padding: 10px;
+}
+
+.contact-me
+{
+  background-color: #eff8ff;
+  color: black;
+  padding: 10px;
+}
+
+.contact-icon{
+  margin: 5px;
+}
