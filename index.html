@@ -1,121 +1,350 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <!--Head-->
-  <head>
-    <meta charset="utf-8">
-    <title>Janeth Santos</title>
-    <link rel="stylesheet" type="text/css" href="CSS/styles.css">
-    <link rel="icon" href="favicon.ico">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Raleway:wght@300&display=swap" rel="stylesheet">
-  </head>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>nebulai.dev — Jane Santos</title>
+  <meta name="description" content="Jane Santos — software developer exploring code, cloud and AI. Projects, skills and contact.">
+  <meta name="theme-color" content="#05060f">
+  <link rel="icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="CSS/styles.css">
+</head>
+<body>
 
-  <!--Body-->
-  <body>
+  <a class="skip-link" href="#main">Skip to content</a>
 
-  <!--top div-->
-<div class="top-container">
-  <img class="moon-top" src="images/moon.png" alt="cloud-img">
-  <img class="profile-picture" src="images/jane.jpg">
-  <h1>I'm Jane</h1>
-  <p>A Software Engineering Technology Student that likes penguins</p>
-  <img class="cloud-bottom" src="images/clouds.png" alt="cloud-img2">
-    <img class="penguin-1" src="images/penguin_1.png">
-    <img class="penguin-2" src="images/penguin_2.png">
-    <img class="igloo" src="images/igloo.png">
-</div>
+  <!-- Animated starfield behind everything -->
+  <canvas id="stars" aria-hidden="true"></canvas>
+  <div class="nebula" aria-hidden="true"></div>
 
-  <!--middle div-->
-  <div class="middle-container">
-    <div class="profile">
-      <img class="hello" src="images/hello.png">
-      <h2>Hey There!</h2>
-      <p>My name is Janeth Santos, but you can call me Jane.</p>
-      <p>Im currently enrolled As a Software Engineering Technology at Conestoga college</p>
-    </div>
-
-    <div class="skills">
-      <div class="skill-row">
-        <h2>My Programming Skills.</h2>
-        <p>Started learning C as my first language, followed by C++, C# for OOP and MySQL for managing Databases </p>
-        <img class="c" src="images/c.png">
-        <img class="cpp" src="images/cpp.png" >
-        <img class="csharp" src="images/csharp.png">
-        <img class="mysql" src="images/mysql.png">
-      </div>
-      <div class="skill-row">
-        <h3>My Web Development Skills.</h3>
-        <p> </p>
-        <img class="html" src="images/html.png">
-        <img class="css" src="images/css.png">
-        <img class="javascript" src="images/javascript.png">
-        <img class="php" src="images/php.png">
-      </div>
-    </div>
-
-    <div class="myProjects">
-      <h1><u>My Projects</u></h1>
-      <div class="project-row">
-        <a href="https://github.com/janeset/text-editor">
-            <img class="c" src="images/txteditor.png">
-        </a>
-        <h3>Text Editor using WPF</h3>
-        <p>Created a Text Editor using Windows Presentation Foundation, C# and .NET framerwork </p>
-      </div>
-      <div class="project-row">
-        <a href="https://github.com/janeset/hilo-game-asp-classic">
-            <img class="c" src="images/game-console.png">
-        </a>
-        <h3>Hi-Lo Game website.</h3>
-        <p>The player will set a max number , and will have to guess a number
-           between 1 and the max number.</p>
-           <p>Each time they guess, the program will tell them whether the guess is too high,
-              too low, or correct.</p>
-      </div>
-
-      <div class="project-row">
-        <a href="https://github.com/janeset/zoo-website-cgi-php">
-            <img class="tigerpic" src="images/tiger.png">
-        </a>
-        <h3>Zoo Website</h3>
-        <p>This was a team work project, with my colleague Hongsik Eom.</p>
-        <p>The website was developed using CGI and PHP as the webserver technology</p>
-      </div>
-
-      <div class="project-row">
-        <a href="https://github.com/janeset/tile-puzzle-game-uwp">
-            <img class="c" src="images/puzzle.png">
-        </a>
-        <h3>Puzzle Game using UWP.</h3>
-        <p>The puzzle is played by sliding the tiles horizontally or vertically, one at a time, </p>
-        <p>to the empty spot. The objective is to end up with the tiles in numerical order.</p>
-        <p>This was also a team work project, with my colleague Hongsik Eom.</p>
-      </div>
-    </div>
-
-  </div>
-
-
-  <div class="bottom-container">
-    <div class="contact-me">
-      <h2>Get In Touch</h2>
-      <p>Im open to new projects, feel free to contact me anytime.</p>
-      <p>Currently Im in the search of a coop oportunity for Summer 2021</p>
-      <a href="https://github.com/janeset">
-          <img class="contact-icon c" src="images/github-logo.png">
+  <!-- Nav -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <a href="#top" class="logo">
+        <span class="logo-orb" aria-hidden="true"></span>
+        <span>nebul<span class="gradient">ai</span><span class="muted">.dev</span></span>
       </a>
-      <a href="https://www.linkedin.com/in/janethsantos/">
-          <img class="contact-icon c" src="images/linkedin.png">
-      </a>
-      <a href="mailto:jsantos6353@conestogac.on.ca">
-          <img class="contact-icon c" src="images/email.png">
-      </a>
-
+      <nav aria-label="Primary">
+        <ul class="nav-links mono">
+          <li><a href="#about">about</a></li>
+          <li><a href="#skills">stack</a></li>
+          <li><a href="#projects">missions</a></li>
+          <li><a href="#contact">contact</a></li>
+        </ul>
+      </nav>
     </div>
+  </header>
 
-    <p>© 2021 Jane S.</p>
-  </div>
+  <main id="main">
 
+    <!-- Hero -->
+    <section class="hero" id="top">
+      <div class="container hero-grid">
+        <div class="hero-text">
+          <p class="eyebrow mono"><span class="dot"></span> signal online · open to opportunities</p>
+          <h1>Hi, I'm <span class="gradient">Jane</span>.<br>I write code that reaches for the stars.</h1>
+          <p class="hero-sub">Software developer exploring the space where <strong>code</strong>, <strong>cloud</strong> and <strong>AI</strong> meet — building apps that are clean, reliable and a little bit out of this world.</p>
+          <div class="hero-cta">
+            <a class="btn btn-primary" href="#projects">Explore missions <span aria-hidden="true">🚀</span></a>
+            <a class="btn btn-ghost" href="#contact">Open a channel</a>
+          </div>
+          <ul class="socials" aria-label="Social links">
+            <li><a href="https://github.com/janeset" aria-label="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.1c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5z"/></svg></a></li>
+            <li><a href="https://www.linkedin.com/in/janeset/" aria-label="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg></a></li>
+            <li><a href="mailto:js@nebulai.dev" aria-label="Email"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v.5l8 5 8-5V6H4zm16 2.85-8 5-8-5V18h16V8.85z"/></svg></a></li>
+          </ul>
+        </div>
 
-  </body>
+        <!-- Space scene: moon, orbits, astronaut -->
+        <div class="scene" aria-hidden="true">
+          <div class="orbit orbit-1"><span class="satellite">☁️</span></div>
+          <div class="orbit orbit-2"><span class="satellite mono">&lt;/&gt;</span></div>
+          <div class="orbit orbit-3"><span class="satellite">✦</span></div>
+          <div class="moon">
+            <span class="crater c1"></span><span class="crater c2"></span><span class="crater c3"></span><span class="crater c4"></span>
+          </div>
+
+          <svg class="astronaut" viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg">
+            <path class="tether" d="M28 92 C -10 110, -20 150, -60 170" fill="none" stroke-width="2" stroke-dasharray="4 5"/>
+            <!-- backpack -->
+            <rect x="30" y="52" width="60" height="50" rx="12" fill="#c9cfe6"/>
+            <!-- legs -->
+            <rect x="40" y="96" width="16" height="30" rx="8" fill="#eef1fb"/>
+            <rect x="64" y="96" width="16" height="30" rx="8" fill="#eef1fb"/>
+            <rect x="38" y="118" width="20" height="10" rx="5" fill="#8b93b8"/>
+            <rect x="62" y="118" width="20" height="10" rx="5" fill="#8b93b8"/>
+            <!-- body -->
+            <rect x="36" y="56" width="48" height="50" rx="16" fill="#f5f7ff"/>
+            <rect x="48" y="70" width="24" height="16" rx="4" fill="#2a2f55"/>
+            <circle cx="54" cy="78" r="2.5" fill="#5eead4"/>
+            <circle cx="62" cy="78" r="2.5" fill="#f472b6"/>
+            <circle cx="68" cy="78" r="1.6" fill="#a78bfa"/>
+            <!-- arms -->
+            <rect x="18" y="60" width="22" height="13" rx="6.5" fill="#eef1fb" transform="rotate(-30 29 66)"/>
+            <rect x="80" y="58" width="24" height="13" rx="6.5" fill="#eef1fb" transform="rotate(-50 92 64)"/>
+            <circle cx="102" cy="46" r="7" fill="#8b93b8"/>
+            <!-- helmet -->
+            <circle cx="60" cy="36" r="30" fill="#f5f7ff"/>
+            <rect x="36" y="22" width="48" height="30" rx="15" fill="url(#visor)"/>
+            <path d="M44 30 q6 -6 14 -5" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".7"/>
+            <defs>
+              <linearGradient id="visor" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#312e81"/>
+                <stop offset=".55" stop-color="#7c3aed"/>
+                <stop offset="1" stop-color="#ec4899"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+
+      <a class="scroll-hint mono" href="#about" aria-label="Scroll to about">
+        <span>scroll to launch</span>
+        <span class="chev" aria-hidden="true">↓</span>
+      </a>
+    </section>
+
+    <!-- About -->
+    <section class="section" id="about">
+      <div class="container about-grid">
+        <div>
+          <div class="about-head">
+            <div class="avatar-ring">
+              <img class="avatar" src="https://github.com/janeset.png?size=240" alt="Photo of Jane">
+            </div>
+            <div>
+              <p class="kicker mono">// 01 · mission control</p>
+              <h2 class="section-title">About me</h2>
+            </div>
+          </div>
+          <p>Hey there! I'm Jane. I studied <strong>Software Engineering Technology at Conestoga College</strong>, launching with C and climbing through C++, C#, databases and the web.</p>
+          <p>These days I'm drawn to the bigger universe of software: <strong>cloud platforms</strong> that scale, <strong>AI</strong> that makes tools smarter, and code that's a pleasure to read. When I'm not building, I'm probably looking at the moon. 🌙</p>
+        </div>
+
+        <div class="terminal card">
+          <div class="window-bar">
+            <span></span><span></span><span></span>
+            <p class="mono">~/nebulai — zsh</p>
+          </div>
+<pre class="code mono"><span class="prompt">jane@nebulai</span> <span class="muted">~</span> $ whoami
+Jane Santos · Software Developer
+
+<span class="prompt">jane@nebulai</span> <span class="muted">~</span> $ cat interests.txt
+<span class="s">→ code</span>   clean, tested, readable
+<span class="s">→ cloud</span>  deploy it, scale it
+<span class="s">→ ai</span>     make it smarter
+<span class="s">→ space</span>  🌙 🚀 👩‍🚀 🐧
+
+<span class="prompt">jane@nebulai</span> <span class="muted">~</span> $ status
+<span class="ok">● online</span> — open to roles &amp; projects<span class="cursor"></span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills -->
+    <section class="section" id="skills">
+      <div class="container">
+        <p class="kicker mono">// 02 · the toolkit</p>
+        <h2 class="section-title">Tech constellation</h2>
+        <div class="skills-grid">
+          <article class="card skill-card">
+            <div class="skill-icon" aria-hidden="true">&lt;/&gt;</div>
+            <h3>Code</h3>
+            <ul class="chips">
+              <li><img src="images/c.png" alt="">C</li>
+              <li><img src="images/cpp.png" alt="">C++</li>
+              <li><img src="images/csharp.png" alt="">C#</li>
+              <li><img src="images/javascript.png" alt="">JavaScript</li>
+              <li><img src="images/php.png" alt="">PHP</li>
+              <li><img src="images/html.png" alt="">HTML</li>
+              <li><img src="images/css.png" alt="">CSS</li>
+            </ul>
+          </article>
+          <article class="card skill-card">
+            <div class="skill-icon" aria-hidden="true">☁</div>
+            <h3>Cloud &amp; Data</h3>
+            <ul class="chips">
+              <li><img src="images/mysql.png" alt="">MySQL</li>
+              <li>.NET</li>
+              <li>Git &amp; GitHub</li>
+              <li>GitHub Pages</li>
+              <li>WPF · UWP</li>
+            </ul>
+          </article>
+          <article class="card skill-card">
+            <div class="skill-icon" aria-hidden="true">✦</div>
+            <h3>AI &amp; Exploring</h3>
+            <ul class="chips">
+              <li>LLMs &amp; prompting</li>
+              <li>AI-assisted dev</li>
+              <li>Cloud deployment</li>
+              <li>APIs</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Projects -->
+    <section class="section" id="projects">
+      <div class="container">
+        <p class="kicker mono">// 03 · mission log</p>
+        <h2 class="section-title">Missions launched</h2>
+        <div class="projects-grid">
+
+          <article class="project card">
+            <div class="project-head">
+              <img src="images/txteditor.png" alt="">
+              <span class="mission-id mono">MSN-001</span>
+              <a class="repo-link" href="https://github.com/janeset/text-editor" aria-label="Text Editor on GitHub">↗</a>
+            </div>
+            <h3>Text Editor</h3>
+            <p>A desktop text editor built with Windows Presentation Foundation on the .NET framework — open, edit and save files with a familiar UI.</p>
+            <ul class="tags mono"><li>C#</li><li>WPF</li><li>.NET</li></ul>
+          </article>
+
+          <article class="project card">
+            <div class="project-head">
+              <img src="images/puzzle.png" alt="">
+              <span class="mission-id mono">MSN-002</span>
+              <a class="repo-link" href="https://github.com/janeset/tile-puzzle-game-uwp" aria-label="Tile Puzzle on GitHub">↗</a>
+            </div>
+            <h3>Tile Puzzle Game</h3>
+            <p>Classic sliding-tile puzzle: move tiles into the empty spot until they're back in numerical order. Built as a team with Hongsik Eom.</p>
+            <ul class="tags mono"><li>C#</li><li>UWP</li><li>Team</li></ul>
+          </article>
+
+          <article class="project card">
+            <div class="project-head">
+              <img src="images/tiger.png" alt="">
+              <span class="mission-id mono">MSN-003</span>
+              <a class="repo-link" href="https://github.com/janeset/zoo-website-cgi-php" aria-label="Zoo Website on GitHub">↗</a>
+            </div>
+            <h3>Zoo Website</h3>
+            <p>A multi-page zoo site with server-side rendering using CGI and PHP. Team project with Hongsik Eom.</p>
+            <ul class="tags mono"><li>PHP</li><li>CGI</li><li>HTML/CSS</li></ul>
+          </article>
+
+          <article class="project card">
+            <div class="project-head">
+              <img src="images/game-console.png" alt="">
+              <span class="mission-id mono">MSN-004</span>
+              <a class="repo-link" href="https://github.com/janeset/hilo-game-asp-classic" aria-label="Hi-Lo Game on GitHub">↗</a>
+            </div>
+            <h3>Hi-Lo Game</h3>
+            <p>A number-guessing web game: pick a max, then guess — the server tells you if you're too high, too low, or spot on.</p>
+            <ul class="tags mono"><li>ASP Classic</li><li>VBScript</li><li>Web</li></ul>
+          </article>
+
+        </div>
+        <p class="more"><a href="https://github.com/janeset" class="link-arrow">View the full star map on GitHub →</a></p>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="section" id="contact">
+      <div class="container">
+        <div class="contact card">
+          <div class="contact-moon" aria-hidden="true"></div>
+          <p class="kicker mono">// 04 · open channel</p>
+          <h2 class="section-title">Houston, let's talk.</h2>
+          <p>I'm open to new roles, freelance projects and collaborations — especially anything touching cloud or AI. Send a transmission and I'll get back to you faster than light (well, almost).</p>
+          <a class="btn btn-primary" href="mailto:js@nebulai.dev">Send a transmission <span aria-hidden="true">📡</span></a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p class="mono">© <span id="year">2026</span> Jane Santos · nebulai.dev</p>
+      <p class="mono muted">Crafted with code, launched on GitHub Pages 🚀</p>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Starfield with twinkle + occasional shooting star
+    (function () {
+      var canvas = document.getElementById('stars');
+      var ctx = canvas.getContext('2d');
+      var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var stars = [], shooting = null, w, h, dpr;
+
+      function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        w = canvas.width = innerWidth * dpr;
+        h = canvas.height = innerHeight * dpr;
+        canvas.style.width = innerWidth + 'px';
+        canvas.style.height = innerHeight + 'px';
+        var count = Math.round((innerWidth * innerHeight) / 4500);
+        stars = [];
+        for (var i = 0; i < count; i++) {
+          stars.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            r: (Math.random() * 1.2 + 0.2) * dpr,
+            a: Math.random(),
+            s: Math.random() * 0.015 + 0.003,
+            hue: Math.random() < 0.15 ? (Math.random() < 0.5 ? 270 : 190) : 0
+          });
+        }
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+        for (var i = 0; i < stars.length; i++) {
+          var st = stars[i];
+          if (!reduce) { st.a += st.s; }
+          var alpha = 0.35 + Math.abs(Math.sin(st.a)) * 0.65;
+          ctx.beginPath();
+          ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+          ctx.fillStyle = st.hue ? 'hsla(' + st.hue + ',90%,80%,' + alpha + ')' : 'rgba(255,255,255,' + alpha + ')';
+          ctx.fill();
+        }
+        if (!reduce) {
+          if (!shooting && Math.random() < 0.004) {
+            shooting = { x: Math.random() * w * 0.7, y: Math.random() * h * 0.4, vx: 9 * dpr, vy: 4 * dpr, life: 1 };
+          }
+          if (shooting) {
+            var g = ctx.createLinearGradient(shooting.x, shooting.y, shooting.x - shooting.vx * 12, shooting.y - shooting.vy * 12);
+            g.addColorStop(0, 'rgba(255,255,255,' + shooting.life + ')');
+            g.addColorStop(1, 'rgba(167,139,250,0)');
+            ctx.strokeStyle = g;
+            ctx.lineWidth = 2 * dpr;
+            ctx.beginPath();
+            ctx.moveTo(shooting.x, shooting.y);
+            ctx.lineTo(shooting.x - shooting.vx * 12, shooting.y - shooting.vy * 12);
+            ctx.stroke();
+            shooting.x += shooting.vx; shooting.y += shooting.vy; shooting.life -= 0.015;
+            if (shooting.life <= 0 || shooting.x > w || shooting.y > h) shooting = null;
+          }
+          requestAnimationFrame(draw);
+        }
+      }
+
+      addEventListener('resize', function () { resize(); if (reduce) draw(); });
+      resize();
+      draw();
+    })();
+
+    // Fade sections in as they scroll into view
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.12 });
+      document.querySelectorAll('.section').forEach(function (s) {
+        s.classList.add('reveal');
+        io.observe(s);
+      });
+    }
+  </script>
+</body>
 </html>
