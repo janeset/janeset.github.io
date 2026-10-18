@@ -196,8 +196,8 @@ em { font-style: italic; }
 .horizon img {
   width: 100%;
   height: 100%;
-  transform: scale(1.2); /* crop the image's baked-in coloured rim */
-  filter: grayscale(1) brightness(.95) contrast(1.2);
+  transform: scale(1.045); /* trim the thin black border around the disc */
+  filter: grayscale(1) contrast(1.1);
 }
 .horizon::after {
   /* sunlight grazing the top edge, night falling below */
