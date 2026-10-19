@@ -5,131 +5,196 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>nebulai.dev — Jane Santos</title>
   <meta name="description" content="Jane Santos — software developer working where code, cloud and AI meet.">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#111b31">
   <link rel="icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="CSS/styles.css">
+  <script>
+    // The launch intro plays once per visit (per browser session). Decided before first paint so it never flashes.
+    (function () {
+      var seen = false;
+      try { seen = sessionStorage.getItem('nebulaiIntro') === 'seen'; } catch (e) {}
+      if (!seen) document.documentElement.classList.add('intro-on');
+    })();
+  </script>
 </head>
 <body>
 
   <a class="skip-link" href="#main">Skip to content</a>
   <canvas id="stars" aria-hidden="true"></canvas>
 
-  <!-- Gradient map that tints the black and white Earth: dark oceans to deep blue,
-       land to muted olive and tan, clouds stay white -->
+  <!-- Illustrations are woodblock-style prints (moon, Earth, astronaut in images/); the SVG below
+       draws only the mist bands and the brand mark -->
   <svg class="svg-defs" width="0" height="0" aria-hidden="true">
-    <filter id="earth-tone" color-interpolation-filters="sRGB">
-      <feComponentTransfer>
-        <feFuncR type="table" tableValues="0 .04 .10 .26 .42 .56 .66 .76 .86 .94 1"/>
-        <feFuncG type="table" tableValues="0 .11 .20 .30 .42 .53 .66 .77 .87 .95 1"/>
-        <feFuncB type="table" tableValues="0 .26 .36 .30 .33 .43 .62 .76 .88 .97 1"/>
-      </feComponentTransfer>
-    </filter>
+    <linearGradient id="kasumi-fill" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#f4e9cf"/>
+      <stop offset=".7" stop-color="#f1e2c4"/>
+      <stop offset="1" stop-color="#e8c3a6"/>
+    </linearGradient>
+    <!-- Mist bands (kasumi) drifting across the sky -->
+    <symbol id="kasumi" viewBox="0 0 600 116">
+      <g fill="url(#kasumi-fill)" stroke="#1b1a20" stroke-width="2.2">
+        <rect x="2" y="6" width="430" height="44" rx="22" vector-effect="non-scaling-stroke"/>
+        <rect x="140" y="66" width="456" height="44" rx="22" vector-effect="non-scaling-stroke"/>
+      </g>
+    </symbol>
+    <!-- Brand mark: a planet with a tilted orbit -->
+    <symbol id="mark" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="7.5" fill="none" stroke="currentColor" stroke-width="2.2"/>
+      <ellipse cx="16" cy="16" rx="14" ry="5.2" fill="none" stroke="currentColor" stroke-width="1.6" transform="rotate(-24 16 16)"/>
+      <circle cx="27.2" cy="10.6" r="1.8" fill="currentColor"/>
+    </symbol>
   </svg>
 
-  <!-- Nav -->
+  <!-- Launch intro: mission clock, then the clouds part. The gate doubles as the sound choice,
+       because browsers only allow audio after a click. -->
+  <div class="intro" role="dialog" aria-modal="true" aria-labelledby="intro-q" data-stage="0">
+    <div class="intro-sky"></div>
+    <div class="intro-moon"><img src="images/moon-ukiyoe.webp" alt="" width="1254" height="1254"></div>
+    <svg class="kasumi intro-kasumi" viewBox="0 0 600 116"><use href="#kasumi"/></svg>
+    <div class="intro-marquee" aria-hidden="true">
+      <div class="marquee-track"><span>Code beyond the atmosphere&nbsp;✦&nbsp;</span><span>Code beyond the atmosphere&nbsp;✦&nbsp;</span></div>
+    </div>
+    <img class="intro-astro" src="images/astronaut-ukiyoe.webp" alt="" width="1086" height="1448">
+    <div class="clouds intro-clouds" aria-hidden="true">
+      <svg data-clouds="11" data-side="left" data-fill="#3c5f92" data-rim="#1b1a20" data-base="178"></svg>
+      <svg data-clouds="12" data-side="right" data-fill="#3c5f92" data-rim="#1b1a20" data-base="170"></svg>
+      <svg data-clouds="13" data-side="left" data-fill="#7f9ec2" data-rim="#1b1a20" data-base="215"></svg>
+      <svg data-clouds="14" data-side="right" data-fill="#7f9ec2" data-rim="#1b1a20" data-base="200"></svg>
+      <svg data-clouds="15" data-side="left" data-fill="#efe3c6" data-rim="#1b1a20" data-base="265"></svg>
+      <svg data-clouds="16" data-side="right" data-fill="#efe3c6" data-rim="#1b1a20" data-base="255"></svg>
+    </div>
+    <p class="intro-clock" aria-hidden="true">T–00:03.00</p>
+    <p class="intro-mark" aria-hidden="true"><svg><use href="#mark"/></svg>Nebulai<span class="seal" lang="ja">星雲</span></p>
+    <div class="intro-gate">
+      <p class="intro-q" id="intro-q">Ready for launch?</p>
+      <div class="gate-btns">
+        <button class="hud-btn hud-btn-solid" type="button" data-launch="sound">Launch with sound</button>
+        <button class="hud-btn" type="button" data-launch="quiet">Launch quietly</button>
+      </div>
+    </div>
+    <button class="intro-skip" type="button">Skip</button>
+  </div>
+
+  <!-- Corner UI, pinned like a cockpit -->
   <header class="nav">
-    <a href="#top" class="wordmark">Nebulai<span>.dev</span></a>
-    <nav aria-label="Primary">
-      <ul class="nav-links">
-        <li><a href="#about">About</a></li>
-        <li><a href="#stack">Stack</a></li>
-        <li><a href="#work">Work</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
-    </nav>
+    <p class="nav-tag">Jane Santos<br>Software developer</p>
+    <a href="#top" class="wordmark" aria-label="Nebulai.dev, back to top"><svg aria-hidden="true"><use href="#mark"/></svg>Nebulai<span class="seal" aria-hidden="true" lang="ja">星雲</span></a>
+    <a class="nav-cta" href="#contact">Get in touch</a>
   </header>
+
+  <nav class="hud-nav" aria-label="Primary">
+    <ul>
+      <li><a href="#about">About</a></li>
+      <li><a href="#stack">Stack</a></li>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <a class="hud-btn corner-link" href="https://github.com/janeset">GitHub ↗</a>
 
   <main id="main">
 
-    <!-- Hero: headline over a rising lunar horizon -->
+    <!-- Hero: giant title over a rising moon and sunlit cloud banks -->
     <section class="hero" id="top">
+      <div class="hero-moon" aria-hidden="true"><img src="images/moon-ukiyoe.webp" alt="" width="1254" height="1254"></div>
+      <svg class="kasumi hero-kasumi" viewBox="0 0 600 116" aria-hidden="true"><use href="#kasumi"/></svg>
+      <!-- Title slip, as on a print: "beyond the stars" -->
+      <p class="cartouche" aria-hidden="true" lang="ja">星の彼方へ</p>
+      <div class="clouds hero-clouds-back" aria-hidden="true">
+        <svg data-clouds="1" data-fill="#2f4d7e" data-rim="#1b1a20" data-base="150"></svg>
+      </div>
+
       <div class="hero-content">
-        <p class="label">Jane Santos — Software Developer</p>
-        <h1>Code beyond<br><em>the atmosphere.</em></h1>
-        <p class="caps">Building clean, reliable software where code, cloud and AI meet.</p>
+        <p class="hero-chips"><span>Software developer</span><span>Ontario, Canada</span></p>
+        <h1 class="mega" aria-label="Jane Santos. Code beyond the atmosphere.">
+          <span class="mega-line" aria-hidden="true">Code beyond</span>
+          <span class="mega-sub" aria-hidden="true">the atmosphere</span>
+        </h1>
+        <p class="caps">Jane Santos — building clean, reliable software where code, cloud and AI meet.</p>
         <div class="hero-cta">
-          <a class="pill pill-solid" href="#work">View work</a>
-          <a class="pill" href="#contact">Get in touch</a>
+          <a class="hud-btn hud-btn-solid" href="#work">View work</a>
+          <a class="hud-btn" href="#contact">Get in touch</a>
         </div>
       </div>
 
-      <div class="horizon" aria-hidden="true"><img src="images/moon.jpg" alt="" width="2560" height="2560"></div>
+      <div class="clouds hero-clouds-mid" aria-hidden="true">
+        <svg data-clouds="2" data-fill="#6d8db4" data-rim="#1b1a20" data-base="190"></svg>
+      </div>
+      <div class="clouds hero-clouds-front" aria-hidden="true">
+        <svg data-clouds="3" data-fill="#efe3c6" data-rim="#1b1a20" data-base="250"></svg>
+      </div>
 
       <a class="scroll-cue" href="#intro" aria-label="Scroll down">
-        <span class="label">Scroll down</span>
-        <span class="cue-ring"><span></span></span>
+        <span>Scroll</span>
+        <i aria-hidden="true"></i>
       </a>
     </section>
 
     <!-- Statement -->
     <section class="statement" id="intro">
       <p class="label" data-reveal>nebulai.dev</p>
-      <h2 class="display" data-reveal style="--d:.1s">Engineered for<br><em>what's next.</em></h2>
-      <p class="caps" data-reveal style="--d:.2s">From desktop apps in C# to the web and the cloud, I build software that's readable, dependable and ready for new frontiers like AI.</p>
+      <h2 class="statement-title" data-words>Engineered for <em>what's next.</em></h2>
+      <p class="caps" data-reveal style="--d:.5s">From desktop apps in C# to the web and the cloud, I build software that's readable, dependable and ready for new frontiers like AI.</p>
     </section>
 
-    <!-- About -->
+    <!-- About: bio panel, astronaut with callouts, spec panel -->
     <section class="about" id="about">
-      <div class="container about-grid">
-        <div class="about-text">
-          <p class="label" data-reveal>01 — About</p>
-          <h2 class="title" data-reveal style="--d:.1s">Hey, I'm Jane.</h2>
-
-          <div class="id-card" data-reveal style="--d:.15s">
-            <img class="avatar" src="https://github.com/janeset.png?size=160" alt="Photo of Jane" width="56" height="56">
+      <div class="container about-stage">
+        <article class="hud-panel about-bio" data-reveal="left">
+          <p class="hud-tab">01 — About</p>
+          <h2 class="title">Hey, I'm Jane.</h2>
+          <div class="id-card">
+            <img class="avatar" src="https://github.com/janeset.png?size=160" alt="Photo of Jane" width="52" height="52">
             <div>
               <p class="id-name">Jane Santos</p>
-              <p class="label">Software developer<br>Ontario, Canada</p>
+              <p class="label">Software developer · Ontario, Canada</p>
             </div>
           </div>
-
-          <p data-reveal style="--d:.2s">I studied Software Engineering Technology at Conestoga College, starting with C and working my way through C++, C#, databases and the web.</p>
-          <p data-reveal style="--d:.25s">Today I'm drawn to the bigger universe of software: cloud platforms that scale, AI that makes tools smarter, and code that's a pleasure to read. When I'm not building, I'm probably looking at the moon.</p>
-
-          <dl class="specs" data-reveal style="--d:.3s">
-            <div><dt>Focus</dt><dd>Code · Cloud · AI</dd></div>
-            <div><dt>Education</dt><dd>Software Eng. Technology, Conestoga</dd></div>
-            <div><dt>Status</dt><dd>Open to new missions</dd></div>
-          </dl>
-        </div>
+          <p>I studied Software Engineering Technology at Conestoga College, starting with C and working my way through C++, C#, databases and the web.</p>
+          <p>Today I'm drawn to the bigger universe of software: cloud platforms that scale, AI that makes tools smarter, and code that's a pleasure to read. When I'm not building, I'm probably looking at the moon.</p>
+        </article>
 
         <figure class="suit" aria-hidden="true" data-reveal>
-          <!-- Farthest layer: Earth, effectively at infinity -->
           <div class="deep">
-            <img class="earth" src="images/earth.jpg" alt="" width="520" height="520" loading="lazy">
+            <img class="earth" src="images/earth-ukiyoe.webp" alt="" width="1254" height="1254" loading="lazy">
           </div>
-
-          <!-- ~100 m behind the astronaut: the ship the tether runs to -->
-          <div class="far">
-            <img class="ship" src="images/ship.jpg" alt="" width="900" height="507" loading="lazy">
-          </div>
-
-          <!-- Tether from the astronaut's hip to the ship's rear hatch, drawn by the script below -->
-          <div class="tether"><canvas></canvas><canvas></canvas><canvas></canvas><canvas></canvas></div>
-
           <div class="suit-float">
-            <img class="astro" src="images/astronaut.webp" alt="" width="1086" height="1448">
-            <span class="suit-light"></span>
-            <span class="anno" style="--x:54%; --y:17%;"><span class="anno-label">Visor<br><b>Tuned for curiosity</b></span></span>
-            <span class="anno" style="--x:50%; --y:34%;"><span class="anno-label">Core systems<br><b>C# · .NET · SQL · JS</b></span></span>
-            <span class="anno" style="--x:82%; --y:53%;"><span class="anno-label">Reach<br><b>Exploring cloud &amp; AI</b></span></span>
+            <img class="astro" src="images/astronaut-ukiyoe.webp" alt="" width="1086" height="1448">
+            <span class="anno anno-r" style="--x:70%; --y:20%;"><span class="anno-label">Visor<b>Tuned for curiosity</b></span></span>
+            <span class="anno anno-r" style="--x:63%; --y:40%;"><span class="anno-label">Core systems<b>C# · .NET · SQL · JS</b></span></span>
+            <span class="anno anno-l" style="--x:17%; --y:21%;"><span class="anno-label">Reach<b>Exploring cloud &amp; AI</b></span></span>
           </div>
-          <span class="dust" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
         </figure>
+
+        <aside class="hud-panel about-spec" data-reveal="right" style="--d:.15s">
+          <p class="hud-tab">Specification</p>
+          <dl class="specs">
+            <div><dt>Focus</dt><dd>Code · Cloud · AI</dd></div>
+            <div><dt>Education</dt><dd>Software Eng. Technology, Conestoga</dd></div>
+            <div><dt>Base</dt><dd>Ontario, Canada</dd></div>
+            <div><dt>Status</dt><dd><span class="status-dot" aria-hidden="true"></span>Open to new missions</dd></div>
+          </dl>
+        </aside>
+      </div>
+      <div class="clouds about-clouds" aria-hidden="true">
+        <svg data-clouds="4" data-fill="#1e2f55" data-rim="#141a2c" data-base="210"></svg>
       </div>
     </section>
 
     <!-- Stack -->
     <section class="section" id="stack">
       <div class="container">
-        <p class="label" data-reveal>02 — Stack</p>
-        <h2 class="title" data-reveal style="--d:.1s">Tools of the mission.</h2>
+        <header class="sec-head">
+          <p class="label" data-reveal>02 — Stack</p>
+          <h2 class="title" data-reveal style="--d:.1s">Tools of the mission.</h2>
+        </header>
         <div class="stack-grid">
-          <div class="stack-col" data-reveal style="--d:.1s">
-            <h3>Code</h3>
+          <div class="hud-panel stack-col" data-reveal style="--d:.1s">
+            <h3 class="hud-tab">Code</h3>
             <ul>
               <li>C#<span>.NET · WPF · UWP</span></li>
               <li>C / C++<span>Foundations</span></li>
@@ -138,8 +203,8 @@
               <li>HTML &amp; CSS<span>Interfaces</span></li>
             </ul>
           </div>
-          <div class="stack-col" data-reveal style="--d:.2s">
-            <h3>Cloud &amp; Data</h3>
+          <div class="hud-panel stack-col" data-reveal style="--d:.2s">
+            <h3 class="hud-tab">Cloud &amp; Data</h3>
             <ul>
               <li>MySQL<span>Databases</span></li>
               <li>Git &amp; GitHub<span>Version control</span></li>
@@ -147,8 +212,8 @@
               <li>Cloud deployment<span>Exploring</span></li>
             </ul>
           </div>
-          <div class="stack-col" data-reveal style="--d:.3s">
-            <h3>AI</h3>
+          <div class="hud-panel stack-col" data-reveal style="--d:.3s">
+            <h3 class="hud-tab">AI</h3>
             <ul>
               <li>LLMs &amp; prompting<span>Exploring</span></li>
               <li>AI-assisted development<span>Daily</span></li>
@@ -162,8 +227,10 @@
     <!-- Work -->
     <section class="section" id="work">
       <div class="container">
-        <p class="label" data-reveal>03 — Selected work</p>
-        <h2 class="title" data-reveal style="--d:.1s">Missions launched.</h2>
+        <header class="sec-head">
+          <p class="label" data-reveal>03 — Selected work</p>
+          <h2 class="title" data-reveal style="--d:.1s">Missions launched.</h2>
+        </header>
 
         <ol class="work">
           <li data-reveal>
@@ -175,7 +242,7 @@
               <span class="work-arrow" aria-hidden="true">→</span>
             </a>
           </li>
-          <li data-reveal>
+          <li data-reveal style="--d:.08s">
             <a class="work-row" href="https://github.com/janeset/tile-puzzle-game-uwp">
               <span class="work-num">02</span>
               <span class="work-title">Tile Puzzle</span>
@@ -184,7 +251,7 @@
               <span class="work-arrow" aria-hidden="true">→</span>
             </a>
           </li>
-          <li data-reveal>
+          <li data-reveal style="--d:.16s">
             <a class="work-row" href="https://github.com/janeset/zoo-website-cgi-php">
               <span class="work-num">03</span>
               <span class="work-title">Zoo Website</span>
@@ -193,7 +260,7 @@
               <span class="work-arrow" aria-hidden="true">→</span>
             </a>
           </li>
-          <li data-reveal>
+          <li data-reveal style="--d:.24s">
             <a class="work-row" href="https://github.com/janeset/hilo-game-asp-classic">
               <span class="work-num">04</span>
               <span class="work-title">Hi-Lo Game</span>
@@ -204,25 +271,35 @@
           </li>
         </ol>
 
-        <p class="more" data-reveal><a class="pill" href="https://github.com/janeset">All projects on GitHub</a></p>
+        <p class="more" data-reveal><a class="hud-btn" href="https://github.com/janeset">All projects on GitHub</a></p>
       </div>
     </section>
 
-    <!-- Contact: bookended by the moon -->
+    <!-- Contact: giant marquee behind, moon and clouds below -->
     <section class="contact" id="contact">
+      <div class="contact-marquee" aria-hidden="true">
+        <div class="marquee-track"><span>Nebulai.dev&nbsp;✦&nbsp;Code · Cloud · AI&nbsp;✦&nbsp;</span><span>Nebulai.dev&nbsp;✦&nbsp;Code · Cloud · AI&nbsp;✦&nbsp;</span></div>
+      </div>
       <div class="contact-inner">
         <p class="label" data-reveal>04 — Contact</p>
-        <h2 class="display" data-reveal style="--d:.1s">Let's build<br><em>what's next.</em></h2>
+        <h2 class="title contact-title" data-reveal style="--d:.1s">Let's build <em>what's next.</em></h2>
         <p class="caps" data-reveal style="--d:.2s">Open to new roles, freelance projects and collaborations, especially anything touching cloud or AI.</p>
         <div class="hero-cta" data-reveal style="--d:.3s">
-          <a class="pill pill-solid" href="mailto:js@nebulai.dev">Start a conversation</a>
+          <a class="hud-btn hud-btn-solid" href="mailto:js@nebulai.dev">Start a conversation</a>
         </div>
         <ul class="contact-links" data-reveal style="--d:.4s">
+          <li><a href="mailto:js@nebulai.dev">js@nebulai.dev</a></li>
           <li><a href="https://github.com/janeset">GitHub ↗</a></li>
           <li><a href="https://www.linkedin.com/in/janeset/">LinkedIn ↗</a></li>
         </ul>
       </div>
-      <div class="horizon horizon-end" aria-hidden="true"><img src="images/moon.jpg" alt="" width="2560" height="2560" loading="lazy"></div>
+      <div class="contact-moon" aria-hidden="true"><img src="images/moon-ukiyoe.webp" alt="" width="1254" height="1254" loading="lazy"></div>
+      <div class="clouds contact-clouds-back" aria-hidden="true">
+        <svg data-clouds="5" data-fill="#5d7fa9" data-rim="#1b1a20" data-base="170"></svg>
+      </div>
+      <div class="clouds contact-clouds-front" aria-hidden="true">
+        <svg data-clouds="6" data-fill="#efe3c6" data-rim="#1b1a20" data-base="240"></svg>
+      </div>
     </section>
 
   </main>
@@ -235,6 +312,7 @@
     </label>
     <button class="sound-toggle sound-float" type="button" aria-pressed="false" aria-label="Play background music">
       <span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span class="sound-word" aria-hidden="true">Sound</span>
     </button>
   </div>
 
@@ -247,11 +325,52 @@
     document.getElementById('year').textContent = new Date().getFullYear();
     var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Sparse, quiet starfield
+    // Cloud banks: flat, inked silhouettes made of overlapping puffs, each with a lighter sunlit rim.
+    // Seeded, so every visit draws the same sky.
+    (function () {
+      function rng(seed) {
+        return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+      }
+      var NS = 'http://www.w3.org/2000/svg';
+      function el(name, attrs) {
+        var n = document.createElementNS(NS, name);
+        for (var k in attrs) n.setAttribute(k, attrs[k]);
+        return n;
+      }
+      document.querySelectorAll('svg[data-clouds]').forEach(function (svg) {
+        var rand = rng(+svg.dataset.clouds * 7919);
+        var side = svg.dataset.side;
+        var W = side ? 1000 : 1600, H = 320, base = +svg.dataset.base;
+        svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+        svg.setAttribute('preserveAspectRatio', side === 'left' ? 'xMaxYMax slice' : side === 'right' ? 'xMinYMax slice' : 'xMidYMin slice');
+        // Split banks (the intro's) are drawn as left halves; right ones are mirrored
+        var puffs = [], inner = side ? W * .72 : Infinity;
+        for (var x = -60; x < W + 60; x += 46 + rand() * 64) {
+          var lift = side ? (1 - x / W) * 60 : Math.sin(x / W * Math.PI * 2.3 + 1) * 26;
+          var y = base - lift + (rand() - .5) * 40;
+          // Past the inner end, the bank rolls down out of frame so it ends in a rounded shoulder
+          if (x > inner) y += Math.pow((x - inner) / (W - inner), 1.6) * (H - y + 40);
+          puffs.push([side === 'right' ? W - x : x, y, 36 + rand() * 60]);
+        }
+        function bank(fill, dy) {
+          var g = el('g', { fill: fill });
+          puffs.forEach(function (p) { g.appendChild(el('circle', { cx: p[0].toFixed(1), cy: (p[1] + dy).toFixed(1), r: p[2].toFixed(1) })); });
+          // Solid body under the line through the puff centres, down to the bottom edge
+          var d = 'M' + puffs[0][0] + ' ' + (H + 200);
+          puffs.forEach(function (p) { d += 'L' + p[0].toFixed(1) + ' ' + (p[1] + dy).toFixed(1); });
+          g.appendChild(el('path', { d: d + 'L' + puffs[puffs.length - 1][0] + ' ' + (H + 200) + 'Z' }));
+          return g;
+        }
+        svg.appendChild(bank(svg.dataset.rim, -3));   // sumi outline along the top edge
+        svg.appendChild(bank(svg.dataset.fill, 0));   // body
+      });
+    })();
+
+    // Sparse starfield, faintly mint
     (function () {
       var canvas = document.getElementById('stars');
       var ctx = canvas.getContext('2d');
-      var stars = [], shooting = null, w, h, dpr;
+      var stars = [], w, h, dpr;
 
       function resize() {
         dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -259,326 +378,132 @@
         h = canvas.height = innerHeight * dpr;
         canvas.style.width = innerWidth + 'px';
         canvas.style.height = innerHeight + 'px';
-        var count = Math.round((innerWidth * innerHeight) / 9000);
+        var count = Math.round((innerWidth * innerHeight) / 11000);
         stars = [];
         for (var i = 0; i < count; i++) {
           stars.push({
-            x: Math.random() * w,
-            y: Math.random() * h,
-            r: (Math.random() * 0.8 + 0.2) * dpr,
-            a: Math.random() * Math.PI,
-            s: Math.random() * 0.006 + 0.001,
-            b: Math.random() * 0.5 + 0.2
+            x: Math.random() * w, y: Math.random() * h,
+            r: (Math.random() * 0.9 + 0.3) * dpr,
+            a: Math.random() * Math.PI, s: Math.random() * 0.01 + 0.002,
+            b: Math.random() * 0.5 + 0.25,
+            cross: Math.random() < .06
           });
         }
       }
-
       function draw() {
         ctx.clearRect(0, 0, w, h);
         for (var i = 0; i < stars.length; i++) {
           var st = stars[i];
           if (!reduce) st.a += st.s;
-          ctx.beginPath();
-          ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(235,232,225,' + (st.b * (0.55 + Math.abs(Math.sin(st.a)) * 0.45)) + ')';
-          ctx.fill();
-        }
-        if (!reduce) {
-          if (!shooting && Math.random() < 0.0015) {
-            shooting = { x: Math.random() * w * 0.6, y: Math.random() * h * 0.35, vx: 7 * dpr, vy: 2.5 * dpr, life: 1 };
-          }
-          if (shooting) {
-            var g = ctx.createLinearGradient(shooting.x, shooting.y, shooting.x - shooting.vx * 16, shooting.y - shooting.vy * 16);
-            g.addColorStop(0, 'rgba(235,232,225,' + shooting.life * 0.8 + ')');
-            g.addColorStop(1, 'rgba(235,232,225,0)');
-            ctx.strokeStyle = g;
-            ctx.lineWidth = dpr;
+          var a = st.b * (0.5 + Math.abs(Math.sin(st.a)) * 0.5);
+          ctx.fillStyle = 'rgba(246,236,210,' + a + ')';
+          if (st.cross) {
+            // A few comic four-point sparkles among the dots
+            var l = st.r * 4;
             ctx.beginPath();
-            ctx.moveTo(shooting.x, shooting.y);
-            ctx.lineTo(shooting.x - shooting.vx * 16, shooting.y - shooting.vy * 16);
-            ctx.stroke();
-            shooting.x += shooting.vx; shooting.y += shooting.vy; shooting.life -= 0.012;
-            if (shooting.life <= 0) shooting = null;
+            ctx.moveTo(st.x, st.y - l); ctx.quadraticCurveTo(st.x, st.y, st.x + l, st.y);
+            ctx.quadraticCurveTo(st.x, st.y, st.x, st.y + l); ctx.quadraticCurveTo(st.x, st.y, st.x - l, st.y);
+            ctx.quadraticCurveTo(st.x, st.y, st.x, st.y - l);
+            ctx.fill();
+          } else {
+            ctx.beginPath();
+            ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+            ctx.fill();
           }
-          requestAnimationFrame(draw);
         }
+        if (!reduce) requestAnimationFrame(draw);
       }
-
       addEventListener('resize', function () { resize(); if (reduce) draw(); });
       resize();
       draw();
     })();
 
-    // Nav background once scrolled; hero parallax (moon rises, text drifts away)
+    // Statement: split the headline into words that rise in one by one
+    document.querySelectorAll('[data-words]').forEach(function (h) {
+      var i = 0;
+      (function walk(node) {
+        Array.prototype.slice.call(node.childNodes).forEach(function (n) {
+          if (n.nodeType === 3) {
+            var frag = document.createDocumentFragment();
+            n.textContent.split(/(\s+)/).forEach(function (part) {
+              if (!part) return;
+              if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+              var outer = document.createElement('span'), inner = document.createElement('span');
+              outer.className = 'word';
+              inner.textContent = part;
+              inner.style.setProperty('--i', i++);
+              outer.appendChild(inner);
+              frag.appendChild(outer);
+            });
+            n.replaceWith(frag);
+          } else walk(n);
+        });
+      })(h);
+      h.setAttribute('data-reveal', '');
+    });
+
+    // Scroll: hero parallax (moon rises slowly, cloud banks faster, title drifts away),
+    // astronaut depth drift, and the HUD nav lighting up the section in view
     (function () {
-      var nav = document.querySelector('.nav');
-      var horizon = document.querySelector('.hero .horizon');
+      var hero = document.querySelector('.hero');
+      var moon = document.querySelector('.hero-moon');
       var content = document.querySelector('.hero-content');
+      var layers = [['.hero-clouds-back', .12], ['.hero-clouds-mid', .28], ['.hero-clouds-front', .5]].map(function (l) {
+        return [document.querySelector(l[0]), l[1]];
+      });
       var suit = document.querySelector('.suit');
-      var mx = 0, my = 0;
-      var ticking = false;
+      var mx = 0, my = 0, ticking = false;
 
       function update() {
         var y = scrollY;
-        nav.classList.toggle('scrolled', y > 40);
-        if (!reduce && y < innerHeight * 1.2) {
-          horizon.style.setProperty('--rise', (-y * 0.3) + 'px');
-          content.style.opacity = Math.max(0, 1 - y / (innerHeight * 0.55));
-          content.style.transform = 'translateY(' + (y * 0.25) + 'px)';
+        if (!reduce && y < innerHeight * 1.3) {
+          hero.style.setProperty('--rise', (-y * .18) + 'px');
+          layers.forEach(function (l) { l[0].style.transform = 'translateY(' + (-y * l[1]) + 'px)'; });
+          content.style.opacity = Math.max(0, 1 - y / (innerHeight * .6));
+          content.style.transform = 'translateY(' + (y * .22) + 'px)';
         }
         if (!reduce) {
-          // Astronaut drifts at its own depth: slower than the page, nudged by the pointer
           var r = suit.getBoundingClientRect();
           var offset = r.top + r.height / 2 - innerHeight / 2;
           suit.style.setProperty('--px', mx + 'px');
-          suit.style.setProperty('--py', (-offset * 0.14 + my) + 'px');
+          suit.style.setProperty('--py', (-offset * .1 + my) + 'px');
         }
         ticking = false;
       }
-      function requestUpdate() {
-        if (!ticking) { requestAnimationFrame(update); ticking = true; }
-      }
+      function requestUpdate() { if (!ticking) { requestAnimationFrame(update); ticking = true; } }
       addEventListener('scroll', requestUpdate, { passive: true });
       addEventListener('resize', requestUpdate);
       if (matchMedia('(pointer: fine)').matches) {
         addEventListener('pointermove', function (e) {
-          mx = (e.clientX / innerWidth - 0.5) * -18;
-          my = (e.clientY / innerHeight - 0.5) * -14;
+          mx = (e.clientX / innerWidth - .5) * -16;
+          my = (e.clientY / innerHeight - .5) * -12;
           requestUpdate();
         }, { passive: true });
       }
       update();
-    })();
 
-    // Tether: a 3D model of a 1.5 cm braided cable from the astronaut's hip (5 m from the camera) to
-    // the ship's rear hatch (~105 m), projected through a pinhole camera. It is redrawn every frame from
-    // the live positions of both ends, so float, tumble and parallax all keep it attached.
-    (function () {
-      var wrap = document.querySelector('.tether');
-      if (!wrap) return;
-      var suit = document.querySelector('.suit');
-      var floater = document.querySelector('.suit-float');
-      var astro = document.querySelector('.suit .astro');
-      var far = document.querySelector('.far');
-      var canvases = wrap.querySelectorAll('canvas');
-      var ctxs = Array.prototype.map.call(canvases, function (c) { return c.getContext('2d'); });
-
-      var Z0 = 5, Z1 = 105;              // depth of the hip and the hatch, m
-      var LEN = 104;                     // cable length, m (~4% slack over the ~100 m gap)
-      var DIA = 0.015;                   // cable diameter, m
-      var SHADOW_END = 0.85;             // first stretch sits in the astronaut's shadow, m
-      var BUCKETS = [2, 6, 12, Infinity]; // depth-of-field buckets (canvas 1-4), by metres along the cable
-      // Slack, authored as it should look from the camera: [fraction of the way across the screen,
-      // x px, y px off the straight sight line, for the 400 px figure]. Each point is lifted back into
-      // 3D at its own depth, so foreshortening can't fold the curve into a kink. Lazy curves sit near
-      // the astronaut (behind the glove, then out and back), the far part runs straight. No gravity in
-      // orbit, so no sag; the tightest 3D bend is ~1.5 m, far above the cable's ~20 cm limit.
-      var SHAPE = [[0, 0, 0], [.11, 23.3, 18.9], [.25, 45.3, 76.3], [.38, 64, 65.6], [.52, 56.9, 31],
-                   [.64, 27.4, 7.1], [.75, 10.7, 1], [.87, 2.3, 1], [1, 0, 0]];
-      var GLINTS = [19, 31, 47, 66, 88]; // where the far hairline now and then catches the sun, m
-      var SUN = norm([-.55, -.62, -.56]);  // toward the sun: upper left, camera side
-      var EARTH = norm([.45, -.45, .77]);  // toward Earth: upper right, behind the astronaut
-      var IVORY = [228, 223, 212];         // matches the sunlit suit fabric
-      var EARTHSHINE = [120, 150, 205];
-      var BANDS = [-.75, -.25, .25, .75];  // across the cylinder, -1..1
-
-      // Sample points packed toward the astronaut, where most of the on-screen length is
-      var U = [];
-      for (var i = 0; i <= 80; i++) U.push(LEN * (Math.exp(5 * i / 80) - 1) / (Math.exp(5) - 1));
-
-      function norm(v) { var l = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / l, v[1] / l, v[2] / l]; }
-      function dot(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
-      function cross(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
-      function rgb(c) { return 'rgb(' + Math.round(c[0]) + ',' + Math.round(c[1]) + ',' + Math.round(c[2]) + ')'; }
-      // How much of the cable at u metres a blur bucket draws. Across each seam the blurrier bucket
-      // fades in before it and the sharper one fades out after it, so one is always fully opaque:
-      // no gap and no doubled-up blob where the two meet.
-      function bucketShare(b, u) {
-        var lo = b ? BUCKETS[b - 1] : -Infinity, hi = BUCKETS[b];
-        var fadeIn = b ? Math.min(1, Math.max(0, (u - lo * .7) / (lo * .3))) : 1;
-        var fadeOut = hi === Infinity ? 1 : Math.min(1, Math.max(0, 1 - (u - hi) / (hi * .3)));
-        return Math.min(fadeIn, fadeOut);
-      }
-
-      // Smooth (Catmull-Rom style) interpolation of the slack shape
-      function shapeSlope(k, j) {
-        if (k === 0 || k === SHAPE.length - 1) return 0;
-        return (SHAPE[k + 1][j] - SHAPE[k - 1][j]) / (SHAPE[k + 1][0] - SHAPE[k - 1][0]);
-      }
-      function deviation(s) {
-        var k = 1;
-        while (k < SHAPE.length - 1 && SHAPE[k][0] < s) k++;
-        var a = SHAPE[k - 1], b = SHAPE[k], h = b[0] - a[0], q = (s - a[0]) / h, q2 = q * q, q3 = q2 * q;
-        return [1, 2].map(function (j) {
-          return (2 * q3 - 3 * q2 + 1) * a[j] + (q3 - 2 * q2 + q) * h * shapeSlope(k - 1, j) +
-                 (3 * q2 - 2 * q3) * b[j] + (q3 - q2) * h * shapeSlope(k, j);
-        });
-      }
-      // Slow transverse waves running from the astronaut toward the ship, dying out with distance
-      function wave(u, t) {
-        var env = .09 * (1 - Math.exp(-u * u / .36)) * Math.exp(-u / 7);
-        var a = Math.sin(2 * Math.PI * (u / 7 - t / 16));
-        var b = Math.sin(2 * Math.PI * (u / 11 - t / 13) + 1.3);
-        return [env * (.8 * a - .35 * b), env * (.6 * a + .55 * b)];
-      }
-      // A point on the cable u metres from the hip, in camera space (m). A straight line from hip to
-      // hatch projects at screen fraction k * Z1 / Z, which is where the slack shape is looked up.
-      function pointAt(u, t, A, B) {
-        var k = u / LEN, Z = A[2] + k * (B[2] - A[2]), d = deviation(k * B[2] / Z), w = wave(u, t);
-        return [A[0] + k * (B[0] - A[0]) + d[0] * Z / 1250 + w[0], A[1] + k * (B[1] - A[1]) + d[1] * Z / 1250 + w[1], Z];
-      }
-
-      // Live end points, in the figure's own pixels
-      function matrixOf(el) {
-        var t = getComputedStyle(el).transform;
-        if (!t || t === 'none') return [1, 0, 0, 1, 0, 0];
-        var v = t.slice(t.indexOf('(') + 1).match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi).map(Number);
-        return v.length === 6 ? v : [v[0], v[1], v[4], v[5], v[12], v[13]];
-      }
-      function translateOf(el) {
-        var t = getComputedStyle(el).translate;
-        if (!t || t === 'none') return [0, 0];
-        var v = t.split(' ').map(parseFloat);
-        return [v[0] || 0, v[1] || 0];
-      }
-      // Clip point behind the right hip, carried through the astronaut's tumble and zero-g drift
-      function hipPoint(W, H) {
-        var m = matrixOf(astro), ox = .54 * W, oy = .36 * H; // .astro transform-origin
-        var dx = .60 * W - ox, dy = .50 * H - oy, fl = matrixOf(floater);
-        return [ox + m[0] * dx + m[2] * dy + m[4] + fl[4], oy + m[1] * dx + m[3] * dy + m[5] + fl[5]];
-      }
-      // Rear hatch (12% / 43% into the ship image), plus the far layer's own parallax offset
-      function hatchPoint(W, H) {
-        var o = translateOf(far), shipW = .4 * W;
-        return [W + .12 * shipW + o[0], .02 * H + .43 * shipW * 507 / 900 + o[1]];
-      }
-
-      var dpr = 1, cw = 0, ch = 0;
-      function size() {
-        dpr = Math.min(window.devicePixelRatio || 1, 2);
-        cw = wrap.offsetWidth;
-        ch = wrap.offsetHeight;
-        Array.prototype.forEach.call(canvases, function (c, k) {
-          c.width = Math.round(cw * dpr);
-          c.height = Math.round(ch * dpr);
-          ctxs[k].setTransform(dpr, 0, 0, dpr, 0, 0);
-          ctxs[k].lineCap = 'round';
-        });
-      }
-
-      // One short stretch of cable, shaded as a lit cylinder and drawn at its true projected width.
-      // fade is this stretch's share of its depth-of-field bucket (cross-fades at bucket seams).
-      function segment(i, P, S, f, ctx, fade) {
-        var p0 = P[i], p1 = P[i + 1], s0 = S[i], s1 = S[i + 1];
-        var sx = s1[0] - s0[0], sy = s1[1] - s0[1], sl = Math.hypot(sx, sy) || 1;
-        var nx = -sy / sl, ny = sx / sl;
-        var m = [(p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2, (p0[2] + p1[2]) / 2];
-        var T = norm([p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]]);
-        // V faces the camera; N runs across the cable on the side of the screen normal
-        var c = norm([-m[0], -m[1], -m[2]]), ct = dot(c, T);
-        var V = norm([c[0] - ct * T[0], c[1] - ct * T[1], c[2] - ct * T[2]]);
-        var N = norm(cross(T, V));
-        if ((N[0] - m[0] / m[2] * N[2]) * nx + (N[1] - m[1] / m[2] * N[2]) * ny < 0) N = [-N[0], -N[1], -N[2]];
-        var sunA = dot(V, SUN), sunB = dot(N, SUN), earthA = dot(V, EARTH), earthB = dot(N, EARTH);
-        var lit = (U[i] + U[i + 1]) / 2 >= SHADOW_END ? 1 : 0; // hard shadow edge: no air to soften it
-        var width = f * DIA / m[2];
-
-        // No ambient light in vacuum: only the sun and a faint cool rim of Earthshine
-        function shade(x) {
-          var r = Math.sqrt(1 - x * x);
-          var sun = lit * Math.max(0, sunA * r + sunB * x);
-          var earth = .22 * Math.max(0, earthA * r + earthB * x);
-          return [0, 1, 2].map(function (j) { return 4 + IVORY[j] * sun + EARTHSHINE[j] * earth; });
-        }
-        function line(offset, lineWidth, style, alpha) {
-          ctx.globalAlpha = alpha * fade;
-          // Round caps join neighbouring strokes, but where they're translucent the overlaps would bead
-          ctx.lineCap = alpha * fade < 1 ? 'butt' : 'round';
-          ctx.strokeStyle = style;
-          ctx.lineWidth = lineWidth;
-          ctx.beginPath();
-          ctx.moveTo(s0[0] + nx * offset, s0[1] + ny * offset);
-          ctx.lineTo(s1[0] + nx * offset, s1[1] + ny * offset);
-          ctx.stroke();
-        }
-
-        if (width >= 1) {
-          // Bands across the tapered width, plus a specular streak where the sun hits square on
-          BANDS.forEach(function (x) { line(x * width / 2, width / 4 * 1.3, rgb(shade(x)), 1); });
-          var peak = Math.hypot(sunA, sunB);
-          if (lit && peak > 0) line(sunB / peak * width * .4, Math.max(.35, width * .15), '#fffcf4', .45 * peak);
-        } else {
-          // Under a pixel wide: a 1 px hairline whose opacity is its true coverage (no haze in vacuum)
-          var avg = [0, 0, 0];
-          BANDS.forEach(function (x) { shade(x).forEach(function (v, j) { avg[j] += v / BANDS.length; }); });
-          line(0, 1, rgb(avg), width);
-        }
-        ctx.globalAlpha = 1;
-      }
-
-      // Brief sun glints where the far hairline's braid catches the light
-      function glints(A, B, f, cx, cy, t) {
-        var ctx = ctxs[ctxs.length - 1];
-        GLINTS.forEach(function (u, k) {
-          var g = Math.pow(.5 + .5 * Math.sin(t * 2 * Math.PI / 9 + k * 2.1), 8);
-          if (g < .02) return;
-          var p = pointAt(u, t, A, B), x = cx + f * p[0] / p[2], y = cy + f * p[1] / p[2];
-          var glow = ctx.createRadialGradient(x, y, 0, x, y, 1.8);
-          glow.addColorStop(0, 'rgba(255,252,244,' + (.55 * g) + ')');
-          glow.addColorStop(1, 'rgba(255,252,244,0)');
-          ctx.fillStyle = glow;
-          ctx.beginPath();
-          ctx.arc(x, y, 1.8, 0, 2 * Math.PI);
-          ctx.fill();
-        });
-      }
-
-      function draw(t) {
-        if (!wrap.offsetParent) return; // hidden on narrow screens
-        if (wrap.offsetWidth !== cw || wrap.offsetHeight !== ch) size();
-        var W = suit.offsetWidth, H = suit.offsetHeight;
-        var f = 3.125 * W, cx = W / 2, cy = H / 2; // 1250 px focal length for the 400 px figure
-        var hip = hipPoint(W, H), hatch = hatchPoint(W, H);
-        var A = [(hip[0] - cx) * Z0 / f, (hip[1] - cy) * Z0 / f, Z0];
-        var B = [(hatch[0] - cx) * Z1 / f, (hatch[1] - cy) * Z1 / f, Z1];
-
-        var P = [], S = [];
-        for (var i = 0; i < U.length; i++) {
-          var p = pointAt(U[i], t, A, B);
-          P.push(p);
-          S.push([cx + f * p[0] / p[2], cy + f * p[1] / p[2]]);
-        }
-        ctxs.forEach(function (ctx) { ctx.clearRect(0, 0, cw, ch); });
-        for (i = 0; i < U.length - 1; i++) {
-          var u = (U[i] + U[i + 1]) / 2;
-          for (var b = 0; b < ctxs.length; b++) {
-            var fade = bucketShare(b, u);
-            if (fade > 0) segment(i, P, S, f, ctxs[b], fade);
-          }
-        }
-        glints(A, B, f, cx, cy, t);
-      }
-
-      var raf = 0;
-      function loop(ms) { draw(ms / 1000); raf = requestAnimationFrame(loop); }
-      if (reduce) {
-        // One still frame, redrawn only when the layout changes
-        draw(0);
-        addEventListener('resize', function () { draw(0); });
-      } else if ('IntersectionObserver' in window) {
-        new IntersectionObserver(function (entries) {
-          cancelAnimationFrame(raf);
-          if (entries[entries.length - 1].isIntersecting) raf = requestAnimationFrame(loop);
-        }, { rootMargin: '100px' }).observe(suit);
-      } else {
-        raf = requestAnimationFrame(loop);
+      // Section in view: light its tab in the bottom HUD nav
+      var links = {};
+      document.querySelectorAll('.hud-nav a').forEach(function (a) { links[a.hash.slice(1)] = a; });
+      if ('IntersectionObserver' in window) {
+        var spy = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            var a = links[e.target.id];
+            if (e.isIntersecting) {
+              for (var k in links) links[k].removeAttribute('aria-current');
+              a.setAttribute('aria-current', 'location');
+            } else a.removeAttribute('aria-current');
+          });
+        }, { rootMargin: '-45% 0px -45% 0px' });
+        for (var id in links) spy.observe(document.getElementById(id));
       }
     })();
 
-    // Background music: "Space Ambient" by playstarz_music (Pixabay License, no attribution needed).
-    // Played through Web Audio so fades and volume also work on iOS. The file only loads once someone
-    // turns sound on; browsers allow that only after a click or key press. On/off and volume are
-    // remembered for the next visit.
+    // Sound: background music "Space Ambient" by playstarz_music (Pixabay License, no attribution
+    // needed), plus soft synthesized cockpit blips on the HUD controls and a whoosh as the clouds part.
+    // Everything runs through Web Audio so fades and volume also work on iOS. The music file only loads
+    // once someone turns sound on; browsers allow that only after a click or key press. On/off and
+    // volume are remembered for the next visit.
     (function () {
       var buttons = Array.prototype.slice.call(document.querySelectorAll('.sound-toggle'));
       var dock = document.querySelector('.sound-dock');
@@ -589,7 +514,7 @@
       var SRC = 'audio/space-ambient.mp3';
       var KEY = 'nebulaiSound', VOL_KEY = 'nebulaiVolume';
       var volume = .6, wanted = false, running = false;
-      var ctx, gain, track;
+      var ctx, gain, fx, track;
 
       function stored(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
       function store(key, v) { try { localStorage.setItem(key, v); } catch (e) {} }
@@ -604,6 +529,8 @@
         gain = ctx.createGain();
         gain.gain.value = 0;
         ctx.createMediaElementSource(track).connect(gain).connect(ctx.destination);
+        fx = ctx.createGain();
+        fx.connect(ctx.destination);
       }
       function start() {
         if (!ctx) build();
@@ -621,19 +548,53 @@
         setTimeout(function () { if (!running) track.pause(); }, 1800);
       }
 
+      // A short two-step sine blip, like a cockpit switch. Only while sound is on.
+      function blip(hi) {
+        if (!running) return;
+        var t = ctx.currentTime, o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(hi ? 1320 : 980, t);
+        o.frequency.setValueAtTime(hi ? 1760 : 760, t + .045);
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(.05 * level(), t + .008);
+        g.gain.exponentialRampToValueAtTime(.0001, t + (hi ? .16 : .1));
+        o.connect(g).connect(fx);
+        o.start(t);
+        o.stop(t + .2);
+      }
+      // Filtered noise swept up and back down: air rushing past as the clouds part
+      function whoosh() {
+        if (!running) return;
+        var t = ctx.currentTime, len = 2.2;
+        var buf = ctx.createBuffer(1, Math.round(ctx.sampleRate * len), ctx.sampleRate), d = buf.getChannelData(0);
+        for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+        var src = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), g = ctx.createGain();
+        src.buffer = buf;
+        bp.type = 'bandpass';
+        bp.Q.value = .8;
+        bp.frequency.setValueAtTime(220, t);
+        bp.frequency.exponentialRampToValueAtTime(1800, t + .7);
+        bp.frequency.exponentialRampToValueAtTime(160, t + len);
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(.32 * level(), t + .6);
+        g.gain.exponentialRampToValueAtTime(.0001, t + len);
+        src.connect(bp).connect(g).connect(fx);
+        src.start(t);
+      }
+
       function showState(on) {
         buttons.forEach(function (b) {
           b.setAttribute('aria-pressed', on);
           b.setAttribute('aria-label', on ? 'Mute background music' : 'Play background music');
         });
       }
-      function setWanted(on) {
+      function setWanted(on, quiet) {
         wanted = on;
         store(KEY, on ? 'on' : 'off');
         showState(on);
         if (on) start(); else stop();
         // Show the volume slider for a moment when sound comes on (touch screens have no hover)
-        if (dock && on) {
+        if (dock && on && !quiet) {
           dock.classList.add('is-open');
           clearTimeout(dock.closeTimer);
           dock.closeTimer = setTimeout(function () { dock.classList.remove('is-open'); }, 4000);
@@ -654,8 +615,8 @@
         });
       }
 
-      // Returning visitor who left sound on: show it on, start at their first click or key press
-      if (stored(KEY) === 'on') {
+      // Returning visitor who left sound on (and skipped the intro): show it on, start at their first click or key press
+      if (stored(KEY) === 'on' && !document.documentElement.classList.contains('intro-on')) {
         wanted = true;
         showState(true);
         var resume = function (e) {
@@ -666,10 +627,90 @@
         ['pointerdown', 'keydown'].forEach(function (type) { addEventListener(type, resume, true); });
       }
 
+      // Cockpit blips on the HUD controls
+      var hud = '.hud-btn, .hud-nav a, .work-row, .nav-cta, .corner-link, .contact-links a';
+      document.addEventListener('pointerover', function (e) {
+        var t = e.target.closest && e.target.closest(hud);
+        if (t && !t.contains(e.relatedTarget)) blip(false);
+      });
+      document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest(hud)) blip(true); });
+
       // Pause with the tab hidden, pick up again when it comes back
       document.addEventListener('visibilitychange', function () {
         if (!ctx || !running) return;
         if (document.hidden) track.pause(); else track.play().catch(function () {});
+      });
+
+      window.nebulaiSound = { set: setWanted, whoosh: whoosh, blip: blip };
+    })();
+
+    // Launch intro: T-minus clock, the mark, then the scene rises (moon, astronaut, a marquee running
+    // behind him) and the gate asks how to launch. Launching parts the clouds onto the hero.
+    (function () {
+      var root = document.documentElement;
+      var intro = document.querySelector('.intro');
+      if (!root.classList.contains('intro-on')) { intro.remove(); return; }
+
+      var behind = document.querySelectorAll('body > :not(.intro):not(script):not(svg):not(canvas)');
+      behind.forEach(function (n) { n.inert = true; });
+      var clock = intro.querySelector('.intro-clock');
+      var timers = [], stage = 0, launched = false;
+
+      function setStage(n) {
+        if (n <= stage) return;
+        stage = n;
+        intro.dataset.stage = n;
+        if (n === 4) setTimeout(function () { intro.querySelector('.hud-btn-solid').focus({ preventScroll: true }); }, reduce ? 0 : 500);
+      }
+      function at(ms, fn) { timers.push(setTimeout(fn, ms)); }
+
+      if (reduce) {
+        setStage(4);
+      } else {
+        // Countdown from T-3s, racing its hundredths
+        var t0 = performance.now(), DUR = 1700;
+        setStage(1);
+        (function tick(now) {
+          if (stage > 1) return;
+          var left = Math.max(0, 3 * (1 - (now - t0) / DUR));
+          clock.textContent = 'T–00:0' + Math.floor(left) + '.' + ('0' + Math.floor((left % 1) * 100)).slice(-2);
+          if (left > 0) requestAnimationFrame(tick);
+        })(t0);
+        at(DUR + 250, function () { setStage(2); });
+        at(DUR + 1250, function () { setStage(3); });
+        at(DUR + 2300, function () { setStage(4); });
+      }
+
+      // Skip (button, any key or a click during the countdown) jumps straight to the gate
+      function skip() { timers.forEach(clearTimeout); setStage(4); }
+      intro.querySelector('.intro-skip').addEventListener('click', skip);
+      intro.addEventListener('click', function (e) { if (stage < 4 && !e.target.closest('.intro-gate')) skip(); });
+
+      function launch(withSound) {
+        if (launched) return;
+        launched = true;
+        try { sessionStorage.setItem('nebulaiIntro', 'seen'); } catch (e) {}
+        if (window.nebulaiSound) {
+          window.nebulaiSound.set(withSound, true);
+          if (withSound) window.nebulaiSound.whoosh();
+        }
+        behind.forEach(function (n) { n.inert = false; });
+        intro.dataset.stage = 'out';
+        scrollTo(0, 0);
+        // Hero animations start as the clouds clear
+        setTimeout(function () { root.classList.remove('intro-on'); }, reduce ? 0 : 700);
+        setTimeout(function () { intro.remove(); }, reduce ? 0 : 2200);
+        var main = document.getElementById('main');
+        main.setAttribute('tabindex', '-1');
+        main.focus({ preventScroll: true });
+      }
+      intro.querySelectorAll('[data-launch]').forEach(function (b) {
+        b.addEventListener('click', function () { launch(b.dataset.launch === 'sound'); });
+      });
+      document.addEventListener('keydown', function onKey(e) {
+        if (launched) { document.removeEventListener('keydown', onKey); return; }
+        if (stage < 4) { skip(); e.preventDefault(); }
+        else if (e.key === 'Escape') launch(false);
       });
     })();
 
