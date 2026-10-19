@@ -125,7 +125,7 @@ em { font-style: italic; }
   -webkit-backdrop-filter: blur(14px);
   border-bottom-color: var(--line);
 }
-.wordmark { font: 400 1.5rem/1 var(--serif); letter-spacing: .01em; }
+.wordmark { font: 400 1.5rem/1 var(--serif); letter-spacing: .01em; margin-right: auto; }
 .wordmark span { color: var(--muted); font-style: italic; }
 
 .nav-links { display: flex; gap: 36px; list-style: none; margin: 0; padding: 0; }
@@ -137,6 +137,102 @@ em { font-style: italic; }
   transition: color .3s;
 }
 .nav-links a:hover { color: var(--text); }
+
+/* Ambient music toggle: bars sit still when off, drift slowly when playing */
+.sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: 500 .66rem/1 var(--sans);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color .3s;
+}
+.sound-toggle:hover, .sound-toggle[aria-pressed="true"] { color: var(--text); }
+.sound-bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.sound-bars i { width: 2px; height: 3px; background: currentColor; border-radius: 1px; transition: height .4s; }
+.sound-toggle[aria-pressed="true"] .sound-bars i { animation: sound-bar 2.4s ease-in-out infinite; }
+.sound-toggle[aria-pressed="true"] .sound-bars i:nth-child(2) { animation-delay: -.6s; }
+.sound-toggle[aria-pressed="true"] .sound-bars i:nth-child(3) { animation-delay: -1.3s; }
+.sound-toggle[aria-pressed="true"] .sound-bars i:nth-child(4) { animation-delay: -1.9s; }
+@keyframes sound-bar { 0%, 100% { height: 3px; } 50% { height: 12px; } }
+
+/* Floating sound control, bottom right: a pill that slides out a volume slider on hover or focus */
+.sound-dock {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  height: 48px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: border-color .3s, box-shadow .4s;
+}
+.sound-dock:hover, .sound-dock:focus-within { border-color: var(--text); }
+.sound-dock:has([aria-pressed="true"]) { box-shadow: 0 0 0 6px rgba(235, 232, 225, .06); }
+.sound-float {
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+}
+.sound-volume {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: width .5s var(--ease), opacity .3s, padding .5s var(--ease);
+}
+.sound-dock:hover .sound-volume,
+.sound-dock:focus-within .sound-volume,
+.sound-dock.is-open .sound-volume { width: 190px; padding-left: 18px; opacity: 1; }
+.sound-volume .label { margin: 0; font-size: .58rem; }
+
+.sound-volume input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 96px;
+  height: 18px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.sound-volume input::-webkit-slider-runnable-track {
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--text) var(--fill, 60%), var(--line-strong) var(--fill, 60%));
+}
+.sound-volume input::-moz-range-track { height: 2px; border-radius: 2px; background: var(--line-strong); }
+.sound-volume input::-moz-range-progress { height: 2px; border-radius: 2px; background: var(--text); }
+.sound-volume input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  margin-top: -4px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--text);
+}
+.sound-volume input::-moz-range-thumb { width: 10px; height: 10px; border: 0; border-radius: 50%; background: var(--text); }
+
+@media (max-width: 640px) {
+  .sound-dock { right: 16px; bottom: 16px; height: 44px; }
+  .sound-float { width: 42px; height: 42px; }
+}
 
 /* ---------- Hero ---------- */
 .hero {
