@@ -26,20 +26,13 @@
   <canvas id="stars" aria-hidden="true"></canvas>
 
   <!-- Illustrations are woodblock-style prints (moon, Earth, astronaut in images/); the SVG below
-       draws only the mist bands and the brand mark -->
+       holds the small clouds' shading and the brand mark -->
   <svg class="svg-defs" width="0" height="0" aria-hidden="true">
-    <linearGradient id="kasumi-fill" x1="0" x2="1" y1="0" y2="0">
-      <stop offset="0" stop-color="#f4e9cf"/>
-      <stop offset=".7" stop-color="#f1e2c4"/>
-      <stop offset="1" stop-color="#e8c3a6"/>
+    <!-- Small floating clouds: washi cream, warming toward their flat base -->
+    <linearGradient id="wisp-fill" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="10" y2="134">
+      <stop offset="0" stop-color="#f7eed9"/>
+      <stop offset="1" stop-color="#e6cfa9"/>
     </linearGradient>
-    <!-- Mist bands (kasumi) drifting across the sky -->
-    <symbol id="kasumi" viewBox="0 0 600 116">
-      <g fill="url(#kasumi-fill)" stroke="#1b1a20" stroke-width="2.2">
-        <rect x="2" y="6" width="430" height="44" rx="22" vector-effect="non-scaling-stroke"/>
-        <rect x="140" y="66" width="456" height="44" rx="22" vector-effect="non-scaling-stroke"/>
-      </g>
-    </symbol>
     <!-- Brand mark: a planet with a tilted orbit -->
     <symbol id="mark" viewBox="0 0 32 32">
       <circle cx="16" cy="16" r="7.5" fill="none" stroke="currentColor" stroke-width="2.2"/>
@@ -53,7 +46,8 @@
   <div class="intro" role="dialog" aria-modal="true" aria-labelledby="intro-q" data-stage="0">
     <div class="intro-sky"></div>
     <div class="intro-moon"><img src="images/moon-ukiyoe.webp" alt="" width="1254" height="1254"></div>
-    <svg class="kasumi intro-kasumi" viewBox="0 0 600 116"><use href="#kasumi"/></svg>
+    <svg class="wisp intro-wisp intro-wisp-1" data-wisp="31"></svg>
+    <svg class="wisp intro-wisp intro-wisp-2" data-wisp="32"></svg>
     <div class="intro-marquee" aria-hidden="true">
       <div class="marquee-track"><span>Code beyond the atmosphere&nbsp;✦&nbsp;</span><span>Code beyond the atmosphere&nbsp;✦&nbsp;</span></div>
     </div>
@@ -101,7 +95,8 @@
     <!-- Hero: giant title over a rising moon and sunlit cloud banks -->
     <section class="hero" id="top">
       <div class="hero-moon" aria-hidden="true"><img src="images/moon-ukiyoe.webp" alt="" width="1254" height="1254"></div>
-      <svg class="kasumi hero-kasumi" viewBox="0 0 600 116" aria-hidden="true"><use href="#kasumi"/></svg>
+      <svg class="wisp hero-wisp hero-wisp-1" data-wisp="21" aria-hidden="true"></svg>
+      <svg class="wisp hero-wisp hero-wisp-2" data-wisp="22" aria-hidden="true"></svg>
       <!-- Title slip, as on a print: "beyond the stars" -->
       <p class="cartouche" aria-hidden="true" lang="ja">星の彼方へ</p>
       <div class="clouds hero-clouds-back" aria-hidden="true">
@@ -325,7 +320,8 @@
     document.getElementById('year').textContent = new Date().getFullYear();
     var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Cloud banks: flat, inked silhouettes made of overlapping puffs, each with a lighter sunlit rim.
+    // Clouds, drawn as on a woodblock print: a row of puffs with big billows rising out of it, an ink
+    // outline all round, light-to-shadow shading, and inked lines where billows overlap the cloud below.
     // Seeded, so every visit draws the same sky.
     (function () {
       function rng(seed) {
@@ -337,40 +333,168 @@
         for (var k in attrs) n.setAttribute(k, attrs[k]);
         return n;
       }
-      document.querySelectorAll('svg[data-clouds]').forEach(function (svg) {
-        var rand = rng(+svg.dataset.clouds * 7919);
-        var side = svg.dataset.side;
-        var W = side ? 1000 : 1600, H = 320, base = +svg.dataset.base;
-        svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
-        svg.setAttribute('preserveAspectRatio', side === 'left' ? 'xMaxYMax slice' : side === 'right' ? 'xMinYMax slice' : 'xMidYMin slice');
-        // Split banks (the intro's) are drawn as left halves; right ones are mirrored
-        var puffs = [], inner = side ? W * .72 : Infinity;
-        for (var x = -60; x < W + 60; x += 46 + rand() * 64) {
-          var lift = side ? (1 - x / W) * 60 : Math.sin(x / W * Math.PI * 2.3 + 1) * 26;
-          var y = base - lift + (rand() - .5) * 40;
-          // Past the inner end, the bank rolls down out of frame so it ends in a rounded shoulder
-          if (x > inner) y += Math.pow((x - inner) / (W - inner), 1.6) * (H - y + 40);
-          puffs.push([side === 'right' ? W - x : x, y, 36 + rand() * 60]);
-        }
-        function bank(fill, dy) {
-          var g = el('g', { fill: fill });
-          puffs.forEach(function (p) { g.appendChild(el('circle', { cx: p[0].toFixed(1), cy: (p[1] + dy).toFixed(1), r: p[2].toFixed(1) })); });
-          // Solid body under the line through the puff centres, down to the bottom edge
-          var d = 'M' + puffs[0][0] + ' ' + (H + 200);
-          puffs.forEach(function (p) { d += 'L' + p[0].toFixed(1) + ' ' + (p[1] + dy).toFixed(1); });
-          g.appendChild(el('path', { d: d + 'L' + puffs[puffs.length - 1][0] + ' ' + (H + 200) + 'Z' }));
+      function mix(a, b, t) {
+        var A = [1, 3, 5].map(function (i) { return parseInt(a.substr(i, 2), 16); });
+        var B = [1, 3, 5].map(function (i) { return parseInt(b.substr(i, 2), 16); });
+        return 'rgb(' + A.map(function (v, i) { return Math.round(v + (B[i] - v) * t); }).join(',') + ')';
+      }
+      function arc(p, from, to) {
+        var a = from * Math.PI / 180, b = to * Math.PI / 180;
+        return 'M' + (p[0] + p[2] * Math.cos(a)).toFixed(1) + ' ' + (p[1] + p[2] * Math.sin(a)).toFixed(1) +
+          'A' + p[2].toFixed(1) + ' ' + p[2].toFixed(1) + ' 0 0 1 ' +
+          (p[0] + p[2] * Math.cos(b)).toFixed(1) + ' ' + (p[1] + p[2] * Math.sin(b)).toFixed(1);
+      }
+
+      // pieces: [{ puffs, billows, body }] drawn as one cloud. Stroking the shapes thick in ink and
+      // filling them again on top leaves the line only on the outer edge.
+      function drawCloud(svg, pieces, o) {
+        var gid = 'cloud-grad-' + o.id;
+        var defs = el('defs', {});
+        var grad = el('linearGradient', { id: gid, gradientUnits: 'userSpaceOnUse', x1: 0, x2: 0, y1: o.top, y2: o.bottom });
+        [[0, mix(o.fill, '#fffaf0', .3)], [.45, o.fill], [1, mix(o.fill, '#10142a', .22)]].forEach(function (s) {
+          grad.appendChild(el('stop', { offset: s[0], 'stop-color': s[1] }));
+        });
+        defs.appendChild(grad);
+        svg.appendChild(defs);
+        var root = el('g', o.clip ? { 'clip-path': 'url(#' + o.clip + ')' } : {});
+        function layer(attrs) {
+          var g = el('g', attrs);
+          pieces.forEach(function (pc) {
+            pc.puffs.concat(pc.billows).forEach(function (p) {
+              g.appendChild(el('circle', { cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: p[2].toFixed(1) }));
+            });
+            if (pc.body) g.appendChild(el('path', { d: pc.body }));
+          });
           return g;
         }
-        svg.appendChild(bank(svg.dataset.rim, -3));   // sumi outline along the top edge
-        svg.appendChild(bank(svg.dataset.fill, 0));   // body
+        root.appendChild(layer({ fill: o.ink, stroke: o.ink, 'stroke-width': o.inkW, 'stroke-linejoin': 'round' }));
+        root.appendChild(layer({ fill: 'url(#' + gid + ')' }));
+        // The part of each billow's outline that overlaps the cloud behind it (its lower left), in softer ink
+        var lines = el('g', { fill: 'none', stroke: o.ink, 'stroke-width': (o.inkW * .5).toFixed(1), 'stroke-linecap': 'round', opacity: .5 });
+        pieces.forEach(function (pc) {
+          // Each line starts and ends a little differently, as a hand-cut block would
+          pc.billows.forEach(function (p) {
+            var from = 92 + (p[2] * 7.3) % 26, to = from + 62 + (Math.abs(p[0]) * 1.7) % 44;
+            lines.appendChild(el('path', { d: arc(p, from, to) }));
+          });
+        });
+        root.appendChild(lines);
+        svg.appendChild(root);
+      }
+
+      // Cloud banks. Full-width banks repeat every W so they can scroll forever (see .clouds in the CSS);
+      // the intro's split banks are left halves (right ones mirrored) that roll down at their inner end.
+      document.querySelectorAll('svg[data-clouds]').forEach(function (svg) {
+        var rand = rng(+svg.dataset.clouds * 7919);
+        var side = svg.dataset.side, base = +svg.dataset.base, H = 320, TOP = -70;
+        var W = side ? 1000 : 1600, span = side ? W : 2 * W;
+        svg.setAttribute('viewBox', '0 ' + TOP + ' ' + span + ' ' + (H - TOP));
+        svg.setAttribute('preserveAspectRatio', side === 'left' ? 'xMaxYMax slice' : side === 'right' ? 'xMinYMax slice' : 'xMinYMin slice');
+        // Rolling skyline from a few random waves (whole numbers of them across W, so a repeating bank
+        // joins up with its own repeat)
+        var waves = [1, 2, 3, 5, 7].map(function (k) { return [k, rand() * 6.28, (8 + rand() * 26) / Math.sqrt(k)]; });
+        function lift(x) {
+          if (side) return (1 - x / W) * 60 + Math.sin(x / 90 + waves[0][1]) * 14;
+          return waves.reduce(function (s, wv) { return s + Math.sin(x / W * Math.PI * 2 * wv[0] + wv[1]) * wv[2]; }, 0);
+        }
+        var inner = side ? W * .72 : Infinity;
+        function roll(x, y) { return x > inner ? y + Math.pow((x - inner) / (W - inner), 1.6) * (H - y + 60) : y; }
+        function fits(p) { return p[1] - p[2] > TOP + 10; }
+        var puffs = [], billows = [], x;
+        // Base row: puffs of very mixed size and spacing, now and then a run of small ones
+        for (x = side ? -60 : 0; x < (side ? W + 60 : W);) {
+          var r = rand() < .22 ? 16 + rand() * 14 : 28 + rand() * 48;
+          puffs.push([x, roll(x, base - lift(x) + (rand() - .5) * 40), r]);
+          x += r * (.5 + rand() * .9);
+        }
+        // Billows: irregular gaps, small to towering, some stacked two or three high and leaning, some
+        // with a smaller puff tucked at their side
+        for (x = (side ? 40 : 0) + rand() * 160; x < (side ? inner : W);) {
+          var R = 36 + Math.pow(rand(), 1.4) * 80, cy;
+          do { cy = roll(x, base - lift(x) - 18 - R * (.2 + rand() * .25)); R *= .92; } while (!fits([x, cy, R]) && R > 30);
+          var top = [x, cy, R], lean = (rand() - .5) * .8;
+          billows.push(top);
+          for (var s = 0, n = rand() < .45 ? 1 + Math.floor(rand() * 2) : 0; s < n; s++) {
+            var next = [top[0] + lean * top[2], top[1] - top[2] * (.55 + rand() * .2), top[2] * (.5 + rand() * .25)];
+            if (!fits(next)) break;
+            billows.push(next);
+            top = next;
+          }
+          if (rand() < .3) billows.push([x + R * (.7 + rand() * .3) * (rand() < .5 ? -1 : 1), cy + R * .25, R * (.45 + rand() * .2)]);
+          x += R * (1.1 + rand() * 1.8) + rand() * 60;
+        }
+        function mirror(p) { return side === 'right' ? [W - p[0], p[1], p[2]] : p; }
+        puffs = puffs.map(mirror);
+        billows = billows.map(mirror);
+        var pieces = (side ? [0] : [-W, 0, W, 2 * W]).map(function (dx) {
+          var P = puffs.map(function (p) { return [p[0] + dx, p[1], p[2]]; });
+          var B = billows.map(function (p) { return [p[0] + dx, p[1], p[2]]; });
+          var first = P[0], lastP = P[P.length - 1];
+          var d = 'M' + first[0].toFixed(1) + ' ' + (H + 200);
+          P.forEach(function (p) { d += 'L' + p[0].toFixed(1) + ' ' + p[1].toFixed(1); });
+          if (!side) d += 'L' + (first[0] + W).toFixed(1) + ' ' + first[1].toFixed(1) + 'L' + (first[0] + W).toFixed(1) + ' ' + (H + 200);
+          else d += 'L' + lastP[0].toFixed(1) + ' ' + (H + 200);
+          return { puffs: P, billows: B, body: d + 'Z' };
+        });
+        drawCloud(svg, pieces, { id: 'b' + svg.dataset.clouds, fill: svg.dataset.fill, ink: svg.dataset.rim, inkW: 5,
+          top: base - 150, bottom: H });
+      });
+
+      // Size each scrolling bank to exactly its two drawn repeats and tell its loop (cloud-loop in the CSS)
+      // how long one repeat is, so it is seamless whatever the screen shape. The drawing is scaled to
+      // cover twice the screen width and the bank's height, whichever needs more.
+      function setPeriods() {
+        document.querySelectorAll('svg[data-clouds]:not([data-side])').forEach(function (svg) {
+          var box = svg.parentNode.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+          var scale = Math.max(2 * box.width / vb.width, box.height / vb.height);
+          var width = vb.width * scale;
+          svg.style.width = width.toFixed(2) + 'px';
+          svg.style.setProperty('--period', (width / 2).toFixed(2) + 'px');
+        });
+      }
+      setPeriods();
+      addEventListener('resize', setPeriods);
+
+      // Small floating clouds: an uneven base row, billows heaped toward a random peak, and a crown, on a
+      // flat inked base. Each one a different length and shape.
+      document.querySelectorAll('svg[data-wisp]').forEach(function (svg) {
+        var rand = rng(+svg.dataset.wisp * 104729), W = 600, H = 150, BASE = 132;
+        svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+        var puffs = [], billows = [], x;
+        var start = 36 + rand() * 70, end = W - 36 - rand() * 100;
+        for (x = start; x <= end;) {
+          var r = 15 + rand() * 28;
+          puffs.push([x, BASE - r * (.45 + rand() * .3), r]);
+          x += r * (.65 + rand() * .8);
+        }
+        var peak = start + (end - start) * (.25 + rand() * .5);
+        for (x = start + 40 + rand() * 50; x <= end - 40; x += 40 + rand() * 56) {
+          var near = Math.max(0, 1 - Math.abs(x - peak) / ((end - start) * .55));
+          var r2 = 20 + near * 34 + rand() * 16;
+          billows.push([x, BASE - 22 - r2 * (.35 + near * .35), r2]);
+        }
+        var crown = 32 + rand() * 20;
+        billows.push([peak + (rand() - .5) * 50, BASE - 58 - crown * .35 - rand() * 12, crown]);
+        var id = 'wisp-clip-' + svg.dataset.wisp;
+        var clip = el('clipPath', { id: id });
+        clip.appendChild(el('rect', { x: 0, y: -40, width: W, height: BASE + 40 }));
+        svg.appendChild(clip);
+        var left = puffs[0][0], right = puffs[puffs.length - 1][0];
+        drawCloud(svg, [{ puffs: puffs, billows: billows,
+          body: 'M' + left + ' ' + (BASE - 30) + 'H' + right + 'V' + (BASE + 30) + 'H' + left + 'Z' }],
+          { id: 'w' + svg.dataset.wisp, fill: '#f1e5c9', ink: '#1b1a20', inkW: 9, top: 10, bottom: BASE, clip: id });
+        // Ink base line, a little longer than the cloud, as the woodblock cutters drew it
+        svg.appendChild(el('path', { d: 'M' + (left - 20 - rand() * 30).toFixed(1) + ' ' + BASE + 'H' + (right + 20 + rand() * 30).toFixed(1),
+          stroke: '#1b1a20', 'stroke-width': 4.5, 'stroke-linecap': 'round' }));
       });
     })();
 
-    // Sparse starfield, faintly mint
+    // Night sky: stars that shine (a slow twinkle, the brightest with a soft halo and a cross of light)
+    // and, now and then, a comet crossing far behind everything and fading out
     (function () {
       var canvas = document.getElementById('stars');
       var ctx = canvas.getContext('2d');
-      var stars = [], w, h, dpr;
+      var stars = [], comets = [], w, h, dpr, last = 0, nextComet = 0;
 
       function resize() {
         dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -378,44 +502,99 @@
         h = canvas.height = innerHeight * dpr;
         canvas.style.width = innerWidth + 'px';
         canvas.style.height = innerHeight + 'px';
-        var count = Math.round((innerWidth * innerHeight) / 11000);
+        var count = Math.round((innerWidth * innerHeight) / 9000);
         stars = [];
         for (var i = 0; i < count; i++) {
+          var bright = Math.random() < .07;
           stars.push({
             x: Math.random() * w, y: Math.random() * h,
-            r: (Math.random() * 0.9 + 0.3) * dpr,
-            a: Math.random() * Math.PI, s: Math.random() * 0.01 + 0.002,
-            b: Math.random() * 0.5 + 0.25,
-            cross: Math.random() < .06
+            r: (bright ? 1.2 + Math.random() * .6 : Math.random() * .8 + .3) * dpr,
+            a: Math.random() * 6.28, s: .4 + Math.random() * 1.4, // twinkle phase, speed in rad/s
+            b: bright ? .9 : Math.random() * .5 + .3,
+            bright: bright,
+            warm: Math.random() < .25
           });
         }
       }
-      function draw() {
-        ctx.clearRect(0, 0, w, h);
-        for (var i = 0; i < stars.length; i++) {
-          var st = stars[i];
-          if (!reduce) st.a += st.s;
-          var a = st.b * (0.5 + Math.abs(Math.sin(st.a)) * 0.5);
-          ctx.fillStyle = 'rgba(246,236,210,' + a + ')';
-          if (st.cross) {
-            // A few comic four-point sparkles among the dots
-            var l = st.r * 4;
-            ctx.beginPath();
-            ctx.moveTo(st.x, st.y - l); ctx.quadraticCurveTo(st.x, st.y, st.x + l, st.y);
-            ctx.quadraticCurveTo(st.x, st.y, st.x, st.y + l); ctx.quadraticCurveTo(st.x, st.y, st.x - l, st.y);
-            ctx.quadraticCurveTo(st.x, st.y, st.x, st.y - l);
-            ctx.fill();
-          } else {
-            ctx.beginPath();
-            ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        }
-        if (!reduce) requestAnimationFrame(draw);
+
+      function spawnComet() {
+        var fromLeft = Math.random() < .5, angle = (14 + Math.random() * 18) * Math.PI / 180;
+        var speed = (90 + Math.random() * 90) * dpr; // px per second: slow, far away
+        comets.push({
+          x: fromLeft ? -40 * dpr : w + 40 * dpr,
+          y: Math.random() * h * .55,
+          vx: (fromLeft ? 1 : -1) * Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          tail: (160 + Math.random() * 200) * dpr,
+          age: 0,
+          life: 5 + Math.random() * 4
+        });
       }
-      addEventListener('resize', function () { resize(); if (reduce) draw(); });
+
+      function star(st, t) {
+        var tw = .5 + .5 * Math.sin(st.a + t * st.s);
+        var a = st.b * (.35 + tw * .65);
+        var col = st.warm ? '255,228,170' : '246,236,210';
+        if (st.bright) {
+          var halo = ctx.createRadialGradient(st.x, st.y, 0, st.x, st.y, st.r * 7);
+          halo.addColorStop(0, 'rgba(' + col + ',' + (a * .45) + ')');
+          halo.addColorStop(1, 'rgba(' + col + ',0)');
+          ctx.fillStyle = halo;
+          ctx.beginPath(); ctx.arc(st.x, st.y, st.r * 7, 0, 6.29); ctx.fill();
+          // Cross of light that grows as the star brightens
+          var l = st.r * (3 + tw * 5);
+          ctx.strokeStyle = 'rgba(' + col + ',' + (a * .7) + ')';
+          ctx.lineWidth = .8 * dpr;
+          ctx.beginPath();
+          ctx.moveTo(st.x - l, st.y); ctx.lineTo(st.x + l, st.y);
+          ctx.moveTo(st.x, st.y - l); ctx.lineTo(st.x, st.y + l);
+          ctx.stroke();
+        }
+        ctx.fillStyle = 'rgba(' + col + ',' + a + ')';
+        ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, 6.29); ctx.fill();
+      }
+
+      function comet(c) {
+        // Fade in, glide, fade out
+        var k = c.age / c.life, fade = Math.max(0, Math.min(1, k / .15, (1 - k) / .35));
+        if (!fade) return;
+        var len = Math.hypot(c.vx, c.vy), ux = c.vx / len, uy = c.vy / len;
+        var tx = c.x - ux * c.tail, ty = c.y - uy * c.tail;
+        var g = ctx.createLinearGradient(c.x, c.y, tx, ty);
+        g.addColorStop(0, 'rgba(255,240,205,' + (.75 * fade) + ')');
+        g.addColorStop(.25, 'rgba(240,200,130,' + (.32 * fade) + ')');
+        g.addColorStop(1, 'rgba(240,200,130,0)');
+        ctx.strokeStyle = g;
+        ctx.lineCap = 'round';
+        ctx.lineWidth = 2.2 * dpr;
+        ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(tx, ty); ctx.stroke();
+        var head = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, 9 * dpr);
+        head.addColorStop(0, 'rgba(255,248,225,' + fade + ')');
+        head.addColorStop(1, 'rgba(255,230,170,0)');
+        ctx.fillStyle = head;
+        ctx.beginPath(); ctx.arc(c.x, c.y, 9 * dpr, 0, 6.29); ctx.fill();
+      }
+
+      function draw(ms) {
+        var t = (ms || 0) / 1000, dt = last ? Math.min(.05, t - last) : 0;
+        last = t;
+        ctx.clearRect(0, 0, w, h);
+        for (var i = 0; i < stars.length; i++) star(stars[i], reduce ? 0 : t);
+        if (!reduce) {
+          // First comet a few seconds in, then one every 7-16 s
+          if (!nextComet) nextComet = t + 3;
+          else if (t > nextComet) { spawnComet(); nextComet = t + 7 + Math.random() * 9; }
+          comets = comets.filter(function (c) {
+            c.x += c.vx * dt; c.y += c.vy * dt; c.age += dt;
+            comet(c);
+            return c.age < c.life;
+          });
+          requestAnimationFrame(draw);
+        }
+      }
+      addEventListener('resize', function () { resize(); if (reduce) draw(0); });
       resize();
-      draw();
+      if (reduce) draw(0); else requestAnimationFrame(draw);
     })();
 
     // Statement: split the headline into words that rise in one by one

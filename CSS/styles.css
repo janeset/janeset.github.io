@@ -7,7 +7,7 @@
   --paper: #f1e6cc;
   --text: #f3ead6;
   --muted: #b9b3a3;
-  --dim: #858a99;
+  --dim: #9ca2b1;
   --ink: #161922;
   --line: rgba(243, 234, 214, .16);
   --line-strong: rgba(243, 234, 214, .48);
@@ -143,6 +143,9 @@ em { font-style: normal; color: var(--gold); }
 .hud-nav a:focus-visible { outline-offset: -5px; }
 
 .hud-btn {
+  /* Solid ink with a cream rule: stays legible over the moon, clouds or sky */
+  --fill: #161922;
+  --edge: rgba(243, 234, 214, .62);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -226,7 +229,7 @@ em { font-style: normal; color: var(--gold); }
   align-items: center;
   height: 76px;
   padding: 0 32px;
-  background: linear-gradient(rgba(14, 22, 42, .78), rgba(14, 22, 42, 0));
+  background: linear-gradient(rgba(17, 27, 49, .96) 55%, rgba(17, 27, 49, 0));
   pointer-events: none;
 }
 .nav > * { pointer-events: auto; }
@@ -379,12 +382,19 @@ em { font-style: normal; color: var(--gold); }
 .clouds svg {
   position: absolute;
   bottom: 0;
-  left: -3%;
-  width: 106%;
+  left: 0;
+  width: 100%;
   height: 100%;
-  animation: drift 46s ease-in-out infinite alternate;
 }
-@keyframes drift { from { translate: -1.5% 0; } to { translate: 1.5% 0; } }
+/* Full-width banks are drawn twice over, side by side, so sliding them one repeat (--period, measured
+   in the page script) loops without a seam. Each layer sets its own --loop: far banks drift slowly,
+   near ones faster, for depth. */
+.clouds svg:not([data-side]) {
+  width: 200%;
+  will-change: translate;
+  animation: cloud-loop var(--loop, 160s) linear infinite;
+}
+@keyframes cloud-loop { from { translate: 0 0; } to { translate: calc(var(--period, 50%) * -1) 0; } }
 
 /* ---------- Hero ---------- */
 .hero {
@@ -418,28 +428,45 @@ em { font-style: normal; color: var(--gold); }
   width: 122.2%;
   height: 119.9%;
   max-width: none;
+  /* A touch of softening hides the stipple in the print's seas when it is scaled down */
+  filter: blur(.35px);
 }
 @keyframes moon-in { from { opacity: 0; translate: 0 14%; } }
 
-/* Mist bands crossing the lower part of the moon */
-.kasumi { position: absolute; display: block; height: auto; pointer-events: none; overflow: visible; }
-.hero-kasumi {
-  left: calc(50% - min(66vh, 62vw) * .12);
-  top: calc(9vh + min(66vh, 62vw) * .14);
-  width: calc(min(66vh, 62vw) * .82);
+/* Small drawn clouds drifting across the top of the moon, clear of the title */
+.wisp {
+  position: absolute;
+  display: block;
+  height: auto;
+  aspect-ratio: 600 / 150;
+  pointer-events: none;
+  overflow: visible;
+  filter: drop-shadow(0 6px 10px rgba(12, 16, 32, .35));
+}
+.hero-wisp {
   z-index: 1;
   transform: translateY(calc(var(--rise, 0px) * 1.6));
-  animation: kasumi-in 2.6s var(--ease) .5s both;
+  animation: wisp-in 2.4s var(--ease) .5s both, wisp-drift 34s ease-in-out infinite alternate;
 }
-@keyframes kasumi-in { from { opacity: 0; translate: 12% 0; } }
+.hero-wisp-1 { left: calc(50% - min(66vh, 62vw) * .66); top: calc(9vh + min(66vh, 62vw) * .02); width: calc(min(66vh, 62vw) * .5); }
+.hero-wisp-2 { left: calc(50% + min(66vh, 62vw) * .2); top: calc(9vh + min(66vh, 62vw) * .1); width: calc(min(66vh, 62vw) * .42); animation-direction: normal, alternate-reverse; }
+@keyframes wisp-in { from { opacity: 0; } }
+/* Drift sideways and bob a little, like clouds carried on a slow wind */
+@keyframes wisp-drift {
+  0% { translate: -60px 0; }
+  25% { translate: -25px -7px; }
+  50% { translate: 10px 0; }
+  75% { translate: 38px -6px; }
+  100% { translate: 60px 0; }
+}
 
-.hero-clouds-back { height: 50vh; z-index: 1; }
-.hero-clouds-mid { height: 40vh; z-index: 2; }
-.hero-clouds-front { height: 27vh; bottom: -3vh; z-index: 3; }
-.hero .clouds svg { animation: cloud-in 2.2s var(--ease) both, drift 46s ease-in-out infinite alternate; }
+.hero-clouds-back { height: 50vh; z-index: 1; --loop: 240s; }
+.hero-clouds-mid { height: 40vh; z-index: 2; --loop: 150s; }
+.hero-clouds-front { height: 27vh; bottom: -3vh; z-index: 3; --loop: 95s; }
+.hero .clouds svg { animation: cloud-in 2.2s var(--ease) both, cloud-loop var(--loop) linear infinite; }
 .hero-clouds-back svg { animation-delay: .1s, 0s; }
-.hero-clouds-mid svg { animation-delay: .25s, -12s; }
-.hero-clouds-front svg { animation-delay: .4s, -27s; }
+.hero-clouds-mid svg { animation-delay: .25s, -40s; }
+.hero-clouds-front svg { animation-delay: .4s, -20s; }
 @keyframes cloud-in { from { transform: translateY(45%); } }
 
 .hero-content {
@@ -467,7 +494,7 @@ em { font-style: normal; color: var(--gold); }
 .mega { margin-bottom: 30px; }
 .mega-line {
   display: block;
-  font: 800 clamp(3rem, 10.2vw, 10rem)/.9 var(--display);
+  font: 800 clamp(3rem, 8.8vw, 9.5rem)/.9 var(--display);
   letter-spacing: -.015em;
   text-transform: uppercase;
   color: var(--text);
@@ -488,7 +515,15 @@ em { font-style: normal; color: var(--gold); }
   box-shadow: .2em .2em 0 var(--ink);
   background: var(--accent);
 }
-.hero .caps { color: var(--text); font-weight: 500; text-shadow: 0 0 14px rgba(12, 16, 32, .95), 0 0 4px rgba(12, 16, 32, .9); }
+/* The tagline sits on its own indigo text box, like the inscription panel on a print */
+.hero .caps {
+  display: inline-block;
+  padding: 10px 20px 9px;
+  color: var(--text);
+  font-weight: 500;
+  background: rgba(17, 27, 49, .9);
+  box-shadow: inset 0 0 0 1px rgba(230, 184, 92, .4), 0 8px 24px rgba(12, 16, 32, .35);
+}
 .hero-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 34px; }
 
 /* Intro sequence on load (held while the launch intro is up) */
@@ -500,7 +535,7 @@ em { font-style: normal; color: var(--gold); }
 @keyframes rise { from { opacity: 0; transform: translateY(26px); filter: blur(6px); } }
 .intro-on .hero-content > *,
 .intro-on .hero-moon,
-.intro-on .hero-kasumi,
+.intro-on .hero-wisp,
 .intro-on .cartouche,
 .intro-on .hero .clouds svg,
 .intro-on .scroll-cue { animation-play-state: paused; }
@@ -724,7 +759,7 @@ em { font-style: normal; color: var(--gold); }
 .anno-l .anno-label { right: calc(100% + 18px); text-align: right; }
 .anno-r .anno-label { left: calc(100% + 18px); }
 
-.about-clouds { height: 34vh; z-index: 1; opacity: .9; }
+.about-clouds { height: 34vh; z-index: 1; opacity: .9; --loop: 260s; }
 
 /* ---------- Stack ---------- */
 .stack-grid {
@@ -841,7 +876,8 @@ em { font-style: normal; color: var(--gold); }
 }
 
 .contact-moon {
-  --size: max(1500px, 150vw);
+  /* Never wider than the moon image itself (its disc is ~1030px), so it stays sharp */
+  --size: min(1000px, 112vw);
   position: absolute;
   left: 50%;
   bottom: calc(36vh - var(--size));
@@ -852,8 +888,8 @@ em { font-style: normal; color: var(--gold); }
   transform: translateX(-50%);
   box-shadow: 0 -20px 90px rgba(240, 200, 120, .3);
 }
-.contact-clouds-back { height: 21vh; z-index: 2; }
-.contact-clouds-front { height: 13vh; bottom: -2vh; z-index: 3; }
+.contact-clouds-back { height: 21vh; z-index: 2; --loop: 170s; }
+.contact-clouds-front { height: 13vh; bottom: -2vh; z-index: 3; --loop: 100s; }
 
 /* ---------- Footer ---------- */
 .footer {
@@ -968,6 +1004,10 @@ em { font-style: normal; color: var(--gold); }
   width: max-content;
   max-width: calc(100% - 32px);
   text-align: center;
+  /* On its own indigo text box so the question reads over the astronaut */
+  padding: 20px 28px 22px;
+  background: rgba(17, 27, 49, .9);
+  box-shadow: inset 0 0 0 1px rgba(230, 184, 92, .4), 0 10px 30px rgba(12, 16, 32, .4);
   opacity: 0;
   visibility: hidden;
   transform: translate(-50%, 20px);
@@ -1147,21 +1187,21 @@ body::after {
 }
 
 /* ---------- Woodblock details in the intro ---------- */
-.intro-kasumi {
-  left: calc(50% - min(54vh, 72vw) * 1.05);
-  top: calc(11vh + min(54vh, 72vw) * .58);
-  width: calc(min(54vh, 72vw) * 1.35);
+.intro-wisp {
   z-index: 0; /* behind the marquee and the astronaut */
   opacity: 0;
-  transform: translate(-30%, 50vh);
+  transform: translateY(50vh);
   transition: transform 2.2s var(--ease) .1s, opacity 1.2s var(--ease);
 }
-.intro[data-stage="3"] .intro-kasumi,
-.intro[data-stage="4"] .intro-kasumi { opacity: 1; transform: none; }
-.intro[data-stage="out"] .intro-kasumi { opacity: 0; transform: translateX(-40%); transition-duration: 1.2s; }
+.intro-wisp-1 { left: calc(50% - min(54vh, 72vw) * .72); top: calc(11vh + min(54vh, 72vw) * .06); width: calc(min(54vh, 72vw) * .55); }
+.intro-wisp-2 { left: calc(50% + min(54vh, 72vw) * .24); top: calc(11vh + min(54vh, 72vw) * .3); width: calc(min(54vh, 72vw) * .46); transition-delay: .25s, 0s; }
+.intro[data-stage="3"] .intro-wisp,
+.intro[data-stage="4"] .intro-wisp { opacity: 1; transform: none; }
+.intro[data-stage="out"] .intro-wisp-1 { opacity: 0; transform: translateX(-60%); transition-duration: 1.2s; }
+.intro[data-stage="out"] .intro-wisp-2 { opacity: 0; transform: translateX(60%); transition-duration: 1.2s; }
 .intro-marquee { -webkit-text-stroke: .02em var(--ink); paint-order: stroke fill; }
 .intro-mark .seal, .wordmark .seal { font-size: 12px; width: 1.75em; padding: .3em 0; }
 
-@media (max-width: 640px) {
-  .cartouche { display: none; }
+@media (max-width: 1100px) {
+  .cartouche { display: none; } /* no room beside the title chips */
 }
