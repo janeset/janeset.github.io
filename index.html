@@ -3,10 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>nebulai.dev — Jane Santos</title>
+  <title>nebulai.dev — JS</title>
   <meta name="description" content="Jane Santos — software developer working where code, cloud and AI meet.">
   <meta name="theme-color" content="#111b31">
-  <link rel="icon" href="favicon.ico">
+  <!-- the NEBULAI planet mark: SVG where supported, the .ico for older browsers, PNG for home screens -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;700;800&family=Inter:wght@300;400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap" rel="stylesheet">
@@ -67,7 +70,7 @@
       <div class="bank" data-bank="16" data-side="right" data-tone="front"></div>
     </div>
     <p class="intro-clock" aria-hidden="true">T–00:10.00</p>
-    <p class="intro-mark" aria-hidden="true"><svg><use href="#mark"/></svg>Nebulai<span class="seal" lang="ja">星雲</span></p>
+    <p class="intro-mark" aria-hidden="true"><svg><use href="#mark"/></svg>Nebulai</p>
     <div class="intro-gate">
       <p class="intro-q" id="intro-q">Ready for launch?</p>
       <div class="gate-btns">
@@ -80,8 +83,7 @@
 
   <!-- Corner UI, pinned like a cockpit -->
   <header class="nav">
-    <p class="nav-tag">Jane Santos<br>Software developer</p>
-    <a href="#top" class="wordmark" aria-label="Nebulai.dev, back to top"><svg aria-hidden="true"><use href="#mark"/></svg>Nebulai<span class="seal" aria-hidden="true" lang="ja">星雲</span></a>
+    <a href="#top" class="wordmark" aria-label="Nebulai.dev, back to top"><svg aria-hidden="true"><use href="#mark"/></svg>Nebulai</a>
     <a class="nav-cta" href="#contact">Get in touch</a>
   </header>
 
@@ -94,42 +96,35 @@
     </ul>
   </nav>
 
-  <a class="hud-btn corner-link" href="https://github.com/janeset">GitHub ↗</a>
 
   <main id="main">
 
-    <!-- Hero: giant title over a rising moon and sunlit cloud banks -->
+    <!-- Hero, composed like a woodblock print: the astronaut on the moon at the centre, the title
+         down the left margin with its seal, a quiet line down the right, and open sky between -->
     <section class="hero" id="top">
       <div class="hero-moon" aria-hidden="true"><img src="images/moon-ukiyoe.webp" alt="" width="1254" height="1254"></div>
-      <img class="wisp hero-wisp hero-wisp-1" src="images/cloud-small.webp" alt="" width="1983" height="793">
-      <img class="wisp hero-wisp hero-wisp-2" src="images/cloud-small.webp" alt="" width="1983" height="793">
-      <!-- Title slip, as on a print: "beyond the stars" -->
-      <p class="cartouche" aria-hidden="true" lang="ja">星の彼方へ</p>
       <!-- Cloud sea: four banks on one perspective path, a quarter-cycle apart, drifting in from the
            horizon and passing below as they come close -->
       <div class="clouds hero-depth" aria-hidden="true" style="--i:0"><div class="depth"><div class="bank" data-bank="1" data-tone="mid"></div></div></div>
       <div class="clouds hero-depth" aria-hidden="true" style="--i:1"><div class="depth"><div class="bank" data-bank="2" data-tone="mid"></div></div></div>
       <div class="clouds hero-depth" aria-hidden="true" style="--i:2"><div class="depth"><div class="bank" data-bank="3" data-tone="mid"></div></div></div>
       <div class="clouds hero-depth" aria-hidden="true" style="--i:3"><div class="depth"><div class="bank" data-bank="7" data-tone="mid"></div></div></div>
-      <!-- The astronaut, drifting beside the moon and reaching for it -->
+      <!-- The astronaut, reaching up for the far-off moon -->
       <div class="hero-astro" aria-hidden="true"><img src="images/astronaut-intro.webp" alt="" width="1086" height="1448"></div>
 
       <div class="hero-content">
-        <p class="hero-chips"><span>Software developer</span><span>Ontario, Canada</span></p>
-        <h1 class="mega" aria-label="Jane Santos. Code beyond the atmosphere.">
-          <span class="mega-line" aria-hidden="true">Code beyond</span>
-          <span class="mega-sub" aria-hidden="true">the atmosphere</span>
+        <!-- Title upper left; the inscription sits right of the astronaut -->
+        <h1 class="hero-title" aria-label="Jane Santos. Code beyond the atmosphere.">
+          <span class="title-main" aria-hidden="true"><span>Code</span> <span>beyond</span></span>
+          <span class="title-sub" aria-hidden="true">the atmosphere</span>
         </h1>
-        <p class="caps">Jane Santos — building clean, reliable software where code, cloud and AI meet.</p>
-        <div class="hero-cta">
-          <a class="hud-btn hud-btn-solid" href="#work">View work</a>
-          <a class="hud-btn" href="#contact">Get in touch</a>
-        </div>
+        <p class="hero-sign"><span class="sign-name">Jane Santos</span><br>Software developer</p>
       </div>
 
       <a class="hud-btn scroll-cue" href="#intro" aria-label="Scroll down">
         <span>Scroll</span>
         <i aria-hidden="true"></i>
+        <b class="cue-head" aria-hidden="true"></b>
       </a>
     </section>
 
@@ -283,11 +278,31 @@
         <p class="label" data-reveal>04 — Contact</p>
         <h2 class="title contact-title" data-reveal style="--d:.1s">Let's build <em>what's next.</em></h2>
         <p class="caps" data-reveal style="--d:.2s">Open to new roles, freelance projects and collaborations, especially anything touching cloud or AI.</p>
-        <div class="hero-cta" data-reveal style="--d:.3s">
-          <a class="hud-btn hud-btn-solid" href="mailto:js@nebulai.dev">Start a conversation</a>
+        <div class="contact-cta" data-reveal style="--d:.3s">
+          <button class="send-btn" type="button" data-open-message>
+            <span>Send a message</span><span class="send-btn-arrow" aria-hidden="true">→</span>
+          </button>
         </div>
+        <!-- The message form opens in a popup. Messages go through Web3Forms to Jane's inbox; her
+             address never appears in the page. data-access-key is the Web3Forms key for that inbox. -->
+        <dialog class="message-dialog" aria-labelledby="message-title">
+        <form class="hud-panel contact-form" data-access-key="56c826d7-258f-4535-a06f-22f3684d419f" novalidate>
+          <p class="hud-tab" id="message-title">Send a message</p>
+          <button class="dialog-close" type="button" aria-label="Close" data-close-message>×</button>
+          <div class="form-row">
+            <label class="field"><span>Name</span><input name="name" type="text" autocomplete="name" required></label>
+            <label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" required></label>
+          </div>
+          <label class="field"><span>Message</span><textarea name="message" rows="4" required></textarea></label>
+          <!-- spam trap: people never see or tick it; bots that fill everything in get turned away -->
+          <input class="form-trap" name="botcheck" type="checkbox" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <div class="form-foot">
+            <p class="form-status" role="status" aria-live="polite"></p>
+            <button class="hud-btn hud-btn-solid" type="submit">Send message</button>
+          </div>
+        </form>
+        </dialog>
         <ul class="contact-links" data-reveal style="--d:.4s">
-          <li><a href="mailto:js@nebulai.dev">js@nebulai.dev</a></li>
           <li><a href="https://github.com/janeset">GitHub ↗</a></li>
           <li><a href="https://www.linkedin.com/in/janeset/">LinkedIn ↗</a></li>
         </ul>
@@ -315,7 +330,8 @@
     </button>
   </div>
 
-  <!-- Above the sound control: replay the launch countdown, and (once scrolled down) back to the top -->
+  <!-- Bottom-left corner slot: replay the launch countdown while the hero is in view, then back to
+       the top once scrolled down (the two cross-fade in place) -->
   <div class="hud-stack">
     <button class="hud-btn stack-btn" type="button" data-relaunch aria-label="Replay the launch countdown"><span class="stack-icon" aria-hidden="true">↻</span><span class="stack-word">Relaunch</span></button>
     <a class="hud-btn stack-btn to-top" href="#top" aria-label="Back to top"><span class="stack-icon" aria-hidden="true">↑</span><span class="stack-word">Top</span></a>
@@ -518,6 +534,61 @@
       setTimeout(function () { scrollTo(0, 0); location.reload(); }, reduce ? 0 : 450);
     });
 
+    // Contact form: checks the fields, then sends the message through Web3Forms, which emails it to
+    // Jane (the key in data-access-key decides where it goes). Results show under the fields.
+    (function () {
+      var form = document.querySelector('.contact-form');
+      if (!form) return;
+      var status = form.querySelector('.form-status'), button = form.querySelector('[type="submit"]');
+      // the popup: opened by the "Send a message" button; ×, Esc or a click on the backdrop close it
+      var dialog = document.querySelector('.message-dialog');
+      document.querySelector('[data-open-message]').addEventListener('click', function () {
+        if (status.dataset.kind === 'ok') say('');
+        dialog.showModal();
+        form.elements.name.focus();
+      });
+      dialog.querySelector('[data-close-message]').addEventListener('click', function () { dialog.close(); });
+      dialog.addEventListener('click', function (e) { if (e.target === dialog) dialog.close(); });
+      var fields = form.querySelectorAll('[required]');
+      function say(text, kind) { status.textContent = text; status.dataset.kind = kind || ''; }
+      form.addEventListener('input', function (e) {
+        e.target.removeAttribute('aria-invalid');
+        if (status.dataset.kind === 'error') say('');
+      });
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var bad = Array.prototype.filter.call(fields, function (f) { return !f.value.trim() || !f.checkValidity(); });
+        bad.forEach(function (f) { f.setAttribute('aria-invalid', 'true'); });
+        if (bad.length) { say('Add your name, a valid email and a message.', 'error'); bad[0].focus(); return; }
+        var key = form.dataset.accessKey;
+        if (!key || /^YOUR_/.test(key)) { say('Messages aren\'t connected yet.', 'error'); return; }
+        var el = form.elements;
+        button.textContent = 'Sending…';
+        button.setAttribute('aria-busy', 'true');
+        fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            access_key: key,
+            subject: 'New message from nebulai.dev',
+            from_name: 'nebulai.dev',
+            name: el.name.value.trim(),
+            email: el.email.value.trim(),
+            message: el.message.value.trim(),
+            botcheck: el.botcheck.checked
+          })
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (res) {
+            if (!res.success) throw new Error(res.message);
+            form.reset();
+            say('Message sent. Thank you, I\'ll be in touch soon.', 'ok');
+          })
+          .catch(function () { say('Couldn\'t send just now. Try again in a moment.', 'error'); })
+          .then(function () { button.textContent = 'Send message'; button.removeAttribute('aria-busy'); });
+      });
+    })();
+
     // Scroll: hero parallax (moon rises slowly, cloud banks faster, title drifts away),
     // astronaut depth drift, and the HUD nav lighting up the section in view
     (function () {
@@ -531,6 +602,8 @@
       function update() {
         var y = scrollY;
         document.documentElement.classList.toggle('show-top', y > innerHeight * .6);
+        // the hero's bottom edge fades into the night as it scrolls into view
+        hero.style.setProperty('--edge-fade', Math.min(1, y / (innerHeight * .2)).toFixed(3));
         if (!reduce && y < innerHeight * 1.3) {
           hero.style.setProperty('--rise', (-y * .18) + 'px');
           layers.forEach(function (l) { l[0].style.transform = 'translateY(' + (-y * l[1]) + 'px)'; });
@@ -703,7 +776,7 @@
       }
 
       // Cockpit blips on the HUD controls
-      var hud = '.hud-btn, .hud-nav a, .work-row, .nav-cta, .corner-link, .contact-links a';
+      var hud = '.hud-btn, .hud-nav a, .work-row, .nav-cta, .contact-links a';
       document.addEventListener('pointerover', function (e) {
         var t = e.target.closest && e.target.closest(hud);
         if (t && !t.contains(e.relatedTarget)) blip(false);

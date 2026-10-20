@@ -186,47 +186,13 @@ em { font-style: normal; color: var(--gold); }
   color: var(--text);
 }
 
-/* Hanko seal: vermilion square, characters set top to bottom */
-.seal {
-  display: inline-grid;
-  place-items: center;
-  width: 1.5em;
-  padding: .22em 0;
-  margin-left: .2em;
-  font: 800 .62em/1.05 var(--display);
-  letter-spacing: 0;
-  writing-mode: vertical-rl;
-  color: var(--text);
-  background: var(--accent);
-  border-radius: 2px;
-  box-shadow: inset 0 0 0 2px var(--accent), inset 0 0 0 3px rgba(243, 234, 214, .55);
-}
-
-/* Title slip down the side of the hero, as on Hiroshige's prints */
-.cartouche {
-  position: absolute;
-  right: 40px;
-  top: 104px;
-  z-index: 5;
-  margin: 0;
-  padding: 16px 9px;
-  font: 700 1.05rem/1.25 var(--display);
-  letter-spacing: .3em;
-  writing-mode: vertical-rl;
-  color: var(--ink);
-  background: var(--paper);
-  border: 1.5px solid var(--ink);
-  box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 4px var(--ink), 4px 4px 0 rgba(12, 16, 32, .35);
-  animation: rise 1.4s var(--ease) 1.2s both;
-}
-
 /* ---------- Corner UI ---------- */
 .nav {
   position: fixed;
   inset: 0 0 auto;
   z-index: 50;
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
   height: 76px;
   padding: 0 32px;
@@ -234,15 +200,9 @@ em { font-style: normal; color: var(--gold); }
   pointer-events: none;
 }
 .nav > * { pointer-events: auto; }
-.nav-tag {
-  margin: 0;
-  justify-self: start;
-  font: 500 .73rem/1.6 var(--hud);
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
+/* the wordmark in the top-left corner, "Get in touch" opposite it */
 .wordmark {
+  justify-self: start;
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -251,7 +211,7 @@ em { font-style: normal; color: var(--gold); }
   text-transform: uppercase;
 }
 .wordmark svg, .intro-mark svg { width: 28px; height: 28px; color: var(--gold); }
-.nav-cta, .corner-link {
+.nav-cta {
   justify-self: end;
   font: 500 .78rem/1 var(--hud);
   letter-spacing: .18em;
@@ -259,9 +219,7 @@ em { font-style: normal; color: var(--gold); }
   color: var(--muted);
   transition: color .3s;
 }
-.nav-cta:hover, .corner-link:hover { color: var(--gold); }
-.corner-link { position: fixed; left: 28px; bottom: 20px; z-index: 50; padding: 18px 20px; color: var(--text); }
-.corner-link:hover { color: var(--ink); }
+.nav-cta:hover { color: var(--gold); }
 
 /* Bottom HUD nav: the section in view lights up mint */
 .hud-nav {
@@ -336,26 +294,30 @@ em { font-style: normal; color: var(--gold); }
 }
 .sound-dock:hover, .sound-dock:focus-within { --edge: var(--gold); }
 
-/* Relaunch and back-to-top, stacked above the sound control. "Top" only shows once the hero is
-   scrolled away (the page script sets .show-top) */
+/* One corner slot, bottom left, level with the sound control and mirroring it: Relaunch while the
+   hero is in view, then "Top" once it's scrolled away (the page script sets .show-top). The two
+   cross-fade in place, so the bottom row stays one balanced line. On phones the slot sits above
+   the sound control. */
 .hud-stack {
   position: fixed;
-  right: 28px;
-  bottom: 80px;
+  left: 28px;
+  bottom: 20px;
   z-index: 60;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
+  width: 140px;
+  height: 48px;
 }
-.stack-btn { gap: 9px; padding: 12px 16px; }
+.stack-btn {
+  position: absolute;
+  inset: 0;
+  gap: 9px;
+  padding: 0 16px;
+  transition: color .35s var(--ease), opacity .45s var(--ease), transform .45s var(--ease), visibility 0s;
+}
 .stack-icon { font: 600 .95rem/1 var(--sans); letter-spacing: 0; }
-.to-top {
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(10px);
-  transition: color .35s var(--ease), opacity .4s var(--ease), transform .4s var(--ease), visibility 0s .4s;
-}
+.to-top,
+.show-top [data-relaunch] { opacity: 0; visibility: hidden; transition-delay: 0s, 0s, 0s, .45s; }
+.to-top { transform: translateY(8px); }
+.show-top [data-relaunch] { transform: translateY(-8px); }
 .show-top .to-top { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
 /* Relaunch: the page dims to the night sky before the countdown comes back (veil added by the script) */
 .relaunch-veil {
@@ -449,6 +411,12 @@ em { font-style: normal; color: var(--gold); }
 
 /* ---------- Hero ---------- */
 .hero {
+  /* the astronaut's height and top: the moon and the text either side are all placed off him.
+     The moon keeps its own small size (far away), out along his reach by --moon-dx of his height */
+  --ah: min(54vh, 46vw);
+  --at: 33vh;
+  --moon-size: min(8.7vh, 7.6vw);
+  --moon-dx: .716;
   position: relative;
   height: 100vh;
   height: 100svh;
@@ -460,15 +428,34 @@ em { font-style: normal; color: var(--gold); }
   background: linear-gradient(rgba(17, 27, 49, 0) 0%, rgba(28, 50, 92, .6) 40%, #36598a 66%, #233c68 84%, var(--night) 100%);
 }
 
+/* The hero's bottom edge dissolves into the night of the next section, so when it scrolls into
+   view the cloud sea fades out instead of stopping in a straight line. The page script brings it
+   in as you scroll (--edge-fade, 0 at the top), so the clouds stay bright at rest. Over the
+   clouds and the astronaut's boots, under the text and buttons. */
+.hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  z-index: 4;
+  height: 26vh;
+  pointer-events: none;
+  opacity: var(--edge-fade, 0);
+  background: linear-gradient(rgba(17, 27, 49, 0), rgba(17, 27, 49, .6) 45%, var(--night) 92%);
+}
+
+/* The moon, far off: no bigger than the astronaut's glove, up and to the right along his reach,
+   as if he could almost close his hand around it */
 .hero-moon {
   position: absolute;
-  left: 50%;
-  top: 9vh;
-  width: min(66vh, 62vw);
+  left: calc(50% + var(--ah) * var(--moon-dx));
+  top: calc(var(--at) - var(--ah) * .3);
+  width: var(--moon-size);
   aspect-ratio: 1;
   border-radius: 50%;
-  transform: translate(-50%, var(--rise, 0px));
-  box-shadow: 0 0 60px rgba(240, 200, 120, .28), 0 0 160px rgba(240, 200, 120, .14);
+  transform: translate(-50%, calc(-50% + var(--rise, 0px)));
+  box-shadow: 0 0 30px rgba(240, 200, 120, .32), 0 0 90px rgba(240, 200, 120, .16);
   animation: moon-in 2.4s var(--ease) .2s both;
 }
 /* The drawn moon sits at about 9-91% of its image; scale it so the disc fills the round frame */
@@ -484,7 +471,7 @@ em { font-style: normal; color: var(--gold); }
 }
 @keyframes moon-in { from { opacity: 0; translate: 0 14%; } }
 
-/* Small drawn clouds drifting across the top of the moon, clear of the title */
+/* Small drawn clouds (the launch intro's pair, either side of the rocket) */
 .wisp {
   position: absolute;
   display: block;
@@ -495,36 +482,18 @@ em { font-style: normal; color: var(--gold); }
   overflow: visible;
   filter: drop-shadow(0 6px 10px rgba(12, 16, 32, .35));
 }
-.hero-wisp {
-  z-index: 1;
-  transform: translateY(calc(var(--rise, 0px) * 1.6));
-  animation: wisp-in 2.4s var(--ease) .5s both, wisp-drift 34s ease-in-out infinite alternate;
-}
-.hero-wisp-1 { left: calc(50% - min(66vh, 62vw) * .68); top: calc(9vh - min(66vh, 62vw) * .05); width: calc(min(66vh, 62vw) * .5); }
-/* the same print flipped and smaller, so the two never read as copies */
-.hero-wisp-2 { left: calc(50% + min(66vh, 62vw) * .2); top: calc(9vh + min(66vh, 62vw) * .05); width: calc(min(66vh, 62vw) * .38); scale: -1 1; animation-direction: normal, alternate-reverse; }
-@keyframes wisp-in { from { opacity: 0; } }
-/* Drift sideways and bob a little, like clouds carried on a slow wind */
-@keyframes wisp-drift {
-  0% { translate: -60px 0; }
-  25% { translate: -25px -7px; }
-  50% { translate: 10px 0; }
-  75% { translate: 38px -6px; }
-  100% { translate: 60px 0; }
-}
 
-/* The astronaut: off the moon's lower left, reaching up toward it. Above the cloud sea, below the
-   title. It drifts in once the rocket has gone, then floats weightless; scrolling lifts it away a
-   little faster than the moon. */
+/* The astronaut: the centre of the picture, rising out of the cloud sea and reaching up and right
+   for the far-off moon. His body (46% across the image, which is 3:4) is centred. Above the
+   clouds, below the text. He drifts up once the rocket has gone, then floats weightless;
+   scrolling lifts him away faster than the moon. */
 .hero-astro {
-  --m: min(66vh, 62vw);                  /* the moon's size */
-  --h: calc(var(--m) * .74);
   position: absolute;
   z-index: 4;
-  height: var(--h);
+  height: var(--ah);
   aspect-ratio: 1086 / 1448;
-  left: calc(50% - var(--m) * .5 - var(--h) * .62);
-  top: calc(9vh + var(--m) * .42);
+  left: calc(50% - var(--ah) * .345);
+  top: var(--at);
   pointer-events: none;
   transform: translateY(calc(var(--rise, 0px) * 2.2));
 }
@@ -536,11 +505,7 @@ em { font-style: normal; color: var(--gold); }
   filter: drop-shadow(0 18px 30px rgba(8, 12, 28, .45));
   animation: astro-in 2.8s cubic-bezier(.16, 1, .3, 1) 1.1s both, astro-float 11s ease-in-out 3.9s infinite alternate;
 }
-/* Narrow screens have no room beside the moon: it rises out of the cloud sea below the buttons instead */
-@media (max-width: 700px) {
-  .hero-astro { --h: 25vh; left: -2vw; top: auto; bottom: 3vh; }
-}
-@keyframes astro-in { from { opacity: 0; translate: -14vw 22vh; rotate: -14deg; scale: .82; } }
+@keyframes astro-in { from { opacity: 0; translate: 0 20vh; rotate: -8deg; scale: .86; } }
 /* weightless: a slow rise and fall with a little roll, never quite repeating with the cloud drift */
 @keyframes astro-float {
   0% { translate: 0 0; rotate: 0deg; }
@@ -601,86 +566,98 @@ em { font-style: normal; color: var(--gold); }
   100% { transform: translateY(48vh) scale(1.6); opacity: 1; filter: grayscale(1) sepia(.8) saturate(1.25) brightness(1.42) contrast(.95); }
 }
 
+/* The words sit either side of the astronaut, the way a print's title and inscription sit in its
+   margins, leaving the centre to the picture and open sky: the title upper left, the inscription
+   to his right. */
 .hero-content {
-  min-width: 0;
-  max-width: 100vw;
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 5;
-  width: min(1180px, 100%);
-  padding: 0 24px;
-  margin-top: -6vh;
+  pointer-events: none;
   will-change: transform, opacity;
 }
-.hero-chips {
-  display: flex;
-  justify-content: space-between;
-  max-width: 1040px;
-  margin: 0 auto 6px;
-  padding: 0 2%;
-  font: 600 .88rem/1 var(--hud);
-  letter-spacing: .18em;
+.hero-title {
+  position: absolute;
+  right: calc(50% + var(--ah) * .5);
+  top: 14vh;
+  text-align: right;
+}
+.title-main {
+  display: block;
+  font: 800 clamp(1.7rem, min(5.6vh, 3.4vw), 4.2rem)/.98 var(--display);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-shadow: 0 2px 24px rgba(12, 16, 32, .45);
+}
+.title-main > span { display: block; }
+/* small, wide and gold under a hairline */
+.title-sub {
+  display: inline-block;
+  margin-top: .9rem;
+  padding-top: .85rem;
+  border-top: 1px solid rgba(230, 184, 92, .38);
+  font: 700 clamp(.72rem, 1.6vh, .95rem)/1 var(--display);
+  letter-spacing: .5em;
   text-transform: uppercase;
   color: var(--gold);
 }
-.hero-chips span { padding: 7px 10px 6px; background: rgba(14, 22, 42, .82); box-shadow: inset 0 0 0 1px rgba(230, 184, 92, .45); }
-.mega { margin-bottom: 30px; }
-.mega-line {
-  display: block;
-  font: 800 clamp(3rem, 8.8vw, 9.5rem)/.9 var(--display);
-  letter-spacing: -.015em;
-  text-transform: uppercase;
-  color: var(--text);
-  /* Cream letters with a sumi outline and a printed offset shadow: legible on the night sky and on the gold moon */
-  -webkit-text-stroke: .045em var(--ink);
-  paint-order: stroke fill;
-  text-shadow: .035em .045em 0 var(--ink), 0 18px 60px rgba(12, 16, 32, .45);
-}
-/* Second line on a vermilion strip, like a seal-red title box */
-.mega-sub {
-  display: inline-block;
-  margin-top: 18px;
-  padding: .55em .8em .5em 1.22em;
-  font: 700 clamp(.8rem, 1.5vw, 1.2rem)/1 var(--display);
+/* Inscription under a short gold rule, beside the astronaut's middle */
+.hero-sign {
+  position: absolute;
+  left: calc(50% + var(--ah) * .5);
+  top: calc(var(--at) + var(--ah) * .42);
+  margin: 0;
+  padding-top: 22px;
+  text-align: left;
+  font: 500 .74rem/2.1 var(--hud);
   letter-spacing: .42em;
   text-transform: uppercase;
-  color: var(--text);
-  box-shadow: .2em .2em 0 var(--ink);
-  background: var(--accent);
+  color: var(--muted);
+  background: linear-gradient(var(--gold), var(--gold)) no-repeat top left / 40px 1px;
 }
-/* The tagline sits on its own indigo text box, like the inscription panel on a print */
-.hero .caps {
-  display: inline-block;
-  padding: 10px 20px 9px;
+/* her name above the role, set in the display serif like the title */
+.sign-name {
+  font: 700 1.05rem/1.6 var(--display);
+  letter-spacing: .16em;
   color: var(--text);
-  font-weight: 500;
-  background: rgba(17, 27, 49, .9);
-  box-shadow: inset 0 0 0 1px rgba(230, 184, 92, .4), 0 8px 24px rgba(12, 16, 32, .35);
 }
-.hero-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 34px; }
+
+/* Under 1100px the gold line tightens up; under 880px there's no room beside the astronaut: the
+   title goes across the top on one line with the inscription under it, and the astronaut and the
+   moon move down below them */
+@media (max-width: 1100px) {
+  .title-sub { letter-spacing: .34em; }
+}
+@media (max-width: 880px) {
+  .hero { --ah: min(64vw, 38vh); --at: max(42vh, 320px); --moon-size: min(11vw, 7vh); --moon-dx: .6; }
+  .hero-content { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 86px 16px 0; }
+  .hero-title, .hero-sign { position: static; text-align: center; }
+  .title-main { font-size: 8vw; }
+  .title-main > span { display: inline; }
+  .hero-sign { padding-top: 16px; line-height: 1.9; letter-spacing: .32em; background-position: top center; }
+  .hero .scroll-cue { left: 16px; top: auto; bottom: 80px; }
+}
 
 /* Intro sequence on load (held while the launch intro is up) */
 .hero-content > * { animation: rise 1.5s var(--ease) both; }
-.hero-content > :nth-child(1) { animation-delay: .5s; }
-.hero-content > :nth-child(2) { animation-delay: .3s; }
-.hero-content > :nth-child(3) { animation-delay: .8s; }
-.hero-content > :nth-child(4) { animation-delay: 1s; }
+.hero-content > :nth-child(1) { animation-delay: .6s; }
+.hero-content > :nth-child(2) { animation-delay: 1s; }
 @keyframes rise { from { opacity: 0; transform: translateY(26px); filter: blur(6px); } }
 .intro-on .hero-content > *,
 .intro-on .hero-moon,
-.intro-on .hero-wisp,
-.intro-on .cartouche,
 .intro-on .hero .clouds .bank,
 .intro-on .hero-astro img,
 .intro-on .hero-depth,
 .intro-on .hero-depth .depth,
 .intro-on .scroll-cue { animation-play-state: paused; }
 
+/* Under the inscription, right of the astronaut, so nothing sits on him (bottom left on phones) */
 .scroll-cue {
   position: absolute;
-  left: 50%;
-  bottom: 92px;
+  left: calc(50% + var(--ah) * .5);
+  top: calc(var(--at) + var(--ah) * .42 + 100px);
   z-index: 5;
-  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -702,6 +679,17 @@ em { font-style: normal; color: var(--gold); }
   animation: cue 2.2s var(--ease) infinite;
 }
 @keyframes cue { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
+/* the arrowhead closing the line, nudged down as each sweep arrives */
+.cue-head {
+  width: 7px;
+  height: 7px;
+  margin-top: -15px;
+  border-right: 1.5px solid var(--text);
+  border-bottom: 1.5px solid var(--text);
+  transform: rotate(45deg);
+  animation: cue-nudge 2.2s var(--ease) infinite;
+}
+@keyframes cue-nudge { 0%, 55% { translate: 0 0; } 75% { translate: 0 3px; } 100% { translate: 0 0; } }
 
 /* ---------- Statement ---------- */
 .statement {
@@ -965,6 +953,7 @@ em { font-style: normal; color: var(--gold); }
 .contact {
   position: relative;
   overflow: hidden;
+  overflow: clip; /* hidden can still be scrolled sideways (focus, scrollIntoView), shifting the form; clip can't */
   min-height: 100vh;
   min-height: 100svh;
   display: flex;
@@ -976,6 +965,124 @@ em { font-style: normal; color: var(--gold); }
 }
 .contact-inner { position: relative; z-index: 4; }
 .contact-title { font-size: clamp(2.2rem, 4.8vw, 4.8rem); margin-bottom: 28px; }
+/* "Send a message": vermilion, set in the display serif, inside a fine gold frame like a print's
+   double rule. A soft light sweeps across now and then; on hover it lifts, the frame draws in and
+   the arrow steps forward. */
+.contact-cta { margin-top: 44px; }
+.send-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  padding: 21px 34px 21px 40px;
+  border: 0;
+  cursor: pointer;
+  font: 700 clamp(.95rem, 1.5vw, 1.2rem)/1 var(--display);
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: var(--accent);
+  box-shadow: 0 14px 40px rgba(200, 64, 31, .28);
+  transition: transform .5s var(--ease), box-shadow .5s var(--ease);
+}
+.send-btn::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border: 1px solid rgba(230, 184, 92, .55);
+  pointer-events: none;
+  transition: inset .5s var(--ease), border-color .5s var(--ease);
+}
+.send-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 240, 215, .32) 50%, transparent 65%) no-repeat;
+  background-size: 300% 100%;
+  background-position: 130% 0;
+  animation: send-shine 6s var(--ease) 2s infinite;
+}
+@keyframes send-shine { 0%, 70% { background-position: 130% 0; } 100% { background-position: -30% 0; } }
+.send-btn:hover { transform: translateY(-2px); box-shadow: 0 20px 52px rgba(200, 64, 31, .4); }
+.send-btn:hover::before { inset: -4px; border-color: var(--gold); }
+.send-btn-arrow { font-family: var(--sans); letter-spacing: 0; transition: transform .5s var(--ease); }
+.send-btn:hover .send-btn-arrow { transform: translateX(6px); }
+.send-btn:focus-visible { outline: 1px solid var(--gold); outline-offset: 12px; }
+
+/* The popup: the form over a blurred night backdrop; Esc, ×, or a click outside closes it */
+.message-dialog {
+  width: min(600px, calc(100% - 24px));
+  max-width: none;
+  max-height: calc(100% - 24px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  overflow: visible;
+}
+.message-dialog::backdrop { background: rgba(10, 14, 28, .72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.message-dialog[open] .contact-form { animation: dialog-in .5s var(--ease) both; }
+@keyframes dialog-in { from { opacity: 0; transform: translateY(18px) scale(.98); } }
+.dialog-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  background: none;
+  font: 300 1.7rem/1 var(--sans);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color .3s;
+}
+.dialog-close:hover { color: var(--gold); }
+
+/* The message form: a glass panel like the others, the fields set as quiet underlined lines */
+.contact-form {
+  padding: 30px 32px 26px;
+  text-align: left;
+}
+.contact-form .hud-tab { margin-bottom: 18px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+.field { display: block; margin-bottom: 18px; }
+.field > span {
+  display: block;
+  margin-bottom: 4px;
+  font: 500 .72rem/1.6 var(--hud);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.field input,
+.field textarea {
+  display: block;
+  width: 100%;
+  padding: 8px 2px 9px;
+  border: 0;
+  border-bottom: 1px solid var(--line-strong);
+  border-radius: 0;
+  background: transparent;
+  font: 400 1rem/1.5 var(--sans);
+  color: var(--text);
+  transition: border-color .3s;
+}
+.field textarea { min-height: 96px; resize: vertical; }
+.field input:focus,
+.field textarea:focus { outline: none; border-bottom-color: var(--gold); }
+.field input[aria-invalid="true"],
+.field textarea[aria-invalid="true"] { border-bottom-color: var(--accent); }
+.form-trap { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.form-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 6px; }
+.form-status { margin: 0; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+.form-status[data-kind="error"] { color: #f0997b; }
+.form-status[data-kind="ok"] { color: var(--gold); }
+@media (max-width: 640px) {
+  .contact-form { padding: 26px 20px 22px; }
+  .form-row { grid-template-columns: 1fr; }
+  .form-foot { flex-direction: column-reverse; align-items: stretch; text-align: center; }
+}
 .contact-links {
   display: flex;
   flex-wrap: wrap;
@@ -1242,10 +1349,11 @@ em { font-style: normal; color: var(--gold); }
 .intro[data-stage="4"] .intro-clock,
 .intro[data-stage="out"] .intro-clock { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
 .intro[data-stage="2"] .intro-mark { opacity: 1; filter: none; transform: translate(-50%, -50%); }
-/* Stage 3: the mark docks at the top; the rocket rises (no moon yet: that waits beyond the launch) */
+/* Stage 3: the mark docks in the top-left corner, exactly where the header's wordmark sits (16px
+   in and 32px down on phones); the launch site and rocket appear */
 .intro[data-stage="3"] .intro-mark,
 .intro[data-stage="4"] .intro-mark,
-.intro[data-stage="out"] .intro-mark { opacity: 1; filter: none; top: 38px; transform: translate(-50%, -50%); transition: opacity .6s var(--ease), top 1.2s var(--ease), filter .6s; }
+.intro[data-stage="out"] .intro-mark { opacity: 1; filter: none; left: var(--dock-x, 32px); top: var(--dock-y, 38px); transform: translate(0, -50%); transition: opacity .6s var(--ease), left 1.2s var(--ease), top 1.2s var(--ease), transform 1.2s var(--ease), filter .6s; }
 .intro[data-stage="3"] .intro-site,
 .intro[data-stage="4"] .intro-site { opacity: 1; transform: translate(-50%, 0); }
 .intro[data-stage="3"] .intro-rocket,
@@ -1327,7 +1435,10 @@ em { font-style: normal; color: var(--gold); }
   .work-desc { grid-column: 3; grid-row: 1; }
   .work-tags { grid-column: 3; grid-row: 2; }
   .work-arrow { grid-column: 4; }
-  .corner-link { display: none; }
+  /* icon only, so it stays clear of the centred nav */
+  .hud-stack { width: 48px; }
+  .stack-btn { padding: 0; }
+  .stack-word { display: none; }
 }
 
 @media (max-width: 760px) {
@@ -1342,12 +1453,11 @@ em { font-style: normal; color: var(--gold); }
 
 @media (max-width: 640px) {
   .container { padding: 0 16px; }
-  .nav { padding: 0 16px; height: 64px; grid-template-columns: 1fr; justify-items: center; }
-  .nav-tag, .nav-cta { display: none; }
+  .nav { padding: 0 16px; height: 64px; grid-template-columns: 1fr; }
+  .nav-cta { display: none; }
+  .intro[data-stage] .intro-mark { --dock-x: 16px; --dock-y: 32px; }
   .hud-nav { left: 12px; right: 70px; bottom: 12px; transform: none; }
-  .hud-stack { right: 12px; bottom: 66px; }
-  .stack-btn { width: 46px; height: 46px; padding: 0; }
-  .stack-word { display: none; }
+  .hud-stack { left: auto; right: 12px; bottom: 66px; width: 46px; height: 46px; }
   .hud-nav ul { gap: 2px; padding: 4px; }
   .hud-nav li { flex: 1; }
   .hud-nav a { min-width: 0; height: 36px; padding: 0; font-size: .66rem; letter-spacing: .1em; }
@@ -1360,12 +1470,6 @@ em { font-style: normal; color: var(--gold); }
   .sound-volume .label { display: none; }
   .sound-volume input { width: 120px; }
   .hero { min-height: 560px; }
-  .hero-content { margin-top: -10vh; padding: 0 16px; }
-  .hero-chips { font-size: .68rem; letter-spacing: .12em; padding: 0; }
-  .mega-line { font-size: 17.5vw; line-height: .9; }
-  .mega-sub { letter-spacing: .3em; padding-left: 1.05em; }
-  .hero-moon { top: 12vh; width: 86vw; }
-  .scroll-cue { bottom: 80px; }
   .section, .about { padding: 88px 0 84px; }
   .statement { padding: 80px 16px; }
   .hud-panel { padding: 24px 20px 20px; }
@@ -1422,8 +1526,3 @@ body::after {
 .intro[data-stage="4"] .intro-wisp { opacity: 1; transform: none; }
 .intro[data-stage="out"] .intro-wisp-1 { opacity: 0; transform: translateX(-60%); transition-duration: 1.2s; }
 .intro[data-stage="out"] .intro-wisp-2 { opacity: 0; transform: translateX(60%); transition-duration: 1.2s; }
-.intro-mark .seal, .wordmark .seal { font-size: 12px; width: 1.75em; padding: .3em 0; }
-
-@media (max-width: 1100px) {
-  .cartouche { display: none; } /* no room beside the title chips */
-}
