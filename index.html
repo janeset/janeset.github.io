@@ -245,7 +245,8 @@
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
-    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    //var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var reduce = false;
 
     // Sparse, quiet starfield
     (function () {
