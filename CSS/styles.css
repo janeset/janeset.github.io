@@ -1411,15 +1411,19 @@ em { font-style: normal; color: var(--gold); }
 .js .suit.is-in .anno, .js .suit.is-in .anno-label { opacity: 1; }
 .js .suit.is-in .anno::before { transform: none; }
 
+/*
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .js [data-reveal], .js .suit .anno, .js .suit .anno-label { opacity: 1; transform: none; }
-  .js .suit .anno::before, .word > span { transform: none; }
+  .js .suit .anno::before, .word > span { transform: none; } 
+*/
   /* the cloud sea holds still, each bank frozen at its own distance */
-  .hero-depth { animation: depth-z var(--approach) steps(4, end) calc(var(--i) * var(--approach) / -4) infinite paused !important; }
+/*
+.hero-depth { animation: depth-z var(--approach) steps(4, end) calc(var(--i) * var(--approach) / -4) infinite paused !important; }
   .hero-depth .depth { animation: cloud-approach var(--approach) linear calc(var(--i) * var(--approach) / -4) infinite paused !important; }
 }
+*/
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1180px) {
