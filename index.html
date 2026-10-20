@@ -344,8 +344,9 @@
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
-    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
+    //var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var reduce = false
+      
     // Cloud banks: one printed bank (images/cloud-bank.webp) reused for every layer, tinted per layer in
     // the CSS (data-tone). The print is a seamless tile (its end was cut into its start along the line
     // where the two match best), so copies simply repeat side by side, and the repeating ones scroll
