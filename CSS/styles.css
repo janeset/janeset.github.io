@@ -1044,7 +1044,12 @@ em { font-style: normal; color: var(--gold); }
   padding: 30px 32px 26px;
   text-align: left;
 }
-.contact-form .hud-tab { margin-bottom: 18px; }
+.contact-form .hud-tab { margin-bottom: 18px; max-width: calc(100% - 44px); }
+/* message length: quiet under the field, gold as it nears the limit */
+.field-count { margin: -12px 0 14px; text-align: right; font: 500 .68rem/1 var(--hud); letter-spacing: .12em; color: var(--muted); }
+.field-count[data-near="true"] { color: var(--gold); }
+/* while a message is on its way the button can't be pressed twice */
+.contact-form [type="submit"]:disabled { opacity: .6; cursor: progress; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
 .field { display: block; margin-bottom: 18px; }
 .field > span {
@@ -1207,6 +1212,20 @@ em { font-style: normal; color: var(--gold); }
   transform: translate(-50%, 6%);
   transition: opacity 1.4s var(--ease), transform 1.8s var(--ease);
 }
+.intro-site img { display: block; width: 100%; height: auto; max-width: none; }
+/* Window lights over the print (placed by the script): warm glows that flicker on, building by
+   building, as the pointer passes over, and spill a little light around each window */
+.site-lights { position: absolute; inset: 0; }
+.site-lights i {
+  position: absolute;
+  background: radial-gradient(closest-side, #fff4c8, #ffcf6b 55%, rgba(255, 170, 60, .55) 80%, rgba(255, 150, 40, 0));
+  box-shadow: 0 0 14px 4px rgba(255, 196, 92, .55);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity .9s var(--ease);
+}
+.site-building.is-lit i { opacity: 1; animation: window-on .5s steps(1) var(--on) both; transition: none; }
+@keyframes window-on { 0% { opacity: 0; } 30% { opacity: .85; } 45% { opacity: .2; } 60%, 100% { opacity: 1; } }
 .intro-smoke { position: absolute; inset: 0; }
 /* one billow of the print's smoke; the launch script releases, grows, drifts and fades these */
 .smoke-puff { position: absolute; max-width: none; height: auto; transform-origin: 50% 50%; will-change: transform, opacity; }
@@ -1390,6 +1409,18 @@ em { font-style: normal; color: var(--gold); }
 /* the night sky holds until the clouds have swept across, so the hero is only revealed behind them */
 .intro[data-stage="out"] .intro-sky { opacity: 0; transition: opacity .9s var(--ease) 1.35s; }
 .intro[data-stage="out"] .intro-mark { opacity: 0; transition-delay: 1s; }
+/* Dark side: the sky never clears; it fades to black behind the clouds, ready for dark.html */
+.intro.to-dark .intro-sky { opacity: 1; transition: none; }
+.intro.to-dark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: #000;
+  opacity: 0;
+  animation: to-dark .6s var(--ease) .95s forwards;
+}
+@keyframes to-dark { to { opacity: 1; } }
 
 /* ---------- Scroll reveals ---------- */
 .js [data-reveal] {
@@ -1530,3 +1561,91 @@ body::after {
 .intro[data-stage="4"] .intro-wisp { opacity: 1; transform: none; }
 .intro[data-stage="out"] .intro-wisp-1 { opacity: 0; transform: translateX(-60%); transition-duration: 1.2s; }
 .intro[data-stage="out"] .intro-wisp-2 { opacity: 0; transform: translateX(60%); transition-duration: 1.2s; }
+
+/* ---------- Easter eggs (JS/eggs.js) ---------- */
+.egg-hover, .egg-hover * { cursor: pointer; }
+/* a slip of paper that floats up from the bottom, then fades */
+.egg-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 88px;
+  z-index: 500;
+  max-width: calc(100% - 32px);
+  padding: 10px 18px;
+  background: rgba(17, 27, 49, .94);
+  box-shadow: inset 0 0 0 1px rgba(230, 184, 92, .45), 0 10px 30px rgba(12, 16, 32, .4);
+  font: 600 .8rem/1.4 var(--hud);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--gold);
+  opacity: 0;
+  transform: translate(-50%, 14px);
+  pointer-events: none;
+  transition: opacity .4s var(--ease), transform .4s var(--ease);
+}
+.egg-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+/* Galaxy: the page swirls into a wormhole on its way to the dark side */
+.wormhole body { animation: wormhole 1.3s cubic-bezier(.6, 0, .9, .5) forwards; }
+@keyframes wormhole { to { transform: scale(.05) rotate(540deg); filter: brightness(3) blur(6px); opacity: 0; } }
+.wormhole { background: #000; overflow: hidden; }
+
+/* The space cat (images/cat-ukiyoe.png): sitting on the moon, half behind the clouds, looking out at
+   us. Its lower body fades into the moon so it sits in the moonlight rather than on top of it */
+.space-cat {
+  position: absolute;
+  left: calc(50% + min(150px, 22vw));
+  bottom: calc(36vh - min(92px, 10vw));
+  z-index: 2;
+  width: 38px;
+  height: 76px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.space-cat .cat-img { display: block; width: 100%; height: 100%; object-fit: contain; transform-origin: 50% 100%; }
+.space-cat svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.space-cat:not([data-state]) .cat-img {
+  -webkit-mask-image: linear-gradient(#000 72%, rgba(0, 0, 0, .7) 88%, rgba(0, 0, 0, .35) 100%);
+  mask-image: linear-gradient(#000 72%, rgba(0, 0, 0, .7) 88%, rgba(0, 0, 0, .35) 100%);
+}
+/* a curious head tilt when the pointer comes near */
+.space-cat:hover .cat-img { animation: cat-tilt .9s ease-in-out; }
+.space-cat:focus-visible { outline: 1px solid var(--gold); outline-offset: 4px; }
+.space-cat .cat-helmet { stroke: #dfeaff; fill: rgba(200, 220, 255, .18); opacity: 0; transition: opacity .3s; }
+.space-cat .cat-flame { fill: #ff9a3c; opacity: 0; transform-origin: 25px 97px; }
+.space-cat[data-state] .cat-helmet { opacity: 1; }
+.space-cat[data-state="launch"] { animation: cat-launch 3.2s both; }
+.space-cat[data-state="launch"] .cat-flame { opacity: 1; animation: cat-flame .08s linear infinite alternate; }
+.space-cat[data-state="return"] { animation: cat-return 2s cubic-bezier(.2, .7, .3, 1) both; }
+@keyframes cat-tilt { 30% { transform: rotate(-5deg); } 65% { transform: rotate(3deg); } }
+@keyframes cat-flame { to { transform: scale(.8, 1.35); } }
+@keyframes cat-launch {
+  0% { transform: none; }
+  6%, 14%, 22% { transform: translate(-1.5px, 1px); }
+  10%, 18%, 26% { transform: translate(1.5px, -1px); }
+  30% { transform: none; animation-timing-function: cubic-bezier(.5, 0, .9, .4); }
+  100% { transform: translateY(-120vh) rotate(-8deg); }
+}
+@keyframes cat-return { from { transform: translateY(-50vh) rotate(10deg); opacity: 0; } 40% { opacity: 1; } }
+/* The spiral galaxy (a button the script adds to the projects, drawn on its canvas): turning
+   slowly in the open sky beside the title; it spins up and brightens when the pointer finds it */
+.galaxy {
+  position: absolute;
+  right: clamp(12px, 7vw, 120px);
+  top: clamp(40px, 7vh, 96px);
+  z-index: 2;
+  width: clamp(110px, 15vw, 190px);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  opacity: .85;
+  transition: opacity .5s var(--ease), transform .6s var(--ease), filter .6s var(--ease);
+}
+.galaxy canvas { display: block; width: 100%; height: 100%; }
+.galaxy:hover, .galaxy:focus-visible { opacity: 1; transform: scale(1.12); filter: drop-shadow(0 0 18px rgba(230, 184, 92, .45)); }
+.galaxy:focus-visible { outline: 1px solid var(--gold); outline-offset: 4px; }

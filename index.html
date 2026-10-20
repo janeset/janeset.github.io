@@ -19,6 +19,11 @@
     (function () {
       var seen = false;
       try { seen = sessionStorage.getItem('nebulaiIntro') === 'seen'; } catch (e) {}
+      // ?launch (the dark side's "back to the launch pad" link) always brings the intro back
+      if (/[?&]launch\b/.test(location.search)) {
+        seen = false;
+        history.replaceState(null, '', location.pathname + location.hash);
+      }
       if (!seen) document.documentElement.classList.add('intro-on');
     })();
   </script>
@@ -39,8 +44,9 @@
     </symbol>
   </svg>
 
-  <!-- Launch intro: mission clock, then the clouds part. The gate doubles as the sound choice,
-       because browsers only allow audio after a click. -->
+  <!-- Launch intro: mission clock, then the gate picks a side. The bright side parts the clouds onto
+       this page; the dark side flies on to the black and white site (dark.html). Either click also
+       starts the music, because browsers only allow audio after a click. -->
   <div class="intro" role="dialog" aria-modal="true" aria-labelledby="intro-q" data-stage="0">
     <div class="intro-sky"></div>
     <img class="wisp intro-wisp intro-wisp-1" src="images/cloud-small.webp" alt="" width="1983" height="793">
@@ -51,7 +57,11 @@
     <!-- The world below the rocket: the launch site and the exhaust smoke left behind in the air. On
          launch it sinks away together, as the camera follows the rocket up -->
     <div class="intro-world">
-      <img class="intro-site" src="images/launch-site.webp" alt="" width="1918" height="720">
+      <!-- the print, and over it a layer of window lights that come on when a building is hovered -->
+      <div class="intro-site">
+        <img src="images/launch-site.webp" alt="" width="1918" height="720">
+        <div class="site-lights"></div>
+      </div>
       <div class="intro-smoke"></div>
     </div>
     <!-- The rocket on its pad: engine glow and two fire layers (the inner one hotter), lit by the script -->
@@ -72,10 +82,10 @@
     <p class="intro-clock" aria-hidden="true">T–00:10.00</p>
     <p class="intro-mark" aria-hidden="true"><svg><use href="#mark"/></svg>Nebulai</p>
     <div class="intro-gate">
-      <p class="intro-q" id="intro-q">Ready for launch?</p>
+      <p class="intro-q" id="intro-q">Choose your side</p>
       <div class="gate-btns">
-        <button class="hud-btn hud-btn-solid" type="button" data-launch="sound">Launch with sound</button>
-        <button class="hud-btn" type="button" data-launch="quiet">Launch quietly</button>
+        <button class="hud-btn hud-btn-solid" type="button" data-launch="bright">Bright side</button>
+        <button class="hud-btn" type="button" data-launch="dark">Dark side</button>
       </div>
     </div>
     <button class="intro-skip" type="button">Skip</button>
@@ -280,25 +290,26 @@
         <p class="caps" data-reveal style="--d:.2s">Open to new roles, freelance projects and collaborations, especially anything touching cloud or AI.</p>
         <div class="contact-cta" data-reveal style="--d:.3s">
           <button class="send-btn" type="button" data-open-message>
-            <span>Send a message</span><span class="send-btn-arrow" aria-hidden="true">→</span>
+            <span>Send message</span><span class="send-btn-arrow" aria-hidden="true">→</span>
           </button>
         </div>
         <!-- The message form opens in a popup. Messages go through Web3Forms to Jane's inbox; her
              address never appears in the page. data-access-key is the Web3Forms key for that inbox. -->
         <dialog class="message-dialog" aria-labelledby="message-title">
         <form class="hud-panel contact-form" data-access-key="56c826d7-258f-4535-a06f-22f3684d419f" novalidate>
-          <p class="hud-tab" id="message-title">Send a message</p>
+          <p class="hud-tab" id="message-title">Make contact</p>
           <button class="dialog-close" type="button" aria-label="Close" data-close-message>×</button>
           <div class="form-row">
-            <label class="field"><span>Name</span><input name="name" type="text" autocomplete="name" required></label>
-            <label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" required></label>
+            <label class="field"><span>Name</span><input name="name" type="text" autocomplete="name" maxlength="80" required></label>
+            <label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" maxlength="254" spellcheck="false" required></label>
           </div>
-          <label class="field"><span>Message</span><textarea name="message" rows="4" required></textarea></label>
+          <label class="field"><span>Message</span><textarea name="message" rows="4" minlength="10" maxlength="500" aria-describedby="message-count" required></textarea></label>
+          <p class="field-count" id="message-count" aria-live="off">0 / 500</p>
           <!-- spam trap: people never see or tick it; bots that fill everything in get turned away -->
           <input class="form-trap" name="botcheck" type="checkbox" tabindex="-1" autocomplete="off" aria-hidden="true">
           <div class="form-foot">
             <p class="form-status" role="status" aria-live="polite"></p>
-            <button class="hud-btn hud-btn-solid" type="submit">Send message</button>
+            <button class="hud-btn hud-btn-solid" type="submit">Transmit</button>
           </div>
         </form>
         </dialog>
@@ -537,56 +548,103 @@
 
     // Contact form: checks the fields, then sends the message through Web3Forms, which emails it to
     // Jane (the key in data-access-key decides where it goes). Results show under the fields.
+    // Guards against spam and slips: a hidden bot trap, a minimum time to fill it in, length limits,
+    // control characters stripped, one send at a time with a cooldown after, and a network timeout.
     (function () {
+      var COPY = {
+        idle: 'Transmit', busy: 'Transmitting…',
+        ok: 'Your crane has landed. Thank you, I\'ll write back soon.', fail: 'The wind caught your crane. Try again in a moment.',
+        invalid: 'Add your name, a valid email and a message.',
+        short: 'Say a little more, at least 10 characters.',
+        quick: 'That was quick! Give it a second look, then send.',
+        wait: 'Your last crane is still in the air. Give it a minute before sending another.', offline: 'No wind to carry it. Check your connection and try again.', slow: 'Your crane got lost in the clouds. Try again in a moment.'
+      };
+      var MIN_FILL = 3000, COOLDOWN = 60000, TIMEOUT = 15000, MIN_MESSAGE = 10, LAST_KEY = 'nebulaiLastSent';
       var form = document.querySelector('.contact-form');
       if (!form) return;
-      var status = form.querySelector('.form-status'), button = form.querySelector('[type="submit"]');
-      // the popup: opened by the "Send a message" button; ×, Esc or a click on the backdrop close it
+      var el = form.elements, status = form.querySelector('.form-status'), button = form.querySelector('[type="submit"]');
+      var count = form.querySelector('.field-count'), openedAt = 0, sending = false;
+      // the popup: opened by its button; ×, Esc or a click on the backdrop close it. A half-written
+      // message stays put if it's closed, so nothing is lost
       var dialog = document.querySelector('.message-dialog');
       document.querySelector('[data-open-message]').addEventListener('click', function () {
         if (status.dataset.kind === 'ok') say('');
+        if (!openedAt) openedAt = Date.now();
         dialog.showModal();
-        form.elements.name.focus();
+        (el.name.value ? el.message : el.name).focus();
       });
       dialog.querySelector('[data-close-message]').addEventListener('click', function () { dialog.close(); });
       dialog.addEventListener('click', function (e) { if (e.target === dialog) dialog.close(); });
       var fields = form.querySelectorAll('[required]');
       function say(text, kind) { status.textContent = text; status.dataset.kind = kind || ''; }
+      // drops invisible control characters (keeps line breaks in the message) and trims
+      function clean(v, multiline) {
+        v = v.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F​-‏‪-‮]/g, '');
+        return (multiline ? v : v.replace(/\s+/g, ' ')).trim();
+      }
+      function counter() {
+        var max = el.message.maxLength, n = el.message.value.length;
+        count.textContent = n + ' / ' + max;
+        count.dataset.near = n > max * .9 ? 'true' : '';
+      }
+      counter();
       form.addEventListener('input', function (e) {
         e.target.removeAttribute('aria-invalid');
+        if (e.target === el.message) counter();
         if (status.dataset.kind === 'error') say('');
       });
+      function lastSent() { try { return +localStorage.getItem(LAST_KEY) || 0; } catch (e) { return 0; } }
+      function busy(on) {
+        sending = on;
+        button.textContent = on ? COPY.busy : COPY.idle;
+        button.disabled = on;
+        button.toggleAttribute('aria-busy', on);
+        fields.forEach(function (f) { f.readOnly = on; });
+      }
       form.addEventListener('submit', function (e) {
         e.preventDefault();
-        var bad = Array.prototype.filter.call(fields, function (f) { return !f.value.trim() || !f.checkValidity(); });
+        if (sending) return;
+        // the trap is hidden from people; anything that ticks it is a bot, so it gets a quiet "sent"
+        if (el.botcheck.checked) { form.reset(); counter(); say(COPY.ok, 'ok'); return; }
+        var name = clean(el.name.value), email = clean(el.email.value), message = clean(el.message.value, true);
+        var bad = Array.prototype.filter.call(fields, function (f) { return !clean(f.value) || !f.checkValidity(); });
+        if (email && !/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/.test(email) && bad.indexOf(el.email) < 0) bad.push(el.email);
         bad.forEach(function (f) { f.setAttribute('aria-invalid', 'true'); });
-        if (bad.length) { say('Add your name, a valid email and a message.', 'error'); bad[0].focus(); return; }
+        if (bad.length) { say(COPY.invalid, 'error'); bad[0].focus(); return; }
+        if (message.length < MIN_MESSAGE) { el.message.setAttribute('aria-invalid', 'true'); say(COPY.short, 'error'); el.message.focus(); return; }
+        if (Date.now() - openedAt < MIN_FILL) { say(COPY.quick, 'error'); return; }
+        if (Date.now() - lastSent() < COOLDOWN) { say(COPY.wait, 'error'); return; }
+        if (navigator.onLine === false) { say(COPY.offline, 'error'); return; }
         var key = form.dataset.accessKey;
         if (!key || /^YOUR_/.test(key)) { say('Messages aren\'t connected yet.', 'error'); return; }
-        var el = form.elements;
-        button.textContent = 'Sending…';
-        button.setAttribute('aria-busy', 'true');
+        busy(true);
+        say('');
+        var ctrl = window.AbortController ? new AbortController() : null;
+        var timer = ctrl && setTimeout(function () { ctrl.abort(); }, TIMEOUT);
         fetch('https://api.web3forms.com/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          signal: ctrl ? ctrl.signal : undefined,
           body: JSON.stringify({
             access_key: key,
-            subject: 'New message from nebulai.dev',
+            subject: 'New message from nebulai.dev (bright side)',
             from_name: 'nebulai.dev',
-            name: el.name.value.trim(),
-            email: el.email.value.trim(),
-            message: el.message.value.trim(),
-            botcheck: el.botcheck.checked
+            name: name,
+            email: email,
+            message: message,
+            botcheck: false
           })
         })
-          .then(function (r) { return r.json(); })
+          .then(function (r) { return r.json().catch(function () { return {}; }); })
           .then(function (res) {
-            if (!res.success) throw new Error(res.message);
+            if (!res.success) throw new Error(res.message || 'Not sent');
+            try { localStorage.setItem(LAST_KEY, String(Date.now())); } catch (e) {}
             form.reset();
-            say('Message sent. Thank you, I\'ll be in touch soon.', 'ok');
+            counter();
+            say(COPY.ok, 'ok');
           })
-          .catch(function () { say('Couldn\'t send just now. Try again in a moment.', 'error'); })
-          .then(function () { button.textContent = 'Send message'; button.removeAttribute('aria-busy'); });
+          .catch(function (err) { say(err && err.name === 'AbortError' ? COPY.slow : COPY.fail, 'error'); })
+          .then(function () { clearTimeout(timer); busy(false); });
       });
     })();
 
@@ -903,14 +961,126 @@
         })(t0);
       }
 
-      function launch(withSound) {
+      // Shy clouds: while the gate waits, the clouds drift away from the pointer, tilt a little as
+      // they go, then float back home on a soft spring. Moved with the CSS translate and rotate
+      // properties, so their own transforms (rising in, parting on launch) are left alone.
+      (function () {
+        var clouds = Array.prototype.map.call(intro.querySelectorAll('.intro-wisp, .intro-clouds .bank'), function (el) {
+          return { el: el, x: 0, y: 0, vx: 0, vy: 0 };
+        });
+        var px = -1e4, py = -1e4, running = false;
+        var REACH = 220, PUSH = 2.4, SPRING = .035, DAMP = .86;
+        function step() {
+          // on launch they stay where they drifted to and part from there
+          if (launched || !intro.isConnected) { running = false; return; }
+          var moving = false;
+          clouds.forEach(function (c) {
+            var r = c.el.getBoundingClientRect();
+            if (r.bottom < 0 || r.top > innerHeight) return;
+            // the nearest point of the cloud to the pointer, so wide banks shy from their edges too
+            var cx = Math.max(r.left, Math.min(px, r.right)), cy = Math.max(r.top, Math.min(py, r.bottom));
+            var dx = cx - px, dy = cy - py, d = Math.sqrt(dx * dx + dy * dy);
+            var inside = d === 0;
+            if (inside) { dx = (r.left + r.width / 2) - px; dy = (r.top + r.height / 2) - py; d = Math.sqrt(dx * dx + dy * dy) || 1; }
+            var near = inside ? 1 : Math.max(0, 1 - d / REACH);
+            if (near > 0) {
+              c.vx += dx / d * near * near * PUSH * 3;
+              c.vy += dy / d * near * near * PUSH * 2;
+            }
+            c.vx = (c.vx - c.x * SPRING) * DAMP;
+            c.vy = (c.vy - c.y * SPRING) * DAMP;
+            c.x += c.vx;
+            c.y += c.vy;
+            c.el.style.translate = c.x.toFixed(1) + 'px ' + c.y.toFixed(1) + 'px';
+            c.el.style.rotate = Math.max(-6, Math.min(6, c.vx * .4)).toFixed(2) + 'deg';
+            if (near > 0 || Math.abs(c.x) + Math.abs(c.y) + Math.abs(c.vx) + Math.abs(c.vy) > .2) moving = true;
+          });
+          if (moving) requestAnimationFrame(step); else running = false;
+        }
+        intro.addEventListener('pointermove', function (e) {
+          px = e.clientX;
+          py = e.clientY;
+          if (!running && stage >= 3) { running = true; requestAnimationFrame(step); }
+        });
+        intro.addEventListener('pointerleave', function () {
+          px = py = -1e4;
+          if (!running) { running = true; requestAnimationFrame(step); }
+        });
+      })();
+
+      // Window lights: hover a building on the launch site and its windows flicker on one by one,
+      // glowing warmer than the print; they fade off again once the pointer moves on. Everything is
+      // placed in the print's own pixels (1918 × 720), so it scales with it.
+      (function () {
+        var site = intro.querySelector('.intro-site'), layer = intro.querySelector('.site-lights');
+        var W = 1918, H = 720;
+        // each building: a hover box [x, y, w, h], and its windows as [x, y, w, h] (r = rounded)
+        var BUILDINGS = [
+          { box: [70, 228, 260, 385], windows: [[100, 377, 130, 15], [104, 486, 28, 30, 'r'], [154, 488, 30, 32, 'r'], [202, 488, 30, 32, 'r'], [243, 489, 26, 30, 'r']] },
+          { box: [270, 335, 285, 280], windows: [[417, 404, 56, 14], [441, 458, 28, 14], [441, 492, 28, 14], [318, 574, 88, 26], [281, 572, 20, 20, 'r'], [421, 572, 20, 20, 'r'], [451, 572, 20, 20, 'r'], [480, 582, 52, 22]] },
+          { box: [1105, 15, 165, 550], windows: [[1167, 110, 62, 16], [1196, 178, 16, 14, 'r'], [1201, 242, 16, 14, 'r'], [1173, 322, 16, 14, 'r'], [1201, 388, 16, 14, 'r']] },
+          { box: [680, 548, 530, 115], windows: [[719, 622, 16, 18, 'r'], [812, 622, 16, 18, 'r'], [868, 622, 16, 18, 'r'], [941, 618, 18, 20, 'r'], [1014, 622, 16, 18, 'r'], [1060, 622, 16, 18, 'r'], [1114, 622, 16, 18, 'r'], [1168, 622, 16, 18, 'r']] },
+          { box: [1488, 288, 425, 360], windows: [[1632, 478, 66, 16], [1723, 478, 74, 16], [1500, 570, 116, 24], [1630, 572, 20, 20, 'r'], [1660, 572, 20, 20, 'r'], [1690, 572, 20, 20, 'r'], [1833, 548, 62, 18], [1838, 503, 52, 14], [1748, 620, 56, 22]] }
+        ];
+        var groups = BUILDINGS.map(function (b) {
+          var g = document.createElement('div');
+          g.className = 'site-building';
+          b.windows.forEach(function (w, i) {
+            var s = document.createElement('i');
+            s.style.left = (w[0] / W * 100) + '%';
+            s.style.top = (w[1] / H * 100) + '%';
+            s.style.width = (w[2] / W * 100) + '%';
+            s.style.height = (w[3] / H * 100) + '%';
+            if (w[4] === 'r') s.style.borderRadius = '50%';
+            // each window takes its own moment to come on, like lights in a real building
+            s.style.setProperty('--on', (i * 90 + Math.random() * 120).toFixed(0) + 'ms');
+            g.appendChild(s);
+          });
+          layer.appendChild(g);
+          return { box: b.box, el: g };
+        });
+        var lit = null;
+        intro.addEventListener('pointermove', function (e) {
+          if (stage < 3 || launched) return;
+          var r = site.getBoundingClientRect();
+          var x = (e.clientX - r.left) / r.width * W, y = (e.clientY - r.top) / r.height * H, over = null;
+          // the gate sits over the sky, so a pointer on it never counts as being on a building
+          if (!e.target.closest('.intro-gate, .intro-skip')) {
+            groups.forEach(function (g) {
+              var b = g.box;
+              if (x >= b[0] && x <= b[0] + b[2] && y >= b[1] && y <= b[1] + b[3]) over = g;
+            });
+          }
+          if (over === lit) return;
+          if (lit) lit.el.classList.remove('is-lit');
+          if (over) over.el.classList.add('is-lit');
+          lit = over;
+        });
+        intro.addEventListener('pointerleave', function () {
+          if (lit) lit.el.classList.remove('is-lit');
+          lit = null;
+        });
+      })();
+
+      function launch(side) {
         if (launched) return;
         launched = true;
         if (!reduce) liftoff();
         try { sessionStorage.setItem('nebulaiIntro', 'seen'); } catch (e) {}
+        // Music comes on with the launch unless the visitor turned it off on an earlier visit
+        // (Escape launches quietly)
+        var muted = side === 'quiet';
+        try { muted = muted || localStorage.getItem('nebulaiSound') === 'off'; } catch (e) {}
         if (window.nebulaiSound) {
-          window.nebulaiSound.set(withSound, true);
-          if (withSound) window.nebulaiSound.whoosh();
+          window.nebulaiSound.set(!muted, true);
+          if (!muted) window.nebulaiSound.whoosh();
+        }
+        // Dark side: the rocket climbs away, the sky fades to black, then on to the black and white site
+        if (side === 'dark') {
+          intro.classList.add('to-dark');
+          intro.dataset.stage = 'out';
+          setTimeout(function () { location.href = 'dark.html'; }, reduce ? 0 : 1600);
+          return;
         }
         behind.forEach(function (n) { n.inert = false; });
         intro.dataset.stage = 'out';
@@ -923,12 +1093,12 @@
         main.focus({ preventScroll: true });
       }
       intro.querySelectorAll('[data-launch]').forEach(function (b) {
-        b.addEventListener('click', function () { launch(b.dataset.launch === 'sound'); });
+        b.addEventListener('click', function () { launch(b.dataset.launch); });
       });
       document.addEventListener('keydown', function onKey(e) {
         if (launched) { document.removeEventListener('keydown', onKey); return; }
         if (stage < 4) { skip(); e.preventDefault(); }
-        else if (e.key === 'Escape') launch(false);
+        else if (e.key === 'Escape') launch('quiet');
       });
     })();
 
@@ -943,5 +1113,6 @@
       document.querySelectorAll('[data-reveal]').forEach(function (el) { io.observe(el); });
     }
   </script>
+  <script src="JS/eggs.js" data-side="bright" defer></script>
 </body>
 </html>
