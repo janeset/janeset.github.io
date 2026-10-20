@@ -9,7 +9,7 @@
   <link rel="icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;700;800&family=Inter:wght@300;400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="CSS/styles.css">
   <script>
     // The launch intro plays once per visit (per browser session). Decided before first paint so it never flashes.
@@ -25,14 +25,9 @@
   <a class="skip-link" href="#main">Skip to content</a>
   <canvas id="stars" aria-hidden="true"></canvas>
 
-  <!-- Illustrations are woodblock-style prints (moon, Earth, astronaut in images/); the SVG below
-       holds the small clouds' shading and the brand mark -->
+  <!-- Illustrations are woodblock-style prints in images/ (moon, Earth, astronaut, clouds); the SVG
+       below holds the brand mark -->
   <svg class="svg-defs" width="0" height="0" aria-hidden="true">
-    <!-- Small floating clouds: washi cream, warming toward their flat base -->
-    <linearGradient id="wisp-fill" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="10" y2="134">
-      <stop offset="0" stop-color="#f7eed9"/>
-      <stop offset="1" stop-color="#e6cfa9"/>
-    </linearGradient>
     <!-- Brand mark: a planet with a tilted orbit -->
     <symbol id="mark" viewBox="0 0 32 32">
       <circle cx="16" cy="16" r="7.5" fill="none" stroke="currentColor" stroke-width="2.2"/>
@@ -45,22 +40,33 @@
        because browsers only allow audio after a click. -->
   <div class="intro" role="dialog" aria-modal="true" aria-labelledby="intro-q" data-stage="0">
     <div class="intro-sky"></div>
-    <div class="intro-moon"><img src="images/moon-ukiyoe.webp" alt="" width="1254" height="1254"></div>
-    <svg class="wisp intro-wisp intro-wisp-1" data-wisp="31"></svg>
-    <svg class="wisp intro-wisp intro-wisp-2" data-wisp="32"></svg>
-    <div class="intro-marquee" aria-hidden="true">
-      <div class="marquee-track"><span>Code beyond the atmosphere&nbsp;✦&nbsp;</span><span>Code beyond the atmosphere&nbsp;✦&nbsp;</span></div>
+    <img class="wisp intro-wisp intro-wisp-1" src="images/cloud-small.webp" alt="" width="1983" height="793">
+    <img class="wisp intro-wisp intro-wisp-2" src="images/cloud-small.webp" alt="" width="1983" height="793">
+    <div class="intro-tagline" aria-hidden="true">
+      <div class="marquee-track"><span>Code beyond the atmosphere&nbsp;✦&nbsp;Code beyond the atmosphere&nbsp;✦&nbsp;Code beyond the atmosphere&nbsp;✦&nbsp;Code beyond the atmosphere&nbsp;✦&nbsp;Code beyond the atmosphere&nbsp;✦&nbsp;</span><span>Code beyond the atmosphere&nbsp;✦&nbsp;Code beyond the atmosphere&nbsp;✦&nbsp;Code beyond the atmosphere&nbsp;✦&nbsp;Code beyond the atmosphere&nbsp;✦&nbsp;Code beyond the atmosphere&nbsp;✦&nbsp;</span></div>
     </div>
-    <img class="intro-astro" src="images/astronaut-ukiyoe.webp" alt="" width="1086" height="1448">
+    <!-- The world below the rocket: the launch site and the exhaust smoke left behind in the air. On
+         launch it sinks away together, as the camera follows the rocket up -->
+    <div class="intro-world">
+      <img class="intro-site" src="images/launch-site.webp" alt="" width="1918" height="720">
+      <div class="intro-smoke"></div>
+    </div>
+    <!-- The rocket on its pad: engine glow and two fire layers (the inner one hotter), lit by the script -->
+    <div class="intro-rocket">
+      <div class="intro-glow"></div>
+      <img class="intro-fire" src="images/rocket-fire.webp" alt="" width="525" height="700">
+      <img class="intro-fire intro-fire-core" src="images/rocket-fire.webp" alt="" width="525" height="700">
+      <img class="intro-ship" src="images/rocket.webp" alt="" width="525" height="1506">
+    </div>
     <div class="clouds intro-clouds" aria-hidden="true">
-      <svg data-clouds="11" data-side="left" data-fill="#3c5f92" data-rim="#1b1a20" data-base="178"></svg>
-      <svg data-clouds="12" data-side="right" data-fill="#3c5f92" data-rim="#1b1a20" data-base="170"></svg>
-      <svg data-clouds="13" data-side="left" data-fill="#7f9ec2" data-rim="#1b1a20" data-base="215"></svg>
-      <svg data-clouds="14" data-side="right" data-fill="#7f9ec2" data-rim="#1b1a20" data-base="200"></svg>
-      <svg data-clouds="15" data-side="left" data-fill="#efe3c6" data-rim="#1b1a20" data-base="265"></svg>
-      <svg data-clouds="16" data-side="right" data-fill="#efe3c6" data-rim="#1b1a20" data-base="255"></svg>
+      <div class="bank" data-bank="11" data-side="left" data-tone="back"></div>
+      <div class="bank" data-bank="12" data-side="right" data-tone="back"></div>
+      <div class="bank" data-bank="13" data-side="left" data-tone="mid"></div>
+      <div class="bank" data-bank="14" data-side="right" data-tone="mid"></div>
+      <div class="bank" data-bank="15" data-side="left" data-tone="front"></div>
+      <div class="bank" data-bank="16" data-side="right" data-tone="front"></div>
     </div>
-    <p class="intro-clock" aria-hidden="true">T–00:03.00</p>
+    <p class="intro-clock" aria-hidden="true">T–00:10.00</p>
     <p class="intro-mark" aria-hidden="true"><svg><use href="#mark"/></svg>Nebulai<span class="seal" lang="ja">星雲</span></p>
     <div class="intro-gate">
       <p class="intro-q" id="intro-q">Ready for launch?</p>
@@ -95,13 +101,18 @@
     <!-- Hero: giant title over a rising moon and sunlit cloud banks -->
     <section class="hero" id="top">
       <div class="hero-moon" aria-hidden="true"><img src="images/moon-ukiyoe.webp" alt="" width="1254" height="1254"></div>
-      <svg class="wisp hero-wisp hero-wisp-1" data-wisp="21" aria-hidden="true"></svg>
-      <svg class="wisp hero-wisp hero-wisp-2" data-wisp="22" aria-hidden="true"></svg>
+      <img class="wisp hero-wisp hero-wisp-1" src="images/cloud-small.webp" alt="" width="1983" height="793">
+      <img class="wisp hero-wisp hero-wisp-2" src="images/cloud-small.webp" alt="" width="1983" height="793">
       <!-- Title slip, as on a print: "beyond the stars" -->
       <p class="cartouche" aria-hidden="true" lang="ja">星の彼方へ</p>
-      <div class="clouds hero-clouds-back" aria-hidden="true">
-        <svg data-clouds="1" data-fill="#2f4d7e" data-rim="#1b1a20" data-base="150"></svg>
-      </div>
+      <!-- Cloud sea: four banks on one perspective path, a quarter-cycle apart, drifting in from the
+           horizon and passing below as they come close -->
+      <div class="clouds hero-depth" aria-hidden="true" style="--i:0"><div class="depth"><div class="bank" data-bank="1" data-tone="mid"></div></div></div>
+      <div class="clouds hero-depth" aria-hidden="true" style="--i:1"><div class="depth"><div class="bank" data-bank="2" data-tone="mid"></div></div></div>
+      <div class="clouds hero-depth" aria-hidden="true" style="--i:2"><div class="depth"><div class="bank" data-bank="3" data-tone="mid"></div></div></div>
+      <div class="clouds hero-depth" aria-hidden="true" style="--i:3"><div class="depth"><div class="bank" data-bank="7" data-tone="mid"></div></div></div>
+      <!-- The astronaut, drifting beside the moon and reaching for it -->
+      <div class="hero-astro" aria-hidden="true"><img src="images/astronaut-intro.webp" alt="" width="1086" height="1448"></div>
 
       <div class="hero-content">
         <p class="hero-chips"><span>Software developer</span><span>Ontario, Canada</span></p>
@@ -116,14 +127,7 @@
         </div>
       </div>
 
-      <div class="clouds hero-clouds-mid" aria-hidden="true">
-        <svg data-clouds="2" data-fill="#6d8db4" data-rim="#1b1a20" data-base="190"></svg>
-      </div>
-      <div class="clouds hero-clouds-front" aria-hidden="true">
-        <svg data-clouds="3" data-fill="#efe3c6" data-rim="#1b1a20" data-base="250"></svg>
-      </div>
-
-      <a class="scroll-cue" href="#intro" aria-label="Scroll down">
+      <a class="hud-btn scroll-cue" href="#intro" aria-label="Scroll down">
         <span>Scroll</span>
         <i aria-hidden="true"></i>
       </a>
@@ -176,7 +180,7 @@
         </aside>
       </div>
       <div class="clouds about-clouds" aria-hidden="true">
-        <svg data-clouds="4" data-fill="#1e2f55" data-rim="#141a2c" data-base="210"></svg>
+        <div class="bank" data-bank="4" data-tone="deep"></div>
       </div>
     </section>
 
@@ -290,10 +294,10 @@
       </div>
       <div class="contact-moon" aria-hidden="true"><img src="images/moon-ukiyoe.webp" alt="" width="1254" height="1254" loading="lazy"></div>
       <div class="clouds contact-clouds-back" aria-hidden="true">
-        <svg data-clouds="5" data-fill="#5d7fa9" data-rim="#1b1a20" data-base="170"></svg>
+        <div class="bank" data-bank="5" data-tone="mid"></div>
       </div>
       <div class="clouds contact-clouds-front" aria-hidden="true">
-        <svg data-clouds="6" data-fill="#efe3c6" data-rim="#1b1a20" data-base="240"></svg>
+        <div class="bank" data-bank="6" data-tone="front"></div>
       </div>
     </section>
 
@@ -311,6 +315,12 @@
     </button>
   </div>
 
+  <!-- Above the sound control: replay the launch countdown, and (once scrolled down) back to the top -->
+  <div class="hud-stack">
+    <button class="hud-btn stack-btn" type="button" data-relaunch aria-label="Replay the launch countdown"><span class="stack-icon" aria-hidden="true">↻</span><span class="stack-word">Relaunch</span></button>
+    <a class="hud-btn stack-btn to-top" href="#top" aria-label="Back to top"><span class="stack-icon" aria-hidden="true">↑</span><span class="stack-word">Top</span></a>
+  </div>
+
   <footer class="footer">
     <p class="label">© <span id="year">2026</span> Jane Santos</p>
     <p class="label">nebulai.dev</p>
@@ -320,173 +330,43 @@
     document.getElementById('year').textContent = new Date().getFullYear();
     var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Clouds, drawn as on a woodblock print: a row of puffs with big billows rising out of it, an ink
-    // outline all round, light-to-shadow shading, and inked lines where billows overlap the cloud below.
-    // Seeded, so every visit draws the same sky.
+    // Cloud banks: one printed bank (images/cloud-bank.webp) reused for every layer, tinted per layer in
+    // the CSS (data-tone). The print is a seamless tile (its end was cut into its start along the line
+    // where the two match best), so copies simply repeat side by side, and the repeating ones scroll
+    // sideways forever (cloud-loop in the CSS, one repeat = one copy).
     (function () {
-      function rng(seed) {
-        return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
-      }
-      var NS = 'http://www.w3.org/2000/svg';
-      function el(name, attrs) {
-        var n = document.createElementNS(NS, name);
-        for (var k in attrs) n.setAttribute(k, attrs[k]);
-        return n;
-      }
-      function mix(a, b, t) {
-        var A = [1, 3, 5].map(function (i) { return parseInt(a.substr(i, 2), 16); });
-        var B = [1, 3, 5].map(function (i) { return parseInt(b.substr(i, 2), 16); });
-        return 'rgb(' + A.map(function (v, i) { return Math.round(v + (B[i] - v) * t); }).join(',') + ')';
-      }
-      function arc(p, from, to) {
-        var a = from * Math.PI / 180, b = to * Math.PI / 180;
-        return 'M' + (p[0] + p[2] * Math.cos(a)).toFixed(1) + ' ' + (p[1] + p[2] * Math.sin(a)).toFixed(1) +
-          'A' + p[2].toFixed(1) + ' ' + p[2].toFixed(1) + ' 0 0 1 ' +
-          (p[0] + p[2] * Math.cos(b)).toFixed(1) + ' ' + (p[1] + p[2] * Math.sin(b)).toFixed(1);
-      }
+      var SRC = 'images/cloud-bank.webp', IW = 1623, IH = 533;
+      var TOP = 8, BOTTOM = 533;                // the band of cloud inside the image, in its pixels
+      var banks = Array.prototype.slice.call(document.querySelectorAll('.bank'));
 
-      // pieces: [{ puffs, billows, body }] drawn as one cloud. Stroking the shapes thick in ink and
-      // filling them again on top leaves the line only on the outer edge.
-      function drawCloud(svg, pieces, o) {
-        var gid = 'cloud-grad-' + o.id;
-        var defs = el('defs', {});
-        var grad = el('linearGradient', { id: gid, gradientUnits: 'userSpaceOnUse', x1: 0, x2: 0, y1: o.top, y2: o.bottom });
-        [[0, mix(o.fill, '#fffaf0', .3)], [.45, o.fill], [1, mix(o.fill, '#10142a', .22)]].forEach(function (s) {
-          grad.appendChild(el('stop', { offset: s[0], 'stop-color': s[1] }));
-        });
-        defs.appendChild(grad);
-        svg.appendChild(defs);
-        var root = el('g', o.clip ? { 'clip-path': 'url(#' + o.clip + ')' } : {});
-        function layer(attrs) {
-          var g = el('g', attrs);
-          pieces.forEach(function (pc) {
-            pc.puffs.concat(pc.billows).forEach(function (p) {
-              g.appendChild(el('circle', { cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: p[2].toFixed(1) }));
-            });
-            if (pc.body) g.appendChild(el('path', { d: pc.body }));
-          });
-          return g;
-        }
-        root.appendChild(layer({ fill: o.ink, stroke: o.ink, 'stroke-width': o.inkW, 'stroke-linejoin': 'round' }));
-        root.appendChild(layer({ fill: 'url(#' + gid + ')' }));
-        // The part of each billow's outline that overlaps the cloud behind it (its lower left), in softer ink
-        var lines = el('g', { fill: 'none', stroke: o.ink, 'stroke-width': (o.inkW * .5).toFixed(1), 'stroke-linecap': 'round', opacity: .5 });
-        pieces.forEach(function (pc) {
-          // Each line starts and ends a little differently, as a hand-cut block would
-          pc.billows.forEach(function (p) {
-            var from = 92 + (p[2] * 7.3) % 26, to = from + 62 + (Math.abs(p[0]) * 1.7) % 44;
-            lines.appendChild(el('path', { d: arc(p, from, to) }));
-          });
-        });
-        root.appendChild(lines);
-        svg.appendChild(root);
+      function tile(w, h, shift) {
+        var img = document.createElement('img');
+        img.src = SRC;
+        img.alt = '';
+        img.decoding = 'async';
+        img.style.cssText = 'width:' + w + 'px;height:' + h + 'px;margin-bottom:' + (-shift) + 'px';
+        return img;
       }
-
-      // Cloud banks. Full-width banks repeat every W so they can scroll forever (see .clouds in the CSS);
-      // the intro's split banks are left halves (right ones mirrored) that roll down at their inner end.
-      document.querySelectorAll('svg[data-clouds]').forEach(function (svg) {
-        var rand = rng(+svg.dataset.clouds * 7919);
-        var side = svg.dataset.side, base = +svg.dataset.base, H = 320, TOP = -70;
-        var W = side ? 1000 : 1600, span = side ? W : 2 * W;
-        svg.setAttribute('viewBox', '0 ' + TOP + ' ' + span + ' ' + (H - TOP));
-        svg.setAttribute('preserveAspectRatio', side === 'left' ? 'xMaxYMax slice' : side === 'right' ? 'xMinYMax slice' : 'xMinYMin slice');
-        // Rolling skyline from a few random waves (whole numbers of them across W, so a repeating bank
-        // joins up with its own repeat)
-        var waves = [1, 2, 3, 5, 7].map(function (k) { return [k, rand() * 6.28, (8 + rand() * 26) / Math.sqrt(k)]; });
-        function lift(x) {
-          if (side) return (1 - x / W) * 60 + Math.sin(x / 90 + waves[0][1]) * 14;
-          return waves.reduce(function (s, wv) { return s + Math.sin(x / W * Math.PI * 2 * wv[0] + wv[1]) * wv[2]; }, 0);
-        }
-        var inner = side ? W * .72 : Infinity;
-        function roll(x, y) { return x > inner ? y + Math.pow((x - inner) / (W - inner), 1.6) * (H - y + 60) : y; }
-        function fits(p) { return p[1] - p[2] > TOP + 10; }
-        var puffs = [], billows = [], x;
-        // Base row: puffs of very mixed size and spacing, now and then a run of small ones
-        for (x = side ? -60 : 0; x < (side ? W + 60 : W);) {
-          var r = rand() < .22 ? 16 + rand() * 14 : 28 + rand() * 48;
-          puffs.push([x, roll(x, base - lift(x) + (rand() - .5) * 40), r]);
-          x += r * (.5 + rand() * .9);
-        }
-        // Billows: irregular gaps, small to towering, some stacked two or three high and leaning, some
-        // with a smaller puff tucked at their side
-        for (x = (side ? 40 : 0) + rand() * 160; x < (side ? inner : W);) {
-          var R = 36 + Math.pow(rand(), 1.4) * 80, cy;
-          do { cy = roll(x, base - lift(x) - 18 - R * (.2 + rand() * .25)); R *= .92; } while (!fits([x, cy, R]) && R > 30);
-          var top = [x, cy, R], lean = (rand() - .5) * .8;
-          billows.push(top);
-          for (var s = 0, n = rand() < .45 ? 1 + Math.floor(rand() * 2) : 0; s < n; s++) {
-            var next = [top[0] + lean * top[2], top[1] - top[2] * (.55 + rand() * .2), top[2] * (.5 + rand() * .25)];
-            if (!fits(next)) break;
-            billows.push(next);
-            top = next;
-          }
-          if (rand() < .3) billows.push([x + R * (.7 + rand() * .3) * (rand() < .5 ? -1 : 1), cy + R * .25, R * (.45 + rand() * .2)]);
-          x += R * (1.1 + rand() * 1.8) + rand() * 60;
-        }
-        function mirror(p) { return side === 'right' ? [W - p[0], p[1], p[2]] : p; }
-        puffs = puffs.map(mirror);
-        billows = billows.map(mirror);
-        var pieces = (side ? [0] : [-W, 0, W, 2 * W]).map(function (dx) {
-          var P = puffs.map(function (p) { return [p[0] + dx, p[1], p[2]]; });
-          var B = billows.map(function (p) { return [p[0] + dx, p[1], p[2]]; });
-          var first = P[0], lastP = P[P.length - 1];
-          var d = 'M' + first[0].toFixed(1) + ' ' + (H + 200);
-          P.forEach(function (p) { d += 'L' + p[0].toFixed(1) + ' ' + p[1].toFixed(1); });
-          if (!side) d += 'L' + (first[0] + W).toFixed(1) + ' ' + first[1].toFixed(1) + 'L' + (first[0] + W).toFixed(1) + ' ' + (H + 200);
-          else d += 'L' + lastP[0].toFixed(1) + ' ' + (H + 200);
-          return { puffs: P, billows: B, body: d + 'Z' };
-        });
-        drawCloud(svg, pieces, { id: 'b' + svg.dataset.clouds, fill: svg.dataset.fill, ink: svg.dataset.rim, inkW: 5,
-          top: base - 150, bottom: H });
-      });
-
-      // Size each scrolling bank to exactly its two drawn repeats and tell its loop (cloud-loop in the CSS)
-      // how long one repeat is, so it is seamless whatever the screen shape. The drawing is scaled to
-      // cover twice the screen width and the bank's height, whichever needs more.
-      function setPeriods() {
-        document.querySelectorAll('svg[data-clouds]:not([data-side])').forEach(function (svg) {
-          var box = svg.parentNode.getBoundingClientRect(), vb = svg.viewBox.baseVal;
-          var scale = Math.max(2 * box.width / vb.width, box.height / vb.height);
-          var width = vb.width * scale;
-          svg.style.width = width.toFixed(2) + 'px';
-          svg.style.setProperty('--period', (width / 2).toFixed(2) + 'px');
+      function build() {
+        banks.forEach(function (bank) {
+          var band = bank.clientHeight;
+          if (!band) return;
+          // Scale so the cloud band fills the layer's height; the empty sky above it just overhangs
+          var h = band * IH / (BOTTOM - TOP), period = h * IW / IH, shift = band * (IH - BOTTOM) / (BOTTOM - TOP);
+          var side = bank.dataset.side, seed = +bank.dataset.bank;
+          // enough copies to cover the bank's frame (wider than the screen for far-off depth layers)
+          // through a whole loop, from any starting point
+          var count = side ? 2 : Math.ceil((bank.parentElement.clientWidth + 2 * period) / period) + 1;
+          bank.textContent = '';
+          for (var i = 0; i < count; i++) bank.appendChild(tile(period, h, shift));
+          bank.style.setProperty('--period', period.toFixed(1) + 'px');
+          // Each layer starts at its own point along the strip, so stacked layers never line up
+          if (!side) bank.style.setProperty('--start', (-((seed * 0.37) % 1) * period).toFixed(1) + 'px');
         });
       }
-      setPeriods();
-      addEventListener('resize', setPeriods);
-
-      // Small floating clouds: an uneven base row, billows heaped toward a random peak, and a crown, on a
-      // flat inked base. Each one a different length and shape.
-      document.querySelectorAll('svg[data-wisp]').forEach(function (svg) {
-        var rand = rng(+svg.dataset.wisp * 104729), W = 600, H = 150, BASE = 132;
-        svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
-        var puffs = [], billows = [], x;
-        var start = 36 + rand() * 70, end = W - 36 - rand() * 100;
-        for (x = start; x <= end;) {
-          var r = 15 + rand() * 28;
-          puffs.push([x, BASE - r * (.45 + rand() * .3), r]);
-          x += r * (.65 + rand() * .8);
-        }
-        var peak = start + (end - start) * (.25 + rand() * .5);
-        for (x = start + 40 + rand() * 50; x <= end - 40; x += 40 + rand() * 56) {
-          var near = Math.max(0, 1 - Math.abs(x - peak) / ((end - start) * .55));
-          var r2 = 20 + near * 34 + rand() * 16;
-          billows.push([x, BASE - 22 - r2 * (.35 + near * .35), r2]);
-        }
-        var crown = 32 + rand() * 20;
-        billows.push([peak + (rand() - .5) * 50, BASE - 58 - crown * .35 - rand() * 12, crown]);
-        var id = 'wisp-clip-' + svg.dataset.wisp;
-        var clip = el('clipPath', { id: id });
-        clip.appendChild(el('rect', { x: 0, y: -40, width: W, height: BASE + 40 }));
-        svg.appendChild(clip);
-        var left = puffs[0][0], right = puffs[puffs.length - 1][0];
-        drawCloud(svg, [{ puffs: puffs, billows: billows,
-          body: 'M' + left + ' ' + (BASE - 30) + 'H' + right + 'V' + (BASE + 30) + 'H' + left + 'Z' }],
-          { id: 'w' + svg.dataset.wisp, fill: '#f1e5c9', ink: '#1b1a20', inkW: 9, top: 10, bottom: BASE, clip: id });
-        // Ink base line, a little longer than the cloud, as the woodblock cutters drew it
-        svg.appendChild(el('path', { d: 'M' + (left - 20 - rand() * 30).toFixed(1) + ' ' + BASE + 'H' + (right + 20 + rand() * 30).toFixed(1),
-          stroke: '#1b1a20', 'stroke-width': 4.5, 'stroke-linecap': 'round' }));
-      });
+      build();
+      var t;
+      addEventListener('resize', function () { clearTimeout(t); t = setTimeout(build, 150); });
     })();
 
     // Night sky: stars that shine (a slow twinkle, the brightest with a soft halo and a cross of light)
@@ -621,20 +501,36 @@
       h.setAttribute('data-reveal', '');
     });
 
+    // Back to the top: glide up to the hero. Relaunch: dim to the night sky, then reload into the
+    // countdown (the intro plays whenever the "seen" flag is cleared)
+    document.querySelector('.to-top').addEventListener('click', function (e) {
+      e.preventDefault();
+      scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    });
+    document.querySelector('[data-relaunch]').addEventListener('click', function () {
+      try { sessionStorage.removeItem('nebulaiIntro'); } catch (e) {}
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      var veil = document.createElement('div');
+      veil.className = 'relaunch-veil';
+      document.body.appendChild(veil);
+      veil.getBoundingClientRect();
+      document.documentElement.classList.add('relaunching');
+      setTimeout(function () { scrollTo(0, 0); location.reload(); }, reduce ? 0 : 450);
+    });
+
     // Scroll: hero parallax (moon rises slowly, cloud banks faster, title drifts away),
     // astronaut depth drift, and the HUD nav lighting up the section in view
     (function () {
       var hero = document.querySelector('.hero');
       var moon = document.querySelector('.hero-moon');
       var content = document.querySelector('.hero-content');
-      var layers = [['.hero-clouds-back', .12], ['.hero-clouds-mid', .28], ['.hero-clouds-front', .5]].map(function (l) {
-        return [document.querySelector(l[0]), l[1]];
-      });
+      var layers = Array.prototype.map.call(document.querySelectorAll('.hero-depth'), function (el) { return [el, .3]; });
       var suit = document.querySelector('.suit');
       var mx = 0, my = 0, ticking = false;
 
       function update() {
         var y = scrollY;
+        document.documentElement.classList.toggle('show-top', y > innerHeight * .6);
         if (!reduce && y < innerHeight * 1.3) {
           hero.style.setProperty('--rise', (-y * .18) + 'px');
           layers.forEach(function (l) { l[0].style.transform = 'translateY(' + (-y * l[1]) + 'px)'; });
@@ -823,8 +719,8 @@
       window.nebulaiSound = { set: setWanted, whoosh: whoosh, blip: blip };
     })();
 
-    // Launch intro: T-minus clock, the mark, then the scene rises (moon, astronaut, a marquee running
-    // behind him) and the gate asks how to launch. Launching parts the clouds onto the hero.
+    // Launch intro: T-minus clock, the mark, then the scene rises (clouds, rocket) and the
+    // gate asks how to launch. Launching parts the clouds onto the hero.
     (function () {
       var root = document.documentElement;
       var intro = document.querySelector('.intro');
@@ -846,13 +742,13 @@
       if (reduce) {
         setStage(4);
       } else {
-        // Countdown from T-3s, racing its hundredths
-        var t0 = performance.now(), DUR = 1700;
+        // Countdown from T-10s, racing its hundredths
+        var t0 = performance.now(), DUR = 3500, FROM = 10;
         setStage(1);
         (function tick(now) {
           if (stage > 1) return;
-          var left = Math.max(0, 3 * (1 - (now - t0) / DUR));
-          clock.textContent = 'T–00:0' + Math.floor(left) + '.' + ('0' + Math.floor((left % 1) * 100)).slice(-2);
+          var left = Math.max(0, FROM * (1 - (now - t0) / DUR));
+          clock.textContent = 'T–00:' + ('0' + Math.floor(left)).slice(-2) + '.' + ('0' + Math.floor((left % 1) * 100)).slice(-2);
           if (left > 0) requestAnimationFrame(tick);
         })(t0);
         at(DUR + 250, function () { setStage(2); });
@@ -865,9 +761,78 @@
       intro.querySelector('.intro-skip').addEventListener('click', skip);
       intro.addEventListener('click', function (e) { if (stage < 4 && !e.target.closest('.intro-gate')) skip(); });
 
+      // Liftoff exhaust. The fire and engine glow flicker to new random targets every few frames
+      // (eased toward, so it breathes rather than jitters) and the fire lengthens as the rocket gains
+      // speed. Smoke puffs from the print are released into the world layer: at ignition they billow
+      // out across the pad, then the climbing rocket leaves a trail of them. Each one stays where it
+      // was let go, swelling, drifting and fading, and sinks with the ground as the camera rises.
+      // The smoke billow is loaded once, ahead of time, and every puff reuses it from memory
+      var smokeSrc = 'images/rocket-smoke.webp';
+      if (window.fetch && window.URL) {
+        fetch(smokeSrc).then(function (r) { return r.ok ? r.blob() : null; })
+          .then(function (b) { if (b) smokeSrc = URL.createObjectURL(b); }).catch(function () {});
+      }
+      function liftoff() {
+        var rocket = intro.querySelector('.intro-rocket'), world = intro.querySelector('.intro-world');
+        var smoke = intro.querySelector('.intro-smoke'), glow = intro.querySelector('.intro-glow');
+        var fires = intro.querySelectorAll('.intro-fire');
+        var t0 = performance.now(), lastJitter = 0, lastGround = 0, lastTrail = 0;
+        var cur = [1, 1, 1, 1, 1], goal = [1, 1, 1, 1, 1];
+        function rnd(a, b) { return a + Math.random() * (b - a); }
+        function puff(x, y, w, dx, dy, s0, s1, dur, op) {
+          var img = document.createElement('img');
+          img.src = smokeSrc;
+          img.alt = '';
+          img.className = 'smoke-puff';
+          img.style.width = w + 'px';
+          img.style.left = (x - w / 2) + 'px';
+          img.style.top = (y - world.getBoundingClientRect().top - w * .37) + 'px';
+          smoke.appendChild(img);
+          var r0 = rnd(-12, 12);
+          img.animate([
+            { transform: 'translate(0, 0) scale(' + s0 + ') rotate(' + r0 + 'deg)', opacity: 0 },
+            { opacity: op, offset: .12 },
+            { transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(' + s1 + ') rotate(' + (r0 + rnd(-20, 20)) + 'deg)', opacity: 0 }
+          ], { duration: dur, easing: 'cubic-bezier(.15, .7, .3, 1)', fill: 'both' }).onfinish = function () { img.remove(); };
+        }
+        (function frame(now) {
+          var t = (now - t0) / 1000;
+          if (t > 2.6 || !intro.isConnected) return;
+          var ignite = Math.min(1, t / .45), lit = 1 - Math.pow(1 - ignite, 3);
+          var climb = Math.min(1, Math.max(0, (t - .55) / 1.5));
+          if (now - lastJitter > 70) {
+            lastJitter = now;
+            goal = [rnd(.92, 1.08), rnd(.88, 1.12), rnd(.9, 1.1), rnd(.86, 1.14), rnd(.75, 1)];
+          }
+          for (var i = 0; i < 5; i++) cur[i] += (goal[i] - cur[i]) * .35;
+          var len = (.1 + .9 * lit) * (1 + .45 * climb);
+          fires[0].style.opacity = lit;
+          fires[0].style.transform = 'scale(' + cur[0] + ',' + (len * cur[1]) + ')';
+          fires[1].style.opacity = lit * cur[4];
+          fires[1].style.transform = 'scale(' + cur[2] + ',' + (len * .82 * cur[3]) + ')';
+          glow.style.opacity = lit * (.55 + .45 * cur[4]);
+          glow.style.transform = 'translate(-50%, -50%) scale(' + (.35 + .65 * lit) * cur[0] + ')';
+          var r = rocket.getBoundingClientRect(), nx = r.left + r.width / 2, ny = r.bottom, w = r.width;
+          // ignition: smoke rolls out across the pad to both sides
+          if (t > .12 && t < .95 && now - lastGround > 45) {
+            lastGround = now;
+            for (var side = -1; side <= 1; side += 2) {
+              puff(nx + side * rnd(0, w * .4), ny + w * rnd(-.05, .15), w * rnd(1.2, 1.6), side * w * rnd(2.4, 5.5), -w * rnd(0, .7), .35, rnd(1.6, 2.6), rnd(1600, 2600), .95);
+            }
+          }
+          // climb: a trail of puffs left behind under the fire
+          if (t > .5 && t < 2.15 && now - lastTrail > 40) {
+            lastTrail = now;
+            puff(nx + rnd(-w * .2, w * .2), ny + w * len * 1.2, w * rnd(1, 1.4), rnd(-w * .9, w * .9), w * rnd(.3, 1.2), .45, rnd(1.5, 2.4), rnd(1400, 2200), .85);
+          }
+          requestAnimationFrame(frame);
+        })(t0);
+      }
+
       function launch(withSound) {
         if (launched) return;
         launched = true;
+        if (!reduce) liftoff();
         try { sessionStorage.setItem('nebulaiIntro', 'seen'); } catch (e) {}
         if (window.nebulaiSound) {
           window.nebulaiSound.set(withSound, true);
@@ -876,9 +841,9 @@
         behind.forEach(function (n) { n.inert = false; });
         intro.dataset.stage = 'out';
         scrollTo(0, 0);
-        // Hero animations start as the clouds clear
-        setTimeout(function () { root.classList.remove('intro-on'); }, reduce ? 0 : 700);
-        setTimeout(function () { intro.remove(); }, reduce ? 0 : 2200);
+        // Hero animations start under the clouds, as they sweep across the view
+        setTimeout(function () { root.classList.remove('intro-on'); }, reduce ? 0 : 1300);
+        setTimeout(function () { intro.remove(); }, reduce ? 0 : 2700);
         var main = document.getElementById('main');
         main.setAttribute('tabindex', '-1');
         main.focus({ preventScroll: true });

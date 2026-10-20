@@ -14,7 +14,8 @@
   --glass: rgba(14, 22, 42, .78);
   --display: 'Shippori Mincho B1', 'Hiragino Mincho ProN', 'Yu Mincho', Georgia, serif;
   --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Small caps labels: a condensed sans with tall capitals, readable at small sizes */
+  --hud: 'IBM Plex Sans Condensed', 'Arial Narrow', sans-serif;
   --ease: cubic-bezier(.2, .7, .1, 1);
   color-scheme: dark;
 }
@@ -63,7 +64,7 @@ em { font-style: normal; color: var(--gold); }
 /* ---------- Type ---------- */
 .label {
   margin: 0 0 16px;
-  font: 500 .66rem/1.6 var(--mono);
+  font: 500 .81rem/1.6 var(--hud);
   letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--gold);
@@ -150,7 +151,7 @@ em { font-style: normal; color: var(--gold); }
   align-items: center;
   justify-content: center;
   padding: 16px 28px;
-  font: 500 .68rem/1 var(--mono);
+  font: 500 .83rem/1 var(--hud);
   letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--text);
@@ -179,7 +180,7 @@ em { font-style: normal; color: var(--gold); }
   display: inline-block;
   margin: -26px 0 22px -28px;
   padding: 9px 22px 8px 26px;
-  font: 600 .7rem/1.3 var(--mono);
+  font: 600 .85rem/1.3 var(--hud);
   letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--text);
@@ -236,7 +237,7 @@ em { font-style: normal; color: var(--gold); }
 .nav-tag {
   margin: 0;
   justify-self: start;
-  font: 500 .6rem/1.6 var(--mono);
+  font: 500 .73rem/1.6 var(--hud);
   letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--muted);
@@ -252,7 +253,7 @@ em { font-style: normal; color: var(--gold); }
 .wordmark svg, .intro-mark svg { width: 28px; height: 28px; color: var(--gold); }
 .nav-cta, .corner-link {
   justify-self: end;
-  font: 500 .64rem/1 var(--mono);
+  font: 500 .78rem/1 var(--hud);
   letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--muted);
@@ -288,7 +289,7 @@ em { font-style: normal; color: var(--gold); }
   min-width: 108px;
   height: 38px;
   padding: 0 18px;
-  font: 500 .62rem/1 var(--mono);
+  font: 500 .76rem/1 var(--hud);
   letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--muted);
@@ -306,7 +307,7 @@ em { font-style: normal; color: var(--gold); }
   border: 0;
   background: none;
   color: var(--muted);
-  font: 500 .62rem/1 var(--mono);
+  font: 500 .76rem/1 var(--hud);
   letter-spacing: .18em;
   text-transform: uppercase;
   cursor: pointer;
@@ -334,6 +335,38 @@ em { font-style: normal; color: var(--gold); }
   -webkit-backdrop-filter: blur(10px);
 }
 .sound-dock:hover, .sound-dock:focus-within { --edge: var(--gold); }
+
+/* Relaunch and back-to-top, stacked above the sound control. "Top" only shows once the hero is
+   scrolled away (the page script sets .show-top) */
+.hud-stack {
+  position: fixed;
+  right: 28px;
+  bottom: 80px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.stack-btn { gap: 9px; padding: 12px 16px; }
+.stack-icon { font: 600 .95rem/1 var(--sans); letter-spacing: 0; }
+.to-top {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: color .35s var(--ease), opacity .4s var(--ease), transform .4s var(--ease), visibility 0s .4s;
+}
+.show-top .to-top { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+/* Relaunch: the page dims to the night sky before the countdown comes back (veil added by the script) */
+.relaunch-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: var(--night);
+  opacity: 0;
+  transition: opacity .45s var(--ease);
+}
+.relaunching .relaunch-veil { opacity: 1; }
 .sound-dock:has([aria-pressed="true"]) { --fill: rgba(40, 30, 50, .75); }
 .sound-float { height: 46px; margin: 0; padding: 0 20px 0 18px; }
 .sound-float:focus-visible { outline-offset: -6px; }
@@ -349,7 +382,7 @@ em { font-style: normal; color: var(--gold); }
 .sound-dock:hover .sound-volume,
 .sound-dock:focus-within .sound-volume,
 .sound-dock.is-open .sound-volume { width: 190px; padding-left: 20px; opacity: 1; }
-.sound-volume .label { margin: 0; font-size: .58rem; color: var(--muted); }
+.sound-volume .label { margin: 0; font-size: .71rem; color: var(--muted); }
 
 .sound-volume input {
   -webkit-appearance: none;
@@ -378,23 +411,41 @@ em { font-style: normal; color: var(--gold); }
 .sound-volume input::-moz-range-thumb { width: 9px; height: 9px; border: 0; border-radius: 0; background: var(--accent); transform: rotate(45deg); }
 
 /* ---------- Clouds ---------- */
-.clouds { position: absolute; left: 0; right: 0; bottom: 0; pointer-events: none; will-change: transform; }
-.clouds svg {
+.clouds {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  will-change: transform;
+  /* The print's band ends in a flat cut; dissolve its base into the sky so no edge shows when it lifts */
+  -webkit-mask-image: linear-gradient(to top, transparent, rgba(0, 0, 0, .55) calc(var(--fade, 34%) * .45), #000 var(--fade, 34%));
+  mask-image: linear-gradient(to top, transparent, rgba(0, 0, 0, .55) calc(var(--fade, 34%) * .45), #000 var(--fade, 34%));
+}
+/* A strip of printed cloud-bank tiles (built by the page script), sitting on the layer's bottom edge */
+.clouds .bank {
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 100%;
   height: 100%;
+  display: flex;
+  align-items: flex-end;
 }
-/* Full-width banks are drawn twice over, side by side, so sliding them one repeat (--period, measured
-   in the page script) loops without a seam. Each layer sets its own --loop: far banks drift slowly,
-   near ones faster, for depth. */
-.clouds svg:not([data-side]) {
-  width: 200%;
+.clouds .bank img { flex: none; max-width: none; }
+/* Full-width banks slide one repeat (--period: one seamless tile, set by the script) and loop
+   without a seam. Each layer sets its own --loop: far banks drift slowly, near ones faster, for depth. */
+.clouds .bank:not([data-side]) {
   will-change: translate;
   animation: cloud-loop var(--loop, 160s) linear infinite;
 }
-@keyframes cloud-loop { from { translate: 0 0; } to { translate: calc(var(--period, 50%) * -1) 0; } }
+@keyframes cloud-loop {
+  from { translate: var(--start, 0px) 0; }
+  to { translate: calc(var(--start, 0px) - var(--period, 50%)) 0; }
+}
+/* One print, three depths: far banks deep indigo, middle as printed, near banks washi cream */
+.bank[data-tone="deep"] img { filter: brightness(.42) saturate(1.2); }
+.bank[data-tone="back"] img { filter: brightness(.66) saturate(1.15); }
+.bank[data-tone="front"] img { filter: grayscale(1) sepia(.8) saturate(1.25) brightness(1.42) contrast(.95); }
 
 /* ---------- Hero ---------- */
 .hero {
@@ -406,7 +457,7 @@ em { font-style: normal; color: var(--gold); }
   display: grid;
   place-items: center;
   text-align: center;
-  background: linear-gradient(rgba(17, 27, 49, 0) 0%, rgba(28, 50, 92, .6) 40%, #36598a 72%, #8ea6c2 100%);
+  background: linear-gradient(rgba(17, 27, 49, 0) 0%, rgba(28, 50, 92, .6) 40%, #36598a 66%, #233c68 84%, var(--night) 100%);
 }
 
 .hero-moon {
@@ -421,7 +472,7 @@ em { font-style: normal; color: var(--gold); }
   animation: moon-in 2.4s var(--ease) .2s both;
 }
 /* The drawn moon sits at about 9-91% of its image; scale it so the disc fills the round frame */
-.hero-moon img, .intro-moon img, .contact-moon img {
+.hero-moon img, .contact-moon img {
   position: absolute;
   left: -10.75%;
   top: -9.95%;
@@ -438,7 +489,8 @@ em { font-style: normal; color: var(--gold); }
   position: absolute;
   display: block;
   height: auto;
-  aspect-ratio: 600 / 150;
+  max-width: none;
+  aspect-ratio: 1983 / 793;
   pointer-events: none;
   overflow: visible;
   filter: drop-shadow(0 6px 10px rgba(12, 16, 32, .35));
@@ -448,8 +500,9 @@ em { font-style: normal; color: var(--gold); }
   transform: translateY(calc(var(--rise, 0px) * 1.6));
   animation: wisp-in 2.4s var(--ease) .5s both, wisp-drift 34s ease-in-out infinite alternate;
 }
-.hero-wisp-1 { left: calc(50% - min(66vh, 62vw) * .66); top: calc(9vh + min(66vh, 62vw) * .02); width: calc(min(66vh, 62vw) * .5); }
-.hero-wisp-2 { left: calc(50% + min(66vh, 62vw) * .2); top: calc(9vh + min(66vh, 62vw) * .1); width: calc(min(66vh, 62vw) * .42); animation-direction: normal, alternate-reverse; }
+.hero-wisp-1 { left: calc(50% - min(66vh, 62vw) * .68); top: calc(9vh - min(66vh, 62vw) * .05); width: calc(min(66vh, 62vw) * .5); }
+/* the same print flipped and smaller, so the two never read as copies */
+.hero-wisp-2 { left: calc(50% + min(66vh, 62vw) * .2); top: calc(9vh + min(66vh, 62vw) * .05); width: calc(min(66vh, 62vw) * .38); scale: -1 1; animation-direction: normal, alternate-reverse; }
 @keyframes wisp-in { from { opacity: 0; } }
 /* Drift sideways and bob a little, like clouds carried on a slow wind */
 @keyframes wisp-drift {
@@ -460,14 +513,93 @@ em { font-style: normal; color: var(--gold); }
   100% { translate: 60px 0; }
 }
 
-.hero-clouds-back { height: 50vh; z-index: 1; --loop: 240s; }
-.hero-clouds-mid { height: 40vh; z-index: 2; --loop: 150s; }
-.hero-clouds-front { height: 27vh; bottom: -3vh; z-index: 3; --loop: 95s; }
-.hero .clouds svg { animation: cloud-in 2.2s var(--ease) both, cloud-loop var(--loop) linear infinite; }
-.hero-clouds-back svg { animation-delay: .1s, 0s; }
-.hero-clouds-mid svg { animation-delay: .25s, -40s; }
-.hero-clouds-front svg { animation-delay: .4s, -20s; }
+/* The astronaut: off the moon's lower left, reaching up toward it. Above the cloud sea, below the
+   title. It drifts in once the rocket has gone, then floats weightless; scrolling lifts it away a
+   little faster than the moon. */
+.hero-astro {
+  --m: min(66vh, 62vw);                  /* the moon's size */
+  --h: calc(var(--m) * .74);
+  position: absolute;
+  z-index: 4;
+  height: var(--h);
+  aspect-ratio: 1086 / 1448;
+  left: calc(50% - var(--m) * .5 - var(--h) * .62);
+  top: calc(9vh + var(--m) * .42);
+  pointer-events: none;
+  transform: translateY(calc(var(--rise, 0px) * 2.2));
+}
+.hero-astro img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  filter: drop-shadow(0 18px 30px rgba(8, 12, 28, .45));
+  animation: astro-in 2.8s cubic-bezier(.16, 1, .3, 1) 1.1s both, astro-float 11s ease-in-out 3.9s infinite alternate;
+}
+/* Narrow screens have no room beside the moon: it rises out of the cloud sea below the buttons instead */
+@media (max-width: 700px) {
+  .hero-astro { --h: 25vh; left: -2vw; top: auto; bottom: 3vh; }
+}
+@keyframes astro-in { from { opacity: 0; translate: -14vw 22vh; rotate: -14deg; scale: .82; } }
+/* weightless: a slow rise and fall with a little roll, never quite repeating with the cloud drift */
+@keyframes astro-float {
+  0% { translate: 0 0; rotate: 0deg; }
+  30% { translate: .6vw -1.6vh; rotate: -1.8deg; }
+  65% { translate: -.4vw -.4vh; rotate: 1.2deg; }
+  100% { translate: .3vw -2.2vh; rotate: -.6deg; }
+}
+
+/* Cloud sea with depth: four banks share one path from the horizon to the viewer, a quarter-cycle
+   apart. Size follows 1/distance as the distance closes at a steady rate, so a bank creeps in from
+   far away, then sweeps down and out of view as it gets close; it sinks in step with its size, as
+   things on a plane below the eye do. Far banks are hazy indigo, near ones sunlit cream. */
+.hero-depth {
+  --approach: 80s;
+  height: 30vh;
+  -webkit-mask-image: none;
+  mask-image: none;
+  /* nearer banks draw over farther ones, and all stay under the title (z-index 5) */
+  animation: depth-z var(--approach) steps(4, end) infinite;
+  animation-delay: calc(var(--i) * var(--approach) / -4);
+}
+/* The frame is two screens wide, centred, so even the smallest (half-size) far bank spans the screen */
+.hero-depth .depth {
+  position: absolute;
+  bottom: 0;
+  left: -50%;
+  width: 200%;
+  height: 100%;
+  transform-origin: 50% 100%;
+  will-change: transform, filter, opacity;
+  -webkit-mask-image: linear-gradient(to top, transparent, #000 18%);
+  mask-image: linear-gradient(to top, transparent, #000 18%);
+  animation: cloud-approach var(--approach) linear infinite;
+  animation-delay: inherit;
+}
+.hero-depth .bank { --loop: 160s; }
+.hero .clouds .bank { animation: cloud-in 2.2s var(--ease) .1s both, cloud-loop var(--loop) linear infinite; }
 @keyframes cloud-in { from { transform: translateY(45%); } }
+@keyframes depth-z { from { z-index: 1; } to { z-index: 5; } }
+/* sampled from scale = 1 / (1.818 - 1.193 t), from half size to 1.6x, sinking 60vh per unit of
+   scale; a bank covers the bottom of the hero from mid-trip on and leaves as its top passes it */
+@keyframes cloud-approach {
+  0% { transform: translateY(-15vh) scale(.55); opacity: 0; filter: grayscale(0) sepia(0) saturate(1.1) brightness(.5) contrast(.85); }
+  10% { transform: translateY(-12.7vh) scale(.589); }
+  12% { opacity: 1; }
+  20% { transform: translateY(-10vh) scale(.633); }
+  25% { filter: grayscale(0) sepia(0) saturate(1.05) brightness(.7) contrast(.93); }
+  30% { transform: translateY(-6.9vh) scale(.685); }
+  40% { transform: translateY(-3.3vh) scale(.746); }
+  45% { filter: grayscale(0) sepia(0) saturate(1) brightness(1) contrast(1); }
+  50% { transform: translateY(1.1vh) scale(.818); }
+  55% { filter: grayscale(0) sepia(0) saturate(1) brightness(1) contrast(1); }
+  60% { transform: translateY(6.4vh) scale(.907); }
+  70% { transform: translateY(13vh) scale(1.017); }
+  75% { filter: grayscale(1) sepia(.8) saturate(1.25) brightness(1.42) contrast(.95); }
+  80% { transform: translateY(21.4vh) scale(1.157); }
+  90% { transform: translateY(32.6vh) scale(1.344); }
+  100% { transform: translateY(48vh) scale(1.6); opacity: 1; filter: grayscale(1) sepia(.8) saturate(1.25) brightness(1.42) contrast(.95); }
+}
 
 .hero-content {
   min-width: 0;
@@ -485,7 +617,7 @@ em { font-style: normal; color: var(--gold); }
   max-width: 1040px;
   margin: 0 auto 6px;
   padding: 0 2%;
-  font: 600 .72rem/1 var(--mono);
+  font: 600 .88rem/1 var(--hud);
   letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--gold);
@@ -537,7 +669,10 @@ em { font-style: normal; color: var(--gold); }
 .intro-on .hero-moon,
 .intro-on .hero-wisp,
 .intro-on .cartouche,
-.intro-on .hero .clouds svg,
+.intro-on .hero .clouds .bank,
+.intro-on .hero-astro img,
+.intro-on .hero-depth,
+.intro-on .hero-depth .depth,
 .intro-on .scroll-cue { animation-play-state: paused; }
 
 .scroll-cue {
@@ -549,20 +684,21 @@ em { font-style: normal; color: var(--gold); }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  font: 500 .6rem/1 var(--mono);
+  gap: 9px;
+  /* An ink HUD button like the others, so it reads over cream clouds as well as blue ones */
+  padding: 11px 16px 12px;
+  font: 600 .78rem/1 var(--hud);
   letter-spacing: .3em;
   text-indent: .3em;
   text-transform: uppercase;
-  color: var(--ink);
   animation: rise 1.4s var(--ease) 1.5s both;
 }
-.scroll-cue i { position: relative; width: 1px; height: 34px; background: rgba(12, 16, 32, .3); overflow: hidden; }
+.scroll-cue i { position: relative; width: 1px; height: 26px; background: rgba(243, 234, 214, .25); overflow: hidden; }
 .scroll-cue i::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: var(--ink);
+  background: var(--text);
   animation: cue 2.2s var(--ease) infinite;
 }
 @keyframes cue { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
@@ -627,7 +763,7 @@ em { font-style: normal; color: var(--gold); }
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
 }
-.id-card .label { margin: 0; color: var(--muted); font-size: .6rem; }
+.id-card .label { margin: 0; color: var(--muted); font-size: .73rem; }
 .id-name { margin: 0; font: 700 1.1rem/1.3 var(--display); text-transform: uppercase; letter-spacing: .04em; }
 .avatar {
   width: 52px;
@@ -642,7 +778,7 @@ em { font-style: normal; color: var(--gold); }
 .specs div { padding: 12px 0; border-bottom: 1px solid var(--line); }
 .specs div:first-child { padding-top: 0; }
 .specs div:last-child { border-bottom: 0; padding-bottom: 0; }
-.specs dt { font: 500 .6rem/1.8 var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--dim); }
+.specs dt { font: 500 .73rem/1.8 var(--hud); letter-spacing: .18em; text-transform: uppercase; color: var(--dim); }
 .specs dd { margin: 0; font-size: .95rem; font-weight: 400; }
 .status-dot {
   display: inline-block;
@@ -750,7 +886,7 @@ em { font-style: normal; color: var(--gold); }
   position: absolute;
   top: -9px;
   width: 100px;
-  font: 500 .56rem/1.6 var(--mono);
+  font: 500 .68rem/1.6 var(--hud);
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--muted);
@@ -780,7 +916,7 @@ em { font-style: normal; color: var(--gold); }
 }
 .stack-col li:last-child { border-bottom: 0; padding-bottom: 4px; }
 .stack-col li span {
-  font: 500 .58rem/1 var(--mono);
+  font: 500 .71rem/1 var(--hud);
   letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--dim);
@@ -800,7 +936,7 @@ em { font-style: normal; color: var(--gold); }
   padding: clamp(14px, 2.2vh, 26px) 28px;
   transition: color .4s var(--ease);
 }
-.work-num { font: 500 .72rem/1 var(--mono); color: var(--gold); transition: color .4s; }
+.work-num { font: 500 .88rem/1 var(--hud); color: var(--gold); transition: color .4s; }
 .work-title {
   font: 700 clamp(1.5rem, 2.5vw, 2.2rem)/1 var(--display);
   text-transform: uppercase;
@@ -808,7 +944,7 @@ em { font-style: normal; color: var(--gold); }
 }
 .work-desc { font-size: .88rem; line-height: 1.6; color: var(--muted); transition: color .4s; }
 .work-tags {
-  font: 500 .58rem/1.8 var(--mono);
+  font: 500 .71rem/1.8 var(--hud);
   letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--dim);
@@ -850,7 +986,7 @@ em { font-style: normal; color: var(--gold); }
   padding: 0;
 }
 .contact-links a {
-  font: 500 .64rem/1 var(--mono);
+  font: 500 .78rem/1 var(--hud);
   letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--muted);
@@ -904,7 +1040,9 @@ em { font-style: normal; color: var(--gold); }
 /* ---------- Launch intro ---------- */
 .intro { display: none; }
 .intro-on { overflow: hidden; }
-.intro-on .intro {
+/* still shown while it plays out (the hero starts under it), until the script removes it */
+.intro-on .intro,
+.intro[data-stage="out"] {
   display: block;
   position: fixed;
   inset: 0;
@@ -918,57 +1056,119 @@ em { font-style: normal; color: var(--gold); }
   background: linear-gradient(#0d1528 0%, #1b2f58 42%, #3d6191 74%, #93abc6 100%);
   transition: opacity 1.4s var(--ease) .3s;
 }
-.intro-moon {
-  position: absolute;
-  left: 50%;
-  top: 11vh;
-  width: min(54vh, 72vw);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  opacity: 0;
-  transform: translate(-50%, 50vh);
-  box-shadow: 0 0 90px rgba(240, 200, 120, .25);
-  transition: transform 2s var(--ease), opacity 1.2s var(--ease);
-}
-.intro-marquee {
+/* A quiet, see-through line scrolling just under the docked mark, its ends fading out at the
+   screen edges */
+.intro-tagline {
   position: absolute;
   left: 0;
   right: 0;
-  top: 50%;
-  margin-top: -13vh;
-  font: 800 26vh/1 var(--display);
+  top: calc(19px + 5.5vh + 10px);
+  overflow: hidden;
+  font: 700 clamp(.8rem, 2vh, 1.15rem)/1.2 var(--display);
+  letter-spacing: .34em;
   text-transform: uppercase;
-  color: var(--text);
+  color: rgba(243, 234, 214, .42);
   opacity: 0;
-  transition: opacity 1.2s var(--ease) .3s;
+  transform: translateY(-50%);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  transition: opacity 1.2s var(--ease) .4s;
 }
-.intro-marquee .marquee-track { animation-duration: 30s; }
-.intro-astro {
+.intro-tagline .marquee-track { animation-duration: 40s; }
+.intro[data-stage="3"] .intro-tagline,
+.intro[data-stage="4"] .intro-tagline { opacity: 1; }
+.intro[data-stage="out"] .intro-tagline { opacity: 0; transition-delay: 0s; transition-duration: .6s; }
+/* The launch site spans the screen (at least 130vh wide, so on phones the pad stays a good size and
+   the sides crop), its bottom 6% tucked below the edge. Its pad's centre is 20.1% up the image and
+   0.68% left of centre; the gantry arm is 75.3% up. The rocket is measured off the site, so it
+   always stands on the pad with the arm gripping it at 70% of its height. */
+.intro {
+  --site-w: max(100vw, 130vh);
+  --site-h: calc(var(--site-w) / 2.664);
+  --site-drop: calc(var(--site-h) * .06);
+}
+/* Ground and exhaust smoke: one layer under the rocket that sinks away as the camera rises */
+.intro-world { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.intro-site {
   position: absolute;
   left: 50%;
-  bottom: 4vh;
-  height: min(64vh, 120vw);
-  width: auto;
+  bottom: calc(var(--site-drop) * -1);
+  width: var(--site-w);
+  height: auto;
   max-width: none;
+  opacity: 0;
+  transform: translate(-50%, 6%);
+  transition: opacity 1.4s var(--ease), transform 1.8s var(--ease);
+}
+.intro-smoke { position: absolute; inset: 0; }
+/* one billow of the print's smoke; the launch script releases, grows, drifts and fades these */
+.smoke-puff { position: absolute; max-width: none; height: auto; transform-origin: 50% 50%; will-change: transform, opacity; }
+/* Rocket, engine glow and fire share one frame: the fire hangs from the nozzle mouths (97% down
+   the ship), drawn behind it, and they move as one. The script flickers the fire and the glow. */
+.intro-rocket {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--site-h) * .2 - var(--site-drop));
+  height: calc(var(--site-h) * .787);
+  margin-left: calc(var(--site-w) * -.0068);
+  aspect-ratio: 525 / 1506;
   z-index: 2;
-  transform: translate(-50%, 80vh);
-  transition: transform 2.2s var(--ease) .15s;
+  opacity: 0;
+  transform: translate(-50%, 0);
+  transition: opacity 1.2s var(--ease) .25s;
+}
+.intro-ship { position: relative; display: block; width: 100%; height: 100%; max-width: none; }
+.intro-fire {
+  position: absolute;
+  left: 0;
+  top: 97%;
+  width: 100%;
+  height: auto;
+  max-width: none;
+  transform-origin: 50% 0;
+  opacity: 0;
+  transform: scale(1, .1);
+}
+/* the hot inner flame: narrower, brighter, blended so it lights up the outer fire */
+.intro-fire-core { left: 24%; width: 52%; mix-blend-mode: screen; filter: brightness(1.3) saturate(1.15); }
+.intro-glow {
+  position: absolute;
+  left: 50%;
+  top: 97%;
+  width: 320%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 214, 140, .7) 0%, rgba(255, 140, 60, .3) 30%, rgba(255, 120, 40, 0) 66%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(.3);
 }
 .intro-clouds { position: absolute; inset: 0; }
-.intro-clouds svg {
+/* The cloud banks wait below the screen; on launch they rush up past the view and part (see below) */
+.intro-clouds .bank {
   position: absolute;
   bottom: 0;
   width: 64%;
-  transition: transform 1.8s cubic-bezier(.6, 0, .3, 1);
-  animation: cloud-in 1.8s var(--ease) both;
+  transform: translateY(105%);
 }
-.intro-clouds svg[data-side="left"] { left: 0; }
-.intro-clouds svg[data-side="right"] { left: auto; right: 0; }
-.intro-clouds svg:nth-child(-n+4) { z-index: 1; }
-.intro-clouds svg:nth-child(n+5) { z-index: 3; }
-.intro-clouds svg:nth-child(-n+2) { height: 42vh; }
-.intro-clouds svg:nth-child(n+3):nth-child(-n+4) { height: 32vh; animation-delay: .15s; }
-.intro-clouds svg:nth-child(n+5) { height: 21vh; animation-delay: .3s; }
+.intro-clouds .bank[data-side="left"] { left: 0; }
+.intro-clouds .bank[data-side="right"] { left: auto; right: 0; }
+/* Split banks meet in the middle: each one's inner end fades out over the other, so no cut edge shows */
+.intro-clouds .bank { overflow: hidden; }
+.intro-clouds .bank[data-side="left"] {
+  -webkit-mask-image: linear-gradient(90deg, #000 78%, transparent);
+  mask-image: linear-gradient(90deg, #000 78%, transparent);
+}
+.intro-clouds .bank[data-side="right"] {
+  justify-content: flex-end;
+  -webkit-mask-image: linear-gradient(270deg, #000 78%, transparent);
+  mask-image: linear-gradient(270deg, #000 78%, transparent);
+}
+.intro-clouds .bank:nth-child(-n+4) { z-index: 1; }
+.intro-clouds .bank:nth-child(n+5) { z-index: 3; }
+.intro-clouds .bank:nth-child(-n+2) { height: 42vh; }
+.intro-clouds .bank:nth-child(n+3):nth-child(-n+4) { height: 32vh; }
+.intro-clouds .bank:nth-child(n+5) { height: 21vh; }
 .intro-clock, .intro-mark, .intro-gate, .intro-skip { z-index: 4; }
 
 .intro-clock,
@@ -981,7 +1181,7 @@ em { font-style: normal; color: var(--gold); }
   transition: opacity .6s var(--ease), transform 1.2s var(--ease), filter .6s;
 }
 .intro-clock {
-  font: 500 .8rem/1 var(--mono);
+  font: 500 .98rem/1 var(--hud);
   letter-spacing: .3em;
   color: var(--gold);
   font-variant-numeric: tabular-nums;
@@ -997,14 +1197,15 @@ em { font-style: normal; color: var(--gold); }
   filter: blur(8px);
   transform: translate(-50%, -50%) scale(.9);
 }
+/* In the open sky under the tagline, clear of the rocket and the pad */
 .intro-gate {
   position: absolute;
   left: 50%;
-  bottom: 9vh;
+  top: calc(29px + 10vh);
   width: max-content;
   max-width: calc(100% - 32px);
   text-align: center;
-  /* On its own indigo text box so the question reads over the astronaut */
+  /* On its own indigo text box so the question reads over the sky and the wisps */
   padding: 20px 28px 22px;
   background: rgba(17, 27, 49, .9);
   box-shadow: inset 0 0 0 1px rgba(230, 184, 92, .4), 0 10px 30px rgba(12, 16, 32, .4);
@@ -1027,7 +1228,7 @@ em { font-style: normal; color: var(--gold); }
   padding: 8px 0;
   border: 0;
   background: none;
-  font: 500 .6rem/1 var(--mono);
+  font: 500 .73rem/1 var(--hud);
   letter-spacing: .2em;
   text-transform: uppercase;
   color: var(--ink);
@@ -1041,30 +1242,45 @@ em { font-style: normal; color: var(--gold); }
 .intro[data-stage="4"] .intro-clock,
 .intro[data-stage="out"] .intro-clock { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
 .intro[data-stage="2"] .intro-mark { opacity: 1; filter: none; transform: translate(-50%, -50%); }
-/* Stage 3: the mark docks at the top; moon, astronaut and marquee rise */
+/* Stage 3: the mark docks at the top; the rocket rises (no moon yet: that waits beyond the launch) */
 .intro[data-stage="3"] .intro-mark,
 .intro[data-stage="4"] .intro-mark,
 .intro[data-stage="out"] .intro-mark { opacity: 1; filter: none; top: 38px; transform: translate(-50%, -50%); transition: opacity .6s var(--ease), top 1.2s var(--ease), filter .6s; }
-.intro[data-stage="3"] .intro-moon,
-.intro[data-stage="4"] .intro-moon { opacity: 1; transform: translate(-50%, 0); }
-.intro[data-stage="3"] .intro-marquee,
-.intro[data-stage="4"] .intro-marquee { opacity: 1; }
-.intro[data-stage="3"] .intro-astro,
-.intro[data-stage="4"] .intro-astro { transform: translate(-50%, 0); }
+.intro[data-stage="3"] .intro-site,
+.intro[data-stage="4"] .intro-site { opacity: 1; transform: translate(-50%, 0); }
+.intro[data-stage="3"] .intro-rocket,
+.intro[data-stage="4"] .intro-rocket,
+.intro[data-stage="out"] .intro-rocket { opacity: 1; }
 /* Stage 4: the gate */
 .intro[data-stage="4"] .intro-gate { opacity: 1; visibility: visible; transform: translate(-50%, 0); transition: opacity .8s var(--ease), transform .8s var(--ease), visibility 0s; }
 .intro[data-stage="4"] .intro-skip,
 .intro[data-stage="out"] .intro-skip { opacity: 0; pointer-events: none; }
-/* Launch: the astronaut lifts off, the clouds part, the sky clears onto the hero */
+/* Launch: the engines light and the rocket shudders, then climbs away, slow at first and ever
+   faster, as the clouds part and the sky clears onto the hero */
 .intro[data-stage="out"] { pointer-events: none; }
 .intro[data-stage="out"] .intro-gate { opacity: 0; transform: translate(-50%, 10px); transition-duration: .4s; }
-.intro[data-stage="out"] .intro-astro { transform: translate(-50%, -120vh) scale(.8); transition: transform 1.6s cubic-bezier(.6, 0, .4, 1); }
-.intro[data-stage="out"] .intro-moon { opacity: 0; transform: translate(-50%, -10vh); }
-.intro[data-stage="out"] .intro-marquee { opacity: 0; transition-delay: 0s; transition-duration: .6s; }
-.intro[data-stage="out"] .intro-clouds svg[data-side="left"] { transform: translate(-75%, 18%); }
-.intro[data-stage="out"] .intro-clouds svg[data-side="right"] { transform: translate(75%, 18%); }
-.intro[data-stage="out"] .intro-clouds svg:nth-child(n+5) { transition-delay: .08s; }
-.intro[data-stage="out"] .intro-sky { opacity: 0; }
+.intro[data-stage="out"] .intro-rocket { animation: rocket-launch 2.3s both; }
+@keyframes rocket-launch {
+  0% { transform: translate(-50%, 0); animation-timing-function: linear; }
+  4% { transform: translate(calc(-50% - 2px), 1px); }
+  8% { transform: translate(calc(-50% + 2px), -1px); }
+  12% { transform: translate(calc(-50% - 2px), 0); }
+  16% { transform: translate(calc(-50% + 2px), 1px); }
+  20% { transform: translate(calc(-50% - 1px), -1px); }
+  24% { transform: translate(-50%, 0); animation-timing-function: cubic-bezier(.5, 0, .9, .45); }
+  100% { transform: translate(-50%, -210vh); }
+}
+/* The camera follows the rocket up: the ground sinks away, the cloud banks rush up past the view and
+   part to either side, and the sky clears onto the hero */
+.intro[data-stage="out"] .intro-site { opacity: 1; transform: translate(-50%, 0); }
+.intro[data-stage="out"] .intro-world { transform: translateY(105vh); transition: transform 1.8s cubic-bezier(.55, 0, .85, .4) .45s; }
+.intro[data-stage="out"] .intro-clouds .bank[data-side="left"] { animation: clouds-pass-left 1.9s cubic-bezier(.45, 0, .35, 1) .55s both; }
+.intro[data-stage="out"] .intro-clouds .bank[data-side="right"] { animation: clouds-pass-right 1.9s cubic-bezier(.45, 0, .35, 1) .55s both; }
+.intro[data-stage="out"] .intro-clouds .bank:nth-child(n+5) { animation-delay: .65s; }
+@keyframes clouds-pass-left { 0% { transform: translate(0, 105%); } 45% { transform: translate(0, 0); } 100% { transform: translate(-80%, -35%); } }
+@keyframes clouds-pass-right { 0% { transform: translate(0, 105%); } 45% { transform: translate(0, 0); } 100% { transform: translate(80%, -35%); } }
+/* the night sky holds until the clouds have swept across, so the hero is only revealed behind them */
+.intro[data-stage="out"] .intro-sky { opacity: 0; transition: opacity .9s var(--ease) 1.35s; }
 .intro[data-stage="out"] .intro-mark { opacity: 0; transition-delay: 1s; }
 
 /* ---------- Scroll reveals ---------- */
@@ -1092,6 +1308,9 @@ em { font-style: normal; color: var(--gold); }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .js [data-reveal], .js .suit .anno, .js .suit .anno-label { opacity: 1; transform: none; }
   .js .suit .anno::before, .word > span { transform: none; }
+  /* the cloud sea holds still, each bank frozen at its own distance */
+  .hero-depth { animation: depth-z var(--approach) steps(4, end) calc(var(--i) * var(--approach) / -4) infinite paused !important; }
+  .hero-depth .depth { animation: cloud-approach var(--approach) linear calc(var(--i) * var(--approach) / -4) infinite paused !important; }
 }
 
 /* ---------- Responsive ---------- */
@@ -1126,9 +1345,12 @@ em { font-style: normal; color: var(--gold); }
   .nav { padding: 0 16px; height: 64px; grid-template-columns: 1fr; justify-items: center; }
   .nav-tag, .nav-cta { display: none; }
   .hud-nav { left: 12px; right: 70px; bottom: 12px; transform: none; }
+  .hud-stack { right: 12px; bottom: 66px; }
+  .stack-btn { width: 46px; height: 46px; padding: 0; }
+  .stack-word { display: none; }
   .hud-nav ul { gap: 2px; padding: 4px; }
   .hud-nav li { flex: 1; }
-  .hud-nav a { min-width: 0; height: 36px; padding: 0; font-size: .54rem; letter-spacing: .1em; }
+  .hud-nav a { min-width: 0; height: 36px; padding: 0; font-size: .66rem; letter-spacing: .1em; }
   .sound-dock { right: 12px; bottom: 12px; height: 46px; }
   .sound-float { width: 46px; padding: 0; justify-content: center; }
   .sound-word { display: none; }
@@ -1139,7 +1361,7 @@ em { font-style: normal; color: var(--gold); }
   .sound-volume input { width: 120px; }
   .hero { min-height: 560px; }
   .hero-content { margin-top: -10vh; padding: 0 16px; }
-  .hero-chips { font-size: .56rem; letter-spacing: .12em; padding: 0; }
+  .hero-chips { font-size: .68rem; letter-spacing: .12em; padding: 0; }
   .mega-line { font-size: 17.5vw; line-height: .9; }
   .mega-sub { letter-spacing: .3em; padding-left: 1.05em; }
   .hero-moon { top: 12vh; width: 86vw; }
@@ -1188,18 +1410,18 @@ body::after {
 
 /* ---------- Woodblock details in the intro ---------- */
 .intro-wisp {
-  z-index: 0; /* behind the marquee and the astronaut */
+  z-index: 0; /* behind the astronaut */
   opacity: 0;
   transform: translateY(50vh);
   transition: transform 2.2s var(--ease) .1s, opacity 1.2s var(--ease);
 }
-.intro-wisp-1 { left: calc(50% - min(54vh, 72vw) * .72); top: calc(11vh + min(54vh, 72vw) * .06); width: calc(min(54vh, 72vw) * .55); }
-.intro-wisp-2 { left: calc(50% + min(54vh, 72vw) * .24); top: calc(11vh + min(54vh, 72vw) * .3); width: calc(min(54vh, 72vw) * .46); transition-delay: .25s, 0s; }
+/* in the open sky either side of the rocket, below the launch question */
+.intro-wisp-1 { left: calc(50% - min(40vw, 70vh)); top: 40vh; width: min(24vw, 38vh); }
+.intro-wisp-2 { left: calc(50% + min(17vw, 30vh)); top: 47vh; width: min(18vw, 29vh); scale: -1 1; transition-delay: .25s, 0s; }
 .intro[data-stage="3"] .intro-wisp,
 .intro[data-stage="4"] .intro-wisp { opacity: 1; transform: none; }
 .intro[data-stage="out"] .intro-wisp-1 { opacity: 0; transform: translateX(-60%); transition-duration: 1.2s; }
 .intro[data-stage="out"] .intro-wisp-2 { opacity: 0; transform: translateX(60%); transition-duration: 1.2s; }
-.intro-marquee { -webkit-text-stroke: .02em var(--ink); paint-order: stroke fill; }
 .intro-mark .seal, .wordmark .seal { font-size: 12px; width: 1.75em; padding: .3em 0; }
 
 @media (max-width: 1100px) {
