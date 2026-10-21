@@ -1097,6 +1097,8 @@ em { font-style: normal; color: var(--gold); }
   margin: 34px 0 0;
   padding: 0;
 }
+/* The space cat sits on the moon's crown just below; the two links part to make room for it */
+.contact:has(.space-cat) .contact-links { column-gap: 96px; }
 .contact-links a {
   font: 500 .78rem/1 var(--hud);
   letter-spacing: .18em;
@@ -1165,8 +1167,46 @@ em { font-style: normal; color: var(--gold); }
 .intro-sky {
   position: absolute;
   inset: 0;
-  background: linear-gradient(#0d1528 0%, #1b2f58 42%, #3d6191 74%, #93abc6 100%);
+  /* night: deep indigo overhead easing to a faint moonlit haze over the mountains, scattered with
+     stars (two offset tiles of pinpricks, so the pattern doesn't read as a grid) */
+  background:
+    radial-gradient(1.2px 1.2px at 12% 18%, rgba(243, 234, 214, .9), transparent),
+    radial-gradient(1px 1px at 37% 9%, rgba(243, 234, 214, .7), transparent),
+    radial-gradient(1.4px 1.4px at 61% 27%, rgba(243, 234, 214, .85), transparent),
+    radial-gradient(1px 1px at 83% 14%, rgba(243, 234, 214, .6), transparent),
+    radial-gradient(1.2px 1.2px at 24% 41%, rgba(243, 234, 214, .5), transparent),
+    radial-gradient(1px 1px at 72% 46%, rgba(243, 234, 214, .45), transparent),
+    radial-gradient(1px 1px at 48% 33%, rgba(230, 184, 92, .7), transparent),
+    radial-gradient(1px 1px at 9% 6%, rgba(243, 234, 214, .6), transparent) 0 0 / 317px 233px,
+    radial-gradient(1px 1px at 55% 62%, rgba(243, 234, 214, .45), transparent) 0 0 / 271px 197px,
+    linear-gradient(#060914 0%, #0b1226 32%, #121d3c 60%, #1d2d55 82%, #2c4272 100%);
   transition: opacity 1.4s var(--ease) .3s;
+}
+/* Twinkling stars: four-point sparkles with a soft glow that swell, flare and dim, each on its own
+   beat (position, size, delay and pace set inline) */
+.twinkle {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--s);
+  height: var(--s);
+  filter: drop-shadow(0 0 3px rgba(255, 236, 190, .9)) drop-shadow(0 0 8px rgba(255, 220, 160, .45));
+  opacity: .35;
+  transform: scale(.55);
+  animation: twinkle var(--t) ease-in-out var(--d) infinite;
+}
+/* (the sparkle shape on its own layer, so the glow around it isn't clipped away) */
+.twinkle::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #fff6dc;
+  clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
+}
+@keyframes twinkle {
+  0%, 100% { opacity: .3; transform: scale(.5) rotate(0deg); }
+  45% { opacity: 1; transform: scale(1.1) rotate(20deg); }
+  55% { opacity: .9; transform: scale(.95) rotate(24deg); }
 }
 /* A quiet, see-through line scrolling just under the docked mark, its ends fading out at the
    screen edges */
@@ -1585,42 +1625,132 @@ body::after {
   transition: opacity .4s var(--ease), transform .4s var(--ease);
 }
 .egg-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+/* Speech: a paper bubble inked like the print, over the astronaut's or the cat's head (placed by
+   the script; --tail is where along its edge the tail points at the speaker) */
+.egg-bubble {
+  position: absolute;
+  z-index: 500;
+  width: max-content;
+  max-width: min(320px, calc(100vw - 24px));
+  padding: 10px 16px 11px;
+  border: 2px solid var(--ink);
+  border-radius: 20px;
+  background: var(--paper);
+  box-shadow: 0 10px 28px rgba(8, 12, 28, .4);
+  font: 700 1rem/1.3 var(--display);
+  color: var(--ink);
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(.5);
+  transform-origin: var(--tail) calc(100% + 12px);
+  transition: opacity .2s var(--ease), transform .5s cubic-bezier(.3, 1.5, .5, 1);
+}
+.egg-bubble.is-on { opacity: 1; transform: none; }
+.egg-bubble[data-at="right"] { transform-origin: -12px var(--tail); }
+.egg-bubble[data-at="left"] { transform-origin: calc(100% + 12px) var(--tail); }
+/* the tail: an inked triangle with a paper one inside it, opening into the bubble */
+.egg-bubble::before, .egg-bubble::after { content: ""; position: absolute; border: solid transparent; }
+.egg-bubble[data-at="above"]::before { left: var(--tail); top: 100%; margin-left: -11px; border-width: 14px 11px 0; border-top-color: var(--ink); }
+.egg-bubble[data-at="above"]::after { left: var(--tail); top: 100%; margin-left: -8px; border-width: 10px 8px 0; border-top-color: var(--paper); }
+.egg-bubble[data-at="right"]::before { top: var(--tail); right: 100%; margin-top: -11px; border-width: 11px 14px 11px 0; border-right-color: var(--ink); }
+.egg-bubble[data-at="right"]::after { top: var(--tail); right: 100%; margin-top: -8px; border-width: 8px 10px 8px 0; border-right-color: var(--paper); }
+.egg-bubble[data-at="left"]::before { top: var(--tail); left: 100%; margin-top: -11px; border-width: 11px 0 11px 14px; border-left-color: var(--ink); }
+.egg-bubble[data-at="left"]::after { top: var(--tail); left: 100%; margin-top: -8px; border-width: 8px 0 8px 10px; border-left-color: var(--paper); }
 /* Galaxy: the page swirls into a wormhole on its way to the dark side */
 .wormhole body { animation: wormhole 1.3s cubic-bezier(.6, 0, .9, .5) forwards; }
 @keyframes wormhole { to { transform: scale(.05) rotate(540deg); filter: brightness(3) blur(6px); opacity: 0; } }
 .wormhole { background: #000; overflow: hidden; }
 
-/* The space cat (images/cat-ukiyoe.png): sitting on the moon, half behind the clouds, looking out at
-   us. Its lower body fades into the moon so it sits in the moonlight rather than on top of it */
+/* The space cat (images/cat-ukiyoe.png, seated and lit by JS/eggs.js): sitting up straight on the
+   moon a little off its crown. A warm key light from the upper right (where the print already gilds
+   its edge) rims and shades it, the glowing moon bounces gold up onto its underside, and it throws a
+   soft shadow back across the ground. The script sets where it sits and the light: --rim-x/--rim-y
+   (the key rim), --shade (the shading's direction), --cast (which way the shadow falls) and --slope
+   (the ground's slope there, which the shadow lies along) */
 .space-cat {
   position: absolute;
-  left: calc(50% + min(150px, 22vw));
-  bottom: calc(36vh - min(92px, 10vw));
   z-index: 2;
-  width: 38px;
-  height: 76px;
+  height: clamp(56px, min(18vw, 11vh), 88px); /* a little smaller on narrow or short screens, to fit under the button */
+  aspect-ratio: var(--ar);
   padding: 0;
   border: 0;
   background: none;
   cursor: pointer;
+  transform-origin: 50% 100%;
 }
-.space-cat .cat-img { display: block; width: 100%; height: 100%; object-fit: contain; transform-origin: 50% 100%; }
-.space-cat svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
-.space-cat:not([data-state]) .cat-img {
-  -webkit-mask-image: linear-gradient(#000 72%, rgba(0, 0, 0, .7) 88%, rgba(0, 0, 0, .35) 100%);
-  mask-image: linear-gradient(#000 72%, rgba(0, 0, 0, .7) 88%, rgba(0, 0, 0, .35) 100%);
+.space-cat span, .space-cat img, .space-cat svg { position: absolute; inset: 0; }
+.space-cat .cat-body { transform-origin: 50% 100%; }
+.space-cat .cat-img { display: block; width: 100%; height: 100%; }
+/* The print outlines the cat in gold all the way round like a sticker; pare that pixel of outline
+   away (the silhouette at four 1px nudges, overlapped) so the gold left is the key light's rim */
+.space-cat .cat-fur {
+  -webkit-mask-image: var(--cat), var(--cat), var(--cat), var(--cat);
+  mask-image: var(--cat), var(--cat), var(--cat), var(--cat);
+  -webkit-mask-position: 1px 0, -1px 0, 0 1px, 0 -1px;
+  mask-position: 1px 0, -1px 0, 0 1px, 0 -1px;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
+.space-cat svg { width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+/* the light layers take the picture's own silhouette */
+.space-cat .cat-shade, .space-cat .cat-rim, .space-cat .cat-glow, .space-cat .cat-cast {
+  -webkit-mask: var(--cat) 0 0 / 100% 100% no-repeat;
+  mask: var(--cat) 0 0 / 100% 100% no-repeat;
+}
+/* a rim is the silhouette less itself nudged away from the light: a thin edge facing the light */
+.space-cat .cat-rim {
+  -webkit-mask-image: var(--cat), var(--cat);
+  mask-image: var(--cat), var(--cat);
+  -webkit-mask-position: 0 0, var(--ox) var(--oy);
+  mask-position: 0 0, var(--ox) var(--oy);
+  -webkit-mask-composite: source-out;
+  mask-composite: subtract;
+}
+.space-cat .cat-key { --ox: var(--rim-x); --oy: var(--rim-y); background: #ffd98a; opacity: .9; }
+.space-cat .cat-bounce { --ox: 0px; --oy: -2.4px; background: #f0b45c; opacity: .8; }
+.space-cat .cat-shade {
+  background:
+    linear-gradient(var(--shade), rgba(255, 236, 190, .18), rgba(255, 236, 190, 0) 30%, rgba(6, 9, 24, 0) 42%, rgba(6, 9, 24, .7)),
+    linear-gradient(0deg, rgba(10, 14, 34, .6), rgba(10, 14, 34, 0) 8%);
+}
+/* the rocket's fire lighting it from below */
+.space-cat .cat-glow { background: linear-gradient(0deg, rgba(255, 160, 70, .7), rgba(255, 160, 70, 0) 20%); opacity: 0; }
+/* On the ground: the shadow under the paws, the shadow it casts (its silhouette laid flat along the
+   surface, away from the light), and the flame's light at lift-off */
+.space-cat .cat-ground { transform-origin: 50% 100%; filter: blur(.9px); pointer-events: none; }
+.space-cat .cat-ground::before, .space-cat .cat-ground::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.space-cat .cat-ground::after { width: 92%; height: 8px; background: radial-gradient(closest-side, rgba(10, 14, 34, .75), rgba(10, 14, 34, 0)); }
+.space-cat .cat-ground::before { width: 300%; height: 34px; background: radial-gradient(closest-side, rgba(255, 170, 80, .6), rgba(255, 170, 80, 0)); opacity: 0; }
+.space-cat .cat-cast { transform-origin: 50% 100%; transform: rotate(var(--slope, 0deg)) skewX(var(--cast)) scaleY(.07); background: #0a0e22; opacity: .5; }
 /* a curious head tilt when the pointer comes near */
-.space-cat:hover .cat-img { animation: cat-tilt .9s ease-in-out; }
+.space-cat:not([data-state]):hover .cat-body { animation: cat-tilt .9s ease-in-out; }
 .space-cat:focus-visible { outline: 1px solid var(--gold); outline-offset: 4px; }
-.space-cat .cat-helmet { stroke: #dfeaff; fill: rgba(200, 220, 255, .18); opacity: 0; transition: opacity .3s; }
-.space-cat .cat-flame { fill: #ff9a3c; opacity: 0; transform-origin: 25px 97px; }
-.space-cat[data-state] .cat-helmet { opacity: 1; }
-.space-cat[data-state="launch"] { animation: cat-launch 3.2s both; }
+/* The helmet drops on, then the fire lights */
+.space-cat .cat-helmet { opacity: 0; transform: translateY(-40px) scale(1.06); transform-box: fill-box; transform-origin: 50% 50%; transition: opacity .25s, transform .45s cubic-bezier(.3, 1.5, .5, 1); }
+.space-cat[data-state] .cat-helmet { opacity: 1; transform: none; }
+.space-cat .cat-flame { opacity: 0; transform-box: fill-box; transform-origin: 50% 0; }
+.space-cat[data-state="launch"] .cat-body { animation: cat-launch 3.2s both; }
 .space-cat[data-state="launch"] .cat-flame { opacity: 1; animation: cat-flame .08s linear infinite alternate; }
-.space-cat[data-state="return"] { animation: cat-return 2s cubic-bezier(.2, .7, .3, 1) both; }
+.space-cat[data-state="launch"] .cat-glow { animation: cat-glow .08s linear infinite alternate; }
+.space-cat[data-state="launch"] .cat-ground { animation: cat-liftoff 3.2s both; }
+.space-cat[data-state="launch"] .cat-ground::before { animation: cat-blast 3.2s both; }
+.space-cat[data-state="return"] .cat-body { animation: cat-return 2s cubic-bezier(.2, .7, .3, 1) both; }
+.space-cat[data-state="return"] .cat-ground { animation: cat-land 2s cubic-bezier(.2, .7, .3, 1) both; }
 @keyframes cat-tilt { 30% { transform: rotate(-5deg); } 65% { transform: rotate(3deg); } }
 @keyframes cat-flame { to { transform: scale(.8, 1.35); } }
+@keyframes cat-glow { from { opacity: .5; } to { opacity: .85; } }
 @keyframes cat-launch {
   0% { transform: none; }
   6%, 14%, 22% { transform: translate(-1.5px, 1px); }
@@ -1628,7 +1758,11 @@ body::after {
   30% { transform: none; animation-timing-function: cubic-bezier(.5, 0, .9, .4); }
   100% { transform: translateY(-120vh) rotate(-8deg); }
 }
+/* the shadow spreads and fades as the cat rises off the ground, and gathers again as it lands */
+@keyframes cat-liftoff { 30% { opacity: 1; transform: none; } 55%, 100% { opacity: 0; transform: scaleX(1.6); } }
+@keyframes cat-blast { 0% { opacity: 0; } 8%, 34% { opacity: 1; } 60%, 100% { opacity: 0; } }
 @keyframes cat-return { from { transform: translateY(-50vh) rotate(10deg); opacity: 0; } 40% { opacity: 1; } }
+@keyframes cat-land { from { opacity: 0; transform: scaleX(1.6); } }
 /* The spiral galaxy (a button the script adds to the projects, drawn on its canvas): turning
    slowly in the open sky beside the title; it spins up and brightens when the pointer finds it */
 .galaxy {

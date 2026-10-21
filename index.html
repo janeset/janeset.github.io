@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>nebulai.dev — JS</title>
+  <title>nebulai.dev — Jane Santos</title>
   <meta name="description" content="Jane Santos — software developer working where code, cloud and AI meet.">
   <meta name="theme-color" content="#111b31">
   <!-- the NEBULAI planet mark: SVG where supported, the .ico for older browsers, PNG for home screens -->
@@ -33,22 +33,26 @@
   <a class="skip-link" href="#main">Skip to content</a>
   <canvas id="stars" aria-hidden="true"></canvas>
 
-  <!-- Illustrations are woodblock-style prints in images/ (moon, Earth, astronaut, clouds); the SVG
-       below holds the brand mark -->
-  <svg class="svg-defs" width="0" height="0" aria-hidden="true">
-    <!-- Brand mark: a planet with a tilted orbit -->
-    <symbol id="mark" viewBox="0 0 32 32">
-      <circle cx="16" cy="16" r="7.5" fill="none" stroke="currentColor" stroke-width="2.2"/>
-      <ellipse cx="16" cy="16" rx="14" ry="5.2" fill="none" stroke="currentColor" stroke-width="1.6" transform="rotate(-24 16 16)"/>
-      <circle cx="27.2" cy="10.6" r="1.8" fill="currentColor"/>
-    </symbol>
-  </svg>
+  <!-- Illustrations are woodblock-style prints in images/ (moon, Earth, astronaut, clouds); the brand
+       mark is images/mark.svg -->
 
   <!-- Launch intro: mission clock, then the gate picks a side. The bright side parts the clouds onto
        this page; the dark side flies on to the black and white site (dark.html). Either click also
        starts the music, because browsers only allow audio after a click. -->
   <div class="intro" role="dialog" aria-modal="true" aria-labelledby="intro-q" data-stage="0">
-    <div class="intro-sky"></div>
+    <!-- The night sky, with a few bright stars that twinkle (each at its own spot, size and pace) -->
+    <div class="intro-sky">
+      <i class="twinkle" style="--x:8%;--y:12%;--s:14px;--d:0s;--t:3.2s"></i>
+      <i class="twinkle" style="--x:21%;--y:31%;--s:9px;--d:1.1s;--t:2.6s"></i>
+      <i class="twinkle" style="--x:33%;--y:7%;--s:11px;--d:2.3s;--t:3.8s"></i>
+      <i class="twinkle" style="--x:44%;--y:52%;--s:8px;--d:.6s;--t:2.9s"></i>
+      <i class="twinkle" style="--x:68%;--y:9%;--s:16px;--d:1.7s;--t:3.5s"></i>
+      <i class="twinkle" style="--x:79%;--y:36%;--s:10px;--d:.3s;--t:2.4s"></i>
+      <i class="twinkle" style="--x:91%;--y:19%;--s:12px;--d:2.8s;--t:4s"></i>
+      <i class="twinkle" style="--x:57%;--y:28%;--s:7px;--d:1.4s;--t:2.7s"></i>
+      <i class="twinkle" style="--x:13%;--y:58%;--s:8px;--d:2s;--t:3.3s"></i>
+      <i class="twinkle" style="--x:88%;--y:55%;--s:9px;--d:.9s;--t:3s"></i>
+    </div>
     <img class="wisp intro-wisp intro-wisp-1" src="images/cloud-small.webp" alt="" width="1983" height="793">
     <img class="wisp intro-wisp intro-wisp-2" src="images/cloud-small.webp" alt="" width="1983" height="793">
     <div class="intro-tagline" aria-hidden="true">
@@ -59,7 +63,7 @@
     <div class="intro-world">
       <!-- the print, and over it a layer of window lights that come on when a building is hovered -->
       <div class="intro-site">
-        <img src="images/launch-site.webp" alt="" width="1918" height="720">
+        <img src="images/launch-site-green.webp" alt="" width="1918" height="720">
         <div class="site-lights"></div>
       </div>
       <div class="intro-smoke"></div>
@@ -80,7 +84,7 @@
       <div class="bank" data-bank="16" data-side="right" data-tone="front"></div>
     </div>
     <p class="intro-clock" aria-hidden="true">T–00:10.00</p>
-    <p class="intro-mark" aria-hidden="true"><svg><use href="#mark"/></svg>Nebulai</p>
+    <p class="intro-mark" aria-hidden="true"><svg><use href="images/mark.svg#mark"/></svg>Nebulai</p>
     <div class="intro-gate">
       <p class="intro-q" id="intro-q">Choose your side</p>
       <div class="gate-btns">
@@ -93,7 +97,7 @@
 
   <!-- Corner UI, pinned like a cockpit -->
   <header class="nav">
-    <a href="#top" class="wordmark" aria-label="Nebulai.dev, back to top"><svg aria-hidden="true"><use href="#mark"/></svg>Nebulai</a>
+    <a href="#top" class="wordmark" aria-label="Nebulai.dev, back to top"><svg aria-hidden="true"><use href="images/mark.svg#mark"/></svg>Nebulai</a>
     <a class="nav-cta" href="#contact">Get in touch</a>
   </header>
 

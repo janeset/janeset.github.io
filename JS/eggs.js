@@ -3,7 +3,7 @@
 //    NASA's Eyes on the Solar System. The cursor turns to a pointer over them, nothing else hints.
 //  - The astronaut does a zero-gravity flip when clicked.
 //  - A small spiral galaxy turns beside the projects: clicking it opens a wormhole to the other side.
-//  - A cat sits by the contact section; click it and it blasts off to space (and comes back).
+//  - A cat sits on the moon by the contact section; click it and it blasts off to space (and comes back).
 //  - A hello in the browser console for anyone looking under the hood.
 // The pictures are decorative layers (often behind other layers), so clicks are hit-tested by
 // position rather than listened for on the images themselves.
@@ -52,7 +52,67 @@
     return null;
   }
 
-  // A small message that floats up from the bottom of the screen, then fades
+  // The astronaut and the cat talk in a speech bubble over their heads that goes where they go.
+  // track: what the speaker rides on (its frame, not the picture, which flips and tumbles);
+  // head: where its head is in that frame: centre x and y (fractions of the frame) and radius
+  // (a fraction of its width). The bubble sits above the head, or beside it when that would run
+  // under the nav, and its tail points at the head. below: put it under the speaker instead (when
+  // there is text above it and open ground below), its tail pointing up at it.
+  var bubble, bubbleTimer, bubbleTrack, bubbleHead, bubbleBelow, following = false;
+  function placeBubble() {
+    var t = bubbleTrack.getBoundingClientRect(), hd = bubbleHead;
+    var cx = t.left + t.width * hd[0], cy = t.top + t.height * hd[1], r = t.width * hd[2];
+    var w = bubble.offsetWidth, h = bubble.offsetHeight, gap = 14, edge = 12, top = 76, at, x, y, tail;
+    var clamp = function (v, lo, hi) { return Math.max(lo, Math.min(hi, v)); };
+    if (bubbleBelow && t.bottom + gap + h < innerHeight - edge) {
+      at = 'below';
+      x = clamp(cx - w / 2, edge, innerWidth - w - edge);
+      y = t.bottom + gap;
+      tail = clamp(cx - x, 22, w - 22);
+    } else if (cy - r - gap - h > top) {
+      at = 'above';
+      x = clamp(cx - w / 2, edge, innerWidth - w - edge);
+      y = cy - r - gap - h;
+      tail = clamp(cx - x, 22, w - 22);
+    } else {
+      at = innerWidth - (cx + r) >= cx - r ? 'right' : 'left';
+      x = clamp(at === 'right' ? cx + r + gap : cx - r - gap - w, edge, innerWidth - w - edge);
+      y = Math.max(top, cy - h / 2);
+      tail = clamp(cy - y, 16, h - 16);
+    }
+    bubble.dataset.at = at;
+    bubble.style.left = (x + scrollX).toFixed(1) + 'px';
+    bubble.style.top = (y + scrollY).toFixed(1) + 'px';
+    bubble.style.setProperty('--tail', tail.toFixed(1) + 'px');
+  }
+  function speak(text, track, head, below) {
+    if (!bubble) {
+      bubble = document.createElement('div');
+      bubble.className = 'egg-bubble';
+      bubble.setAttribute('role', 'status');
+      document.body.appendChild(bubble);
+    }
+    bubble.textContent = text;
+    bubbleTrack = track;
+    bubbleHead = head;
+    bubbleBelow = below;
+    bubble.classList.remove('is-on');
+    placeBubble();
+    bubble.getBoundingClientRect();
+    bubble.classList.add('is-on');
+    clearTimeout(bubbleTimer);
+    bubbleTimer = setTimeout(function () { bubble.classList.remove('is-on'); }, 2800);
+    // keep up with the speaker as it drifts and the page scrolls, until the bubble has gone
+    if (!following) (function follow() {
+      following = bubble.classList.contains('is-on');
+      if (following) { placeBubble(); requestAnimationFrame(follow); }
+    })();
+  }
+  // Where each astronaut's helmet is in its picture, for the bubble to point at
+  var HELMETS = { 'astronaut-intro': [.49, .228, .125], 'astronaut-ukiyoe': [.667, .155, .13], 'astronaut': [.54, .162, .13] };
+
+  // Anything else (opening a link, the galaxy) is a small note that floats up from the bottom of
+  // the screen, then fades
   var toast, toastTimer;
   function say(text) {
     if (!toast) {
@@ -92,7 +152,8 @@
       if (!egg.astro.animate) return;
       egg.astro.animate([{ rotate: '0deg', scale: 1 }, { rotate: '200deg', scale: 1.06, offset: .5 }, { rotate: '360deg', scale: 1 }],
         { duration: 1400, easing: 'cubic-bezier(.45, 0, .2, 1)', composite: 'add' });
-      say(QUIPS[quip++ % QUIPS.length]);
+      var pic = (egg.astro.getAttribute('src').match(/([\w-]+)\.\w+$/) || [])[1];
+      speak(QUIPS[quip++ % QUIPS.length], egg.astro.parentNode, HELMETS[pic] || [.5, .16, .13]);
       return;
     }
     say(egg.say);
@@ -236,21 +297,157 @@
     setTimeout(function () { location.href = side === 'dark' ? './' : 'dark.html'; }, 1300);
   });
 
-  // The space cat: sits by the contact section, minding its own business. Click it and it puts on
-  // a bubble helmet and blasts off; a few seconds later it parachutes back down to its spot.
-  // The cat is a picture in each side's style, looking out at us; the rocket flame below it and the
-  // bubble helmet around its head are drawn over it and only show while it flies
-  var cat = plant('.contact', 'space-cat', 'A cat looking at you. It seems to want to go to space',
-    '<img class="cat-img" src="images/' + (side === 'dark' ? 'cat-dark.png' : 'cat-ukiyoe.png') + '" alt="" width="130" height="260">' +
-    '<svg viewBox="0 0 50 100" aria-hidden="true">' +
-      '<path class="cat-flame" d="M15 97c2 9 6 12 10 12s8-3 10-12z"/>' +
-      '<circle class="cat-helmet" cx="25" cy="25" r="22" stroke-width="2"/>' +
-    '</svg>');
+  // The space cat: sits on the moon by the contact section, minding its own business. Click it and
+  // it puts on a bubble helmet and blasts off; a few seconds later it comes back down to its spot.
+  // The cat is a picture in each side's style (images/cat-*.png). To put it in the scene rather than
+  // on top of it, the script seats it on the moon's curve (sitting up straight, paws just
+  // inside the rim on ground we can see) and lights it like the moon around it: the picture's own
+  // silhouette masks a shading layer, a rim of key light, a rim of light bounced up off the moon,
+  // and a shadow cast across the ground. The helmet, its neck ring and the rocket flame are drawn
+  // in the picture's own pixels to fit its head and chest: the bubble clears the ear tips and
+  // closes on a ring at the shoulders, and its highlights sit where the key light and the moon
+  // would show in curved glass.
+  //   head: the bubble's centre and radius; ring: its centre and radii; light: toward the key
+  //   light on screen (bright side: upper right, where the print already gilds the cat's edge;
+  //   dark side: the sun the astronaut's tether is lit by, upper left); rim: the key rim's width
+  //   in px; sink: how far inside the moon's rim the paws rest (past the print's inked edge)
+  var CATS = {
+    bright: { src: 'images/cat-ukiyoe.png', w: 129, h: 260, head: [65, 62, 89.5], ring: [65, 141, 42, 9], light: [.6, -.8], rim: 2.4, sink: 17,
+      glass: '214,232,255', moon: '240,184,96', flame: ['#fff', '#ffe08a', '#ff9a3c', '#ff5a1e'],
+      metal: ['#3b290f', '#9a7030', '#f6dc98', '#a77b33', '#4a3413'] },
+    dark: { src: 'images/cat-dark.png', w: 140, h: 260, head: [70, 62, 89.5], ring: [70, 141, 42, 9], light: [-.664, -.748], rim: 2.2, sink: 7,
+      glass: '235,232,225', moon: '235,232,225', flame: ['#fff', '#f2f0ea', '#bdbab3', '#77746e'],
+      metal: ['#1c1c1c', '#5a5955', '#f2f0ea', '#8a8883', '#2a2a2a'] }
+  };
+  var C = CATS[side === 'dark' ? 'dark' : 'bright'];
+  // a point on a circle, by the clock: 0 is straight up, turning clockwise
+  function onCircle(x, y, r, deg) {
+    var a = deg * Math.PI / 180;
+    return (x + r * Math.sin(a)).toFixed(1) + ' ' + (y - r * Math.cos(a)).toFixed(1);
+  }
+  function arc(x, y, r, from, to) {
+    return 'M' + onCircle(x, y, r, from) + 'A' + r + ' ' + r + ' 0 0 1 ' + onCircle(x, y, r, to);
+  }
+  function catGear() {
+    var hx = C.head[0], hy = C.head[1], r = C.head[2];
+    var rx = C.ring[0], ry = C.ring[1], rw = C.ring[2], rh = C.ring[3];
+    var view = 'viewBox="0 0 ' + C.w + ' ' + C.h + '" aria-hidden="true"';
+    var ringL = (rx - rw) + ' ' + ry, ringR = (rx + rw) + ' ' + ry;
+    var rgba = function (rgb, a) { return 'rgba(' + rgb + ',' + a + ')'; };
+    var stops = function (list) {
+      return list.map(function (c, i) { return '<stop offset="' + (i / (list.length - 1)).toFixed(2) + '" stop-color="' + c + '"/>'; }).join('');
+    };
+    var defs = '<defs>' +
+      '<linearGradient id="cat-metal" gradientUnits="userSpaceOnUse" x1="' + (rx - rw) + '" y1="0" x2="' + (rx + rw) + '" y2="0">' +
+        stops(C.light[0] > 0 ? C.metal : C.metal.slice().reverse()) + '</linearGradient>' +
+      '<radialGradient id="cat-glass" gradientUnits="userSpaceOnUse" cx="' + hx + '" cy="' + hy + '" r="' + r + '">' +
+        '<stop offset=".7" stop-color="' + rgba(C.glass, 0) + '"/><stop offset=".93" stop-color="' + rgba(C.glass, .14) + '"/>' +
+        '<stop offset="1" stop-color="' + rgba(C.glass, .34) + '"/></radialGradient>' +
+      '<linearGradient id="cat-fire" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="' + C.flame[0] + '"/><stop offset=".25" stop-color="' + C.flame[1] + '"/>' +
+        '<stop offset=".6" stop-color="' + C.flame[2] + '" stop-opacity=".85"/><stop offset="1" stop-color="' + C.flame[3] + '" stop-opacity="0"/></linearGradient>' +
+      '<filter id="cat-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.6"/></filter>' +
+    '</defs>';
+    // Behind the cat: the far side of the neck ring and the flame under its paws
+    var back = '<svg class="cat-back" ' + view + '>' + defs +
+      '<path class="cat-flame" d="M' + (rx - 24) + ' 246C' + (rx - 21) + ' 278 ' + (rx - 8) + ' 300 ' + rx + ' 322 ' + (rx + 8) + ' 300 ' + (rx + 21) + ' 278 ' + (rx + 24) + ' 246Z" fill="url(#cat-fire)"/>' +
+      '<g class="cat-helmet"><path d="M' + ringL + 'A' + rw + ' ' + rh + ' 0 0 1 ' + ringR + '" fill="none" stroke="url(#cat-metal)" stroke-width="7" opacity=".7"/></g>' +
+    '</svg>';
+    // In front: the glass, darker and more reflective toward its edge as curved glass is; the key
+    // light's window highlight (turned to the light by the script); the moon glowing up in the
+    // lower curve; and the near side of the ring
+    var front = '<svg class="cat-gear" ' + view + '>' +
+      '<g class="cat-helmet">' +
+        '<path d="M' + ringL + 'A' + r + ' ' + r + ' 0 1 1 ' + ringR + 'Z" fill="url(#cat-glass)" stroke="' + rgba(C.glass, .5) + '" stroke-width="2"/>' +
+        '<g fill="none" stroke-linecap="round" filter="url(#cat-soft)">' +
+          '<path d="' + arc(hx, hy, r - 6, 114, 146) + '" stroke="' + rgba(C.moon, .7) + '" stroke-width="8"/>' +
+          '<path d="' + arc(hx, hy, r - 6, -146, -114) + '" stroke="' + rgba(C.moon, .7) + '" stroke-width="8"/>' +
+        '</g>' +
+        '<g class="cat-shine">' +
+          '<path d="' + arc(hx, hy, r - 10, -26, 22) + '" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="7" stroke-linecap="round" filter="url(#cat-soft)"/>' +
+          '<path d="' + arc(hx, hy, r - 21, -14, 6) + '" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>' +
+          '<circle cx="' + onCircle(hx, hy, r - 30, 16).split(' ')[0] + '" cy="' + onCircle(hx, hy, r - 30, 16).split(' ')[1] + '" r="4" fill="#fff" fill-opacity=".9"/>' +
+          // and the faint second reflection, where the light comes back out the far side
+          '<path d="' + arc(hx, hy, r - 5, 160, 196) + '" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="3" stroke-linecap="round"/>' +
+        '</g>' +
+        '<path d="M' + ringL + 'A' + rw + ' ' + rh + ' 0 0 0 ' + ringR + '" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="10"/>' +
+        '<path d="M' + ringL + 'A' + rw + ' ' + rh + ' 0 0 0 ' + ringR + '" fill="none" stroke="url(#cat-metal)" stroke-width="7"/>' +
+      '</g>' +
+    '</svg>';
+    return { back: back, front: front };
+  }
+  var gear = catGear();
+  var cat = plant('.contact', 'space-cat', 'A cat sitting on the moon. It seems to want to go to space',
+    '<span class="cat-ground" aria-hidden="true"><span class="cat-cast"></span></span>' +
+    '<span class="cat-body" aria-hidden="true">' + gear.back +
+      '<span class="cat-fur"><img class="cat-img" src="' + C.src + '" alt="" width="' + C.w + '" height="' + C.h + '">' +
+      '<span class="cat-shade"></span><span class="cat-rim cat-key"></span><span class="cat-rim cat-bounce"></span><span class="cat-glow"></span></span>' +
+      gear.front +
+    '</span>');
+  // Seat the cat on top of the moon, at its crown under the send button, between the two links
+  // (which part to make room for it), and set its rims, shading, shadow and helmet shine to the
+  // side's light
+  function seatCat() {
+    var moon = document.querySelector(side === 'dark' ? '.horizon-end' : '.contact-moon');
+    if (!moon) return;
+    // (measured on screen, then scaled back in case the section is ever scaled)
+    var box = cat.parentNode.getBoundingClientRect(), m = moon.getBoundingClientRect();
+    var k = box.width / cat.parentNode.offsetWidth || 1;
+    var R = m.width / 2 / k, cx = (m.left - box.left) / k + R, cy = (m.top - box.top) / k + R;
+    var w = cat.offsetWidth, h = cat.offsetHeight, r = R - C.sink;
+    // where things are laid out in the section (not where they are on screen: the text slides in)
+    var laid = function (el) {
+      var x = 0, y = 0;
+      for (var e = el; e && e !== cat.parentNode; e = e.offsetParent) { x += e.offsetLeft; y += e.offsetTop; }
+      return { left: x, top: y, right: x + el.offsetWidth, bottom: y + el.offsetHeight };
+    };
+    // what it must not cover: the send button and the links
+    var keepClear = [].map.call(cat.parentNode.querySelectorAll('.contact-inner [data-open-message], .contact-links a'), laid)
+      .filter(function (b) { return b.right > b.left; });
+    // the gap between the two links, when they sit side by side (it is a few px off the crown,
+    // as the links differ in width: the ground there is still flat)
+    var links = [].map.call(cat.parentNode.querySelectorAll('.contact-links a'), laid), aim = cx;
+    if (links.length === 2 && Math.abs(links[0].top - links[1].top) < 4) aim = (links[0].right + links[1].left) / 2;
+    // if something is in the way on some screen, walk on round the curve until clear, but never
+    // so far that it walks off the screen
+    var step = Math.asin(Math.max(-.3, Math.min(.3, (aim - cx) / R))), a, x, y;
+    for (var i = 0; i < 30; i++, step += .02) {
+      // sitting up straight on a slope, it settles a little lower so its downhill paws still rest
+      // on the ground
+      var rs = r - .35 * w * Math.tan(Math.abs(step));
+      var nx = cx + rs * Math.sin(step) - w / 2, ny = cy - rs * Math.cos(step) - h;
+      if (i && nx + w + 16 > cat.parentNode.offsetWidth) break;
+      a = step; x = nx; y = ny;
+      var blocked = keepClear.some(function (b) { return x < b.right + 6 && x + w > b.left - 6 && y < b.bottom + 6 && y + h > b.top - 6; });
+      if (!blocked || a > .55) break;
+    }
+    cat.style.left = x.toFixed(1) + 'px';
+    cat.style.top = y.toFixed(1) + 'px';
+    // the cat sits up straight; only its shadow lies along the slope of the ground there
+    cat.style.setProperty('--slope', a.toFixed(4) + 'rad');
+    var lx = C.light[0], ly = C.light[1];
+    cat.style.setProperty('--rim-x', (-lx * C.rim).toFixed(2) + 'px');
+    cat.style.setProperty('--rim-y', (-ly * C.rim).toFixed(2) + 'px');
+    cat.style.setProperty('--shade', Math.atan2(-lx, ly).toFixed(3) + 'rad');
+    cat.style.setProperty('--cast', (lx > 0 ? 76 : -76) + 'deg');
+    cat.querySelector('.cat-shine').setAttribute('transform', 'rotate(' + (Math.atan2(lx, -ly) * 180 / Math.PI).toFixed(1) + ' ' + C.head[0] + ' ' + C.head[1] + ')');
+  }
+  if (cat) {
+    // (absolute, or the stylesheets would look for it beside themselves)
+    cat.style.setProperty('--cat', 'url("' + new URL(C.src, document.baseURI).href + '")');
+    cat.style.setProperty('--ar', C.w + ' / ' + C.h);
+    seatCat();
+    addEventListener('resize', seatCat);
+    addEventListener('load', seatCat);
+    if (window.ResizeObserver) new ResizeObserver(seatCat).observe(cat.parentNode);
+  }
   var CAT_QUIPS = ['One small step for cat, one giant leap for catkind.', 'Cat-stronaut away!', 'Houston, the cat has the controls.', 'Nine lives, zero gravity.'];
   var catTrip = 0;
   if (cat) cat.addEventListener('click', function () {
     if (cat.dataset.state) return;
-    say(CAT_QUIPS[catTrip++ % CAT_QUIPS.length]);
+    // said from its seat as it lifts off (the bubble stays where it was said). On the dark side it
+    // goes under the cat, on the dark ground, rather than over the send button and links
+    speak(CAT_QUIPS[catTrip++ % CAT_QUIPS.length], cat, [C.head[0] / C.w, C.head[1] / C.h, C.head[2] / C.w], side === 'dark');
     cat.dataset.state = 'launch';
     // up and away, then back down gently to the same spot
     setTimeout(function () { cat.dataset.state = 'return'; }, 3200);

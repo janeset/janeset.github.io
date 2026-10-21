@@ -6,7 +6,8 @@
   <title>nebulai.dev — Jane Santos</title>
   <meta name="description" content="Jane Santos — software developer working where code, cloud and AI meet.">
   <meta name="theme-color" content="#000000">
-  <link rel="icon" href="favicon.ico">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
@@ -31,7 +32,7 @@
 
   <!-- Nav -->
   <header class="nav">
-    <a href="#top" class="wordmark">Nebulai<span>.dev</span></a>
+    <a href="#top" class="wordmark"><svg aria-hidden="true"><use href="images/mark.svg#mark"/></svg>Nebulai<span>.dev</span></a>
     <nav aria-label="Primary">
       <ul class="nav-links">
         <li><a href="#about">About</a></li>
@@ -255,7 +256,15 @@
     </label>
     <button class="sound-toggle sound-float" type="button" aria-pressed="false" aria-label="Play background music">
       <span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span class="sound-word" aria-hidden="true">Sound</span>
     </button>
+  </div>
+
+  <!-- Bottom-left corner slot, mirroring the sound control: back to the launch pad while the hero
+       is in view, then back to the top once scrolled down (the two cross-fade in place) -->
+  <div class="hud-stack">
+    <button class="stack-btn" type="button" data-relaunch aria-label="Back to the launch pad"><span class="stack-icon" aria-hidden="true">↻</span><span class="stack-word">Relaunch</span></button>
+    <a class="stack-btn to-top" href="#top" aria-label="Back to top"><span class="stack-icon" aria-hidden="true">↑</span><span class="stack-word">Top</span></a>
   </div>
 
   <footer class="footer">
@@ -331,18 +340,38 @@
       draw();
     })();
 
+    // Back to the top: glide up to the hero. Relaunch: fade to black, then over to the launch pad
+    // (the bright side's countdown, where you choose a side again)
+    document.querySelector('.to-top').addEventListener('click', function (e) {
+      e.preventDefault();
+      scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    });
+    document.querySelector('[data-relaunch]').addEventListener('click', function () {
+      var veil = document.createElement('div');
+      veil.className = 'relaunch-veil';
+      document.body.appendChild(veil);
+      veil.getBoundingClientRect();
+      document.documentElement.classList.add('relaunching');
+      setTimeout(function () { location.href = './?launch'; }, reduce ? 0 : 450);
+    });
+
     // Nav background once scrolled; hero parallax (moon rises, text drifts away)
     (function () {
       var nav = document.querySelector('.nav');
       var horizon = document.querySelector('.hero .horizon');
       var content = document.querySelector('.hero-content');
       var suit = document.querySelector('.suit');
+      var footer = document.querySelector('.footer');
       var mx = 0, my = 0;
       var ticking = false;
 
       function update() {
         var y = scrollY;
         nav.classList.toggle('scrolled', y > 40);
+        document.documentElement.classList.toggle('show-top', y > innerHeight * .6);
+        // as the footer scrolls in, the corner buttons rise to sit just above its line
+        var lift = Math.max(0, innerHeight - footer.getBoundingClientRect().top);
+        document.documentElement.style.setProperty('--footer-lift', lift.toFixed(1) + 'px');
         if (!reduce && y < innerHeight * 1.2) {
           horizon.style.setProperty('--rise', (-y * 0.3) + 'px');
           content.style.opacity = Math.max(0, 1 - y / (innerHeight * 0.55));

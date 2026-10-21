@@ -209,7 +209,8 @@ button.pill { cursor: pointer; font-family: var(--sans); }
   -webkit-backdrop-filter: blur(14px);
   border-bottom-color: var(--line);
 }
-.wordmark { font: 400 1.5rem/1 var(--serif); letter-spacing: .01em; margin-right: auto; }
+.wordmark { display: inline-flex; align-items: center; font: 400 1.5rem/1 var(--serif); letter-spacing: .01em; margin-right: auto; }
+.wordmark svg { width: 26px; height: 26px; margin-right: 10px; color: var(--text); }
 .wordmark span { color: var(--muted); font-style: italic; }
 
 .nav-links { display: flex; gap: 36px; list-style: none; margin: 0; padding: 0; }
@@ -266,12 +267,62 @@ button.pill { cursor: pointer; font-family: var(--sans); }
 .sound-dock:has([aria-pressed="true"]) { box-shadow: 0 0 0 6px rgba(235, 232, 225, .06); }
 .sound-float {
   justify-content: center;
-  width: 46px;
   height: 46px;
   margin: 0;
-  padding: 0;
-  border-radius: 50%;
+  padding: 0 20px 0 18px;
+  border-radius: 999px;
 }
+
+/* One corner slot, bottom left, level with the sound control and mirroring it: Relaunch (back to
+   the launch pad) while the hero is in view, then "Top" once it's scrolled away (the page script
+   sets .show-top). The two cross-fade in place. */
+.hud-stack {
+  position: fixed;
+  left: 28px;
+  bottom: 28px;
+  z-index: 60;
+  width: 132px;
+  height: 48px;
+}
+/* Both corner controls stay above the footer's line once it scrolls into view (--footer-lift is how
+   much of the footer shows, set by the page script) */
+.hud-stack, .sound-dock { translate: 0 calc(-1 * var(--footer-lift, 0px)); }
+.stack-btn {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--muted);
+  font: 500 .66rem/1 var(--sans);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color .3s, border-color .3s, opacity .45s var(--ease), transform .45s var(--ease), visibility 0s;
+}
+.stack-btn:hover, .stack-btn:focus-visible { color: var(--text); border-color: var(--text); }
+.stack-icon { font-size: .9rem; letter-spacing: 0; }
+.to-top,
+.show-top [data-relaunch] { opacity: 0; visibility: hidden; transition-delay: 0s, 0s, 0s, 0s, .45s; }
+.to-top { transform: translateY(8px); }
+.show-top [data-relaunch] { transform: translateY(-8px); }
+.show-top .to-top { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+/* Relaunch: the page fades to black before the launch pad comes up (veil added by the script) */
+.relaunch-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: #000;
+  opacity: 0;
+  transition: opacity .45s var(--ease);
+}
+.relaunching .relaunch-veil { opacity: 1; }
 .sound-volume {
   display: flex;
   align-items: center;
@@ -315,7 +366,9 @@ button.pill { cursor: pointer; font-family: var(--sans); }
 
 @media (max-width: 640px) {
   .sound-dock { right: 16px; bottom: 16px; height: 44px; }
-  .sound-float { width: 42px; height: 42px; }
+  .sound-float { width: 42px; height: 42px; padding: 0; }
+  .sound-word, .stack-word { display: none; }
+  .hud-stack { left: 16px; bottom: 16px; width: 44px; height: 44px; }
 }
 
 /* ---------- Hero ---------- */
@@ -767,6 +820,8 @@ button.pill { cursor: pointer; font-family: var(--sans); }
   margin: 40px 0 0;
   padding: 0;
 }
+/* The space cat sits on the moon's crown just below; the two links part to make room for it */
+.contact:has(.space-cat) .contact-links { column-gap: 96px; }
 .contact-links a {
   font: 500 .66rem/1 var(--sans);
   letter-spacing: .22em;
@@ -910,38 +965,130 @@ body::after {
   transition: opacity .4s var(--ease), transform .4s var(--ease);
 }
 .egg-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+/* Speech: an ivory bubble over the astronaut's or the cat's head (placed by the script; --tail is
+   where along its edge the tail points at the speaker) */
+.egg-bubble {
+  position: absolute;
+  z-index: 500;
+  width: max-content;
+  max-width: min(320px, calc(100vw - 24px));
+  padding: 9px 18px 10px;
+  border-radius: 20px;
+  background: var(--text);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .6), 0 10px 30px rgba(0, 0, 0, .6);
+  font: italic 400 1.2rem/1.2 var(--serif);
+  color: #0b0b0b;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(.5);
+  transform-origin: var(--tail) calc(100% + 12px);
+  transition: opacity .2s var(--ease), transform .5s cubic-bezier(.3, 1.5, .5, 1);
+}
+.egg-bubble.is-on { opacity: 1; transform: none; }
+.egg-bubble[data-at="below"] { transform-origin: var(--tail) -12px; }
+.egg-bubble[data-at="right"] { transform-origin: -12px var(--tail); }
+.egg-bubble[data-at="left"] { transform-origin: calc(100% + 12px) var(--tail); }
+/* the tail, pointing at the speaker */
+.egg-bubble::after { content: ""; position: absolute; border: solid transparent; }
+.egg-bubble[data-at="above"]::after { left: var(--tail); top: 100%; margin-left: -9px; border-width: 12px 9px 0; border-top-color: var(--text); }
+.egg-bubble[data-at="below"]::after { left: var(--tail); bottom: 100%; margin-left: -9px; border-width: 0 9px 12px; border-bottom-color: var(--text); }
+.egg-bubble[data-at="right"]::after { top: var(--tail); right: 100%; margin-top: -9px; border-width: 9px 12px 9px 0; border-right-color: var(--text); }
+.egg-bubble[data-at="left"]::after { top: var(--tail); left: 100%; margin-top: -9px; border-width: 9px 0 9px 12px; border-left-color: var(--text); }
 /* Galaxy: the page swirls into a wormhole on its way to the bright side */
 .wormhole body { animation: wormhole 1.3s cubic-bezier(.6, 0, .9, .5) forwards; }
 @keyframes wormhole { to { transform: scale(.05) rotate(-540deg); filter: brightness(3) blur(6px); opacity: 0; } }
 .wormhole { background: #000; overflow: hidden; }
 
-/* The space cat (images/cat-dark.png): a black cat on the lunar horizon, looking out at us, its
-   fur rim-lit by the moon so it shows against the black */
+/* The space cat (images/cat-dark.png, seated and lit by JS/eggs.js): a black cat sitting up straight
+   on the lunar horizon. The sun from the upper left (the one the astronaut's tether is lit by)
+   catches its edge and shades it, the grey ground bounces a little light up onto its underside, and
+   with no air to soften it, it throws a hard black shadow across the ground. The script sets where it
+   sits and the light: --rim-x/--rim-y (the key rim), --shade (the shading's direction), --cast
+   (which way the shadow falls) and --slope (the ground's slope there, which the shadow lies along) */
 .space-cat {
   position: absolute;
-  left: calc(50% + min(150px, 22vw));
-  bottom: calc(34vh - 24px);
   z-index: 2;
-  width: 38px;
-  height: 76px;
+  height: clamp(56px, min(18vw, 11vh), 88px); /* a little smaller on narrow or short screens, to fit under the button */
+  aspect-ratio: var(--ar);
   padding: 0;
   border: 0;
   background: none;
   cursor: pointer;
+  transform-origin: 50% 100%;
 }
-.space-cat .cat-img { display: block; width: 100%; height: 100%; object-fit: contain; transform-origin: 50% 100%; filter: drop-shadow(0 0 1px rgba(235, 232, 225, .85)) drop-shadow(0 0 5px rgba(235, 232, 225, .25)); }
-.space-cat svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.space-cat span, .space-cat img, .space-cat svg { position: absolute; inset: 0; }
+/* The picture edges the cat in pale grey all the way round; pare that pixel of edge away (the
+   silhouette at four 1px nudges, overlapped) so the only light on its edge is the sun's */
+.space-cat .cat-fur {
+  -webkit-mask-image: var(--cat), var(--cat), var(--cat), var(--cat);
+  mask-image: var(--cat), var(--cat), var(--cat), var(--cat);
+  -webkit-mask-position: 1px 0, -1px 0, 0 1px, 0 -1px;
+  mask-position: 1px 0, -1px 0, 0 1px, 0 -1px;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.space-cat .cat-body { transform-origin: 50% 100%; }
+.space-cat .cat-img { display: block; width: 100%; height: 100%; }
+.space-cat svg { width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+/* the light layers take the picture's own silhouette */
+.space-cat .cat-shade, .space-cat .cat-rim, .space-cat .cat-glow, .space-cat .cat-cast {
+  -webkit-mask: var(--cat) 0 0 / 100% 100% no-repeat;
+  mask: var(--cat) 0 0 / 100% 100% no-repeat;
+}
+/* a rim is the silhouette less itself nudged away from the light: a thin edge facing the light */
+.space-cat .cat-rim {
+  -webkit-mask-image: var(--cat), var(--cat);
+  mask-image: var(--cat), var(--cat);
+  -webkit-mask-position: 0 0, var(--ox) var(--oy);
+  mask-position: 0 0, var(--ox) var(--oy);
+  -webkit-mask-composite: source-out;
+  mask-composite: subtract;
+}
+.space-cat .cat-key { --ox: var(--rim-x); --oy: var(--rim-y); background: #ebe8e1; opacity: .95; }
+.space-cat .cat-bounce { --ox: 0px; --oy: -2.4px; background: #ebe8e1; opacity: .3; }
+.space-cat .cat-shade {
+  background:
+    linear-gradient(var(--shade), rgba(235, 232, 225, .1), rgba(235, 232, 225, 0) 30%, rgba(0, 0, 0, 0) 45%, rgba(0, 0, 0, .65)),
+    linear-gradient(0deg, rgba(0, 0, 0, .7), rgba(0, 0, 0, 0) 8%);
+}
+/* the rocket's fire lighting it from below */
+.space-cat .cat-glow { background: linear-gradient(0deg, rgba(235, 232, 225, .45), rgba(235, 232, 225, 0) 18%); opacity: 0; }
+/* On the ground: the shadow under the paws, the shadow it casts (its silhouette laid flat along the
+   surface, away from the light), and the flame's light at lift-off */
+.space-cat .cat-ground { transform-origin: 50% 100%; filter: blur(.4px); pointer-events: none; }
+.space-cat .cat-ground::before, .space-cat .cat-ground::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+.space-cat .cat-ground::after { width: 92%; height: 8px; background: radial-gradient(closest-side, rgba(0, 0, 0, .9), rgba(0, 0, 0, 0)); }
+.space-cat .cat-ground::before { width: 300%; height: 34px; background: radial-gradient(closest-side, rgba(235, 232, 225, .4), rgba(235, 232, 225, 0)); opacity: 0; }
+.space-cat .cat-cast { transform-origin: 50% 100%; transform: rotate(var(--slope, 0deg)) skewX(var(--cast)) scaleY(.07); background: #000; opacity: .9; }
 /* a curious head tilt when the pointer comes near */
-.space-cat:hover .cat-img { animation: cat-tilt .9s ease-in-out; }
+.space-cat:not([data-state]):hover .cat-body { animation: cat-tilt .9s ease-in-out; }
 .space-cat:focus-visible { outline: 1px solid var(--text); outline-offset: 4px; }
-.space-cat .cat-helmet { stroke: var(--text); fill: rgba(235, 232, 225, .12); opacity: 0; transition: opacity .3s; }
-.space-cat .cat-flame { fill: #fff; opacity: 0; transform-origin: 25px 97px; }
-.space-cat[data-state] .cat-helmet { opacity: 1; }
-.space-cat[data-state="launch"] { animation: cat-launch 3.2s both; }
+/* The helmet drops on, then the fire lights */
+.space-cat .cat-helmet { opacity: 0; transform: translateY(-40px) scale(1.06); transform-box: fill-box; transform-origin: 50% 50%; transition: opacity .25s, transform .45s cubic-bezier(.3, 1.5, .5, 1); }
+.space-cat[data-state] .cat-helmet { opacity: 1; transform: none; }
+.space-cat .cat-flame { opacity: 0; transform-box: fill-box; transform-origin: 50% 0; }
+.space-cat[data-state="launch"] .cat-body { animation: cat-launch 3.2s both; }
 .space-cat[data-state="launch"] .cat-flame { opacity: 1; animation: cat-flame .08s linear infinite alternate; }
-.space-cat[data-state="return"] { animation: cat-return 2s cubic-bezier(.2, .7, .3, 1) both; }
+.space-cat[data-state="launch"] .cat-glow { animation: cat-glow .08s linear infinite alternate; }
+.space-cat[data-state="launch"] .cat-ground { animation: cat-liftoff 3.2s both; }
+.space-cat[data-state="launch"] .cat-ground::before { animation: cat-blast 3.2s both; }
+.space-cat[data-state="return"] .cat-body { animation: cat-return 2s cubic-bezier(.2, .7, .3, 1) both; }
+.space-cat[data-state="return"] .cat-ground { animation: cat-land 2s cubic-bezier(.2, .7, .3, 1) both; }
 @keyframes cat-tilt { 30% { transform: rotate(-5deg); } 65% { transform: rotate(3deg); } }
 @keyframes cat-flame { to { transform: scale(.8, 1.35); } }
+@keyframes cat-glow { from { opacity: .5; } to { opacity: .85; } }
 @keyframes cat-launch {
   0% { transform: none; }
   6%, 14%, 22% { transform: translate(-1.5px, 1px); }
@@ -949,7 +1096,11 @@ body::after {
   30% { transform: none; animation-timing-function: cubic-bezier(.5, 0, .9, .4); }
   100% { transform: translateY(-120vh) rotate(-8deg); }
 }
+/* the shadow spreads and fades as the cat rises off the ground, and gathers again as it lands */
+@keyframes cat-liftoff { 30% { opacity: 1; transform: none; } 55%, 100% { opacity: 0; transform: scaleX(1.6); } }
+@keyframes cat-blast { 0% { opacity: 0; } 8%, 34% { opacity: 1; } 60%, 100% { opacity: 0; } }
 @keyframes cat-return { from { transform: translateY(-50vh) rotate(10deg); opacity: 0; } 40% { opacity: 1; } }
+@keyframes cat-land { from { opacity: 0; transform: scaleX(1.6); } }
 /* The spiral galaxy (a button the script adds to the projects, drawn on its canvas): turning
    slowly in the empty sky beside the title; it spins up and brightens when the pointer finds it */
 #work { position: relative; }
