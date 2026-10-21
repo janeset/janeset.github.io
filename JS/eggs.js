@@ -18,7 +18,29 @@
     { sel: '.hero-moon img, .contact-moon img, .horizon img', shape: 'disc', url: 'https://eyes.nasa.gov/apps/solar-system/#/moon', say: 'Flying to the moon with NASA…' }
   ];
   var ASTRO = '.hero-astro img, .suit .astro';
-  var QUIPS = ['Houston, we have a developer.', 'Zero gravity, zero worries.', 'Weeee!', 'One small flip for a dev.', 'Still floating. Still coding.'];
+  var QUIPS = ['Houston, we have a developer.', 'Zero gravity, zero worries.', 'Weeee!', 'One small flip for a dev.', 'Still floating. Still coding.',
+    'I came for the view, stayed for the Wi-Fi.', 'It works on my planet.', 'Space is cold. My coffee is colder.', 'No bugs up here. Just meteors.',
+    'Do not push me. Okay, push me again.', 'I left my keys on Earth.', 'Who needs stairs when you have orbit?', 'Deploying to production... in space.',
+    'My helmet is fogging up. Stop making me laugh.', 'Ground control, I think I left the oven on.'];
+  // The dark side's astronaut, floating by the About section, is more the thoughtful sort: a mix of
+  // dry engineering humour, working principles and a few quotes from people who built things
+  if (side === 'dark') QUIPS = [
+    'Talk is cheap. Show me the code.\n— Linus Torvalds',
+    'Clean code, clear head, open sky.',
+    'First, solve the problem. Then, write the code.\n— John Johnson',
+    'Every bug is just a feature that hasn\'t met its user story.',
+    'Make it work, make it right, make it fast.\n— Kent Beck',
+    'The cloud is just someone else\'s computer. I\'ve met it. It\'s nice.',
+    'The best way to predict the future is to invent it.\n— Alan Kay',
+    'Ship small, ship often, sleep well.',
+    'Simplicity is prerequisite for reliability.\n— Edsger Dijkstra',
+    'I don\'t always test my code. But up here, I have to.',
+    'Earth is the cradle of humanity, but one cannot stay in the cradle forever.\n— Tsiolkovsky',
+    'Curiosity: the only fuel that never runs out.',
+    'Any sufficiently advanced bug is indistinguishable from a feature.',
+    'Aim for the moon. Commit often on the way.',
+    'The sky was never the limit. Bad documentation was.'
+  ];
   // clicks on words, controls or the popup stay theirs, never an easter egg
   var SKIP = 'a, button, input, textarea, select, label, dialog, h1, h2, h3, p, li, dl, figcaption, .anno, .nav, .hud-nav, header, footer, .intro, .sound-dock, .hud-stack';
 
@@ -101,7 +123,9 @@
     bubble.getBoundingClientRect();
     bubble.classList.add('is-on');
     clearTimeout(bubbleTimer);
-    bubbleTimer = setTimeout(function () { bubble.classList.remove('is-on'); }, 2800);
+    // the dark side's longer lines and quotes stay up long enough to read (about 70ms a letter)
+    var hold = side === 'dark' ? Math.max(4500, text.length * 70) : 2800;
+    bubbleTimer = setTimeout(function () { bubble.classList.remove('is-on'); }, hold);
     // keep up with the speaker as it drifts and the page scrolls, until the bubble has gone
     if (!following) (function follow() {
       following = bubble.classList.contains('is-on');
@@ -110,6 +134,34 @@
   }
   // Where each astronaut's helmet is in its picture, for the bubble to point at
   var HELMETS = { 'astronaut-intro': [.49, .228, .125], 'astronaut-ukiyoe': [.667, .155, .13], 'astronaut': [.54, .162, .13] };
+
+  // The launch screen talks back once the gate is up (before that a click skips the countdown):
+  // the rocket answers from a bubble over its nose, and the shy clouds tease you from a bubble over
+  // their tops (riding along as they drift off). The clouds ignore the pointer, so clicks are
+  // tested against each one's shape inside its picture (the print leaves a margin around it); the
+  // rocket counts only along its slim body, not the empty sides of its picture.
+  var ROCKET_QUIPS = ['Pick a side first, then we fly!', 'Fuel at 99%. Patience at 12%.', 'Psst, the countdown already ended.', 'Ready when you are, captain.', 'I don\'t do round trips. Kidding!', 'Hold on, checking my mirrors.', 'That tickles the fuel tank.', 'Destination: anywhere but here.'];
+  var CLOUD_QUIPS = ['You can\'t touch me!', 'Too slow!', 'Catch me if you can!', 'Nope. Just vapor.', 'Hands off, I just got fluffed.', 'I\'m 99% water, 1% attitude.', 'Tickles!', 'Personal space, please.'];
+  var rocketQuip = 0, cloudQuip = 0;
+  document.addEventListener('click', function (e) {
+    var intro = document.querySelector('.intro');
+    if (!root.classList.contains('intro-on') || !intro || intro.dataset.stage !== '4') return;
+    if (e.target.closest && e.target.closest('button, a')) return;
+    var ship = intro.querySelector('.intro-ship'), s = ship && ship.getBoundingClientRect();
+    if (s && e.clientX > s.left + s.width * .22 && e.clientX < s.right - s.width * .22 && e.clientY > s.top && e.clientY < s.bottom) {
+      speak(ROCKET_QUIPS[rocketQuip++ % ROCKET_QUIPS.length], ship, [.5, .02, 0]);
+      return;
+    }
+    var wisps = intro.querySelectorAll('.intro-wisp');
+    for (var i = 0; i < wisps.length; i++) {
+      var r = wisps[i].getBoundingClientRect();
+      if (e.clientX > r.left + r.width * .08 && e.clientX < r.right - r.width * .08 &&
+          e.clientY > r.top + r.height * .15 && e.clientY < r.bottom - r.height * .1) {
+        speak(CLOUD_QUIPS[cloudQuip++ % CLOUD_QUIPS.length], wisps[i], [.5, .28, 0]);
+        return;
+      }
+    }
+  });
 
   // Anything else (opening a link, the galaxy) is a small note that floats up from the bottom of
   // the screen, then fades

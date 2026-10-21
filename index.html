@@ -63,7 +63,7 @@
     <div class="intro-world">
       <!-- the print, and over it a layer of window lights that come on when a building is hovered -->
       <div class="intro-site">
-        <img src="images/launch-site-green.webp" alt="" width="1918" height="720">
+        <img src="images/launch-site-night.webp" alt="" width="1918" height="720">
         <div class="site-lights"></div>
       </div>
       <div class="intro-smoke"></div>
@@ -973,7 +973,8 @@
           return { el: el, x: 0, y: 0, vx: 0, vy: 0 };
         });
         var px = -1e4, py = -1e4, running = false;
-        var REACH = 220, PUSH = 2.4, SPRING = .035, DAMP = .86;
+        // they only notice the pointer once it's close (within REACH px of their edge)
+        var REACH = 90, PUSH = 2.4, SPRING = .035, DAMP = .86;
         function step() {
           // on launch they stay where they drifted to and part from there
           if (launched || !intro.isConnected) { running = false; return; }
