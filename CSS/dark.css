@@ -797,6 +797,26 @@ button.pill { cursor: pointer; font-family: var(--sans); }
 .work-row:hover .work-title { transform: translateX(10px); }
 .work-row:hover .work-arrow { transform: translateX(6px) rotate(-45deg); color: var(--text); }
 
+/* Older school projects: one compact row of links under the main list */
+.earlier {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px 36px;
+  margin-top: clamp(20px, 3vh, 32px);
+}
+.earlier .label { margin: 0; color: var(--dim); }
+.earlier ul { display: flex; flex-wrap: wrap; gap: 12px 32px; list-style: none; margin: 0; padding: 0; }
+.earlier a { font-size: .9rem; color: var(--muted); transition: color .3s; }
+.earlier a:hover { color: var(--text); }
+.earlier a span {
+  margin-left: 8px;
+  font: 500 .6rem/1 var(--sans);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
 .more { margin-top: clamp(28px, 4vh, 56px); text-align: center; }
 
 /* ---------- Contact ---------- */
