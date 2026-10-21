@@ -362,12 +362,13 @@
   //   head: the bubble's centre and radius; ring: its centre and radii; light: toward the key
   //   light on screen (bright side: upper right, where the print already gilds the cat's edge;
   //   dark side: the sun the astronaut's tether is lit by, upper left); rim: the key rim's width
-  //   in px; sink: how far inside the moon's rim the paws rest (past the print's inked edge)
+  //   in px; sink: how far inside the moon's rim the paws rest, as a share of its radius (past the
+  //   print's inked edge, which grows and shrinks with the moon)
   var CATS = {
-    bright: { src: 'images/cat-ukiyoe.png', w: 129, h: 260, head: [65, 62, 89.5], ring: [65, 141, 42, 9], light: [.6, -.8], rim: 2.4, sink: 17,
+    bright: { src: 'images/cat-ukiyoe.png', w: 129, h: 260, head: [65, 62, 89.5], ring: [65, 141, 42, 9], light: [.6, -.8], rim: 2.4, sink: .034,
       glass: '214,232,255', moon: '240,184,96', flame: ['#fff', '#ffe08a', '#ff9a3c', '#ff5a1e'],
       metal: ['#3b290f', '#9a7030', '#f6dc98', '#a77b33', '#4a3413'] },
-    dark: { src: 'images/cat-dark.png', w: 140, h: 260, head: [70, 62, 89.5], ring: [70, 141, 42, 9], light: [-.664, -.748], rim: 2.2, sink: 7,
+    dark: { src: 'images/cat-dark.png', w: 140, h: 260, head: [70, 62, 89.5], ring: [70, 141, 42, 9], light: [-.664, -.748], rim: 2.2, sink: .009,
       glass: '235,232,225', moon: '235,232,225', flame: ['#fff', '#f2f0ea', '#bdbab3', '#77746e'],
       metal: ['#1c1c1c', '#5a5955', '#f2f0ea', '#8a8883', '#2a2a2a'] }
   };
@@ -446,7 +447,7 @@
     var box = cat.parentNode.getBoundingClientRect(), m = moon.getBoundingClientRect();
     var k = box.width / cat.parentNode.offsetWidth || 1;
     var R = m.width / 2 / k, cx = (m.left - box.left) / k + R, cy = (m.top - box.top) / k + R;
-    var w = cat.offsetWidth, h = cat.offsetHeight, r = R - C.sink;
+    var w = cat.offsetWidth, h = cat.offsetHeight, r = R * (1 - C.sink);
     // where things are laid out in the section (not where they are on screen: the text slides in)
     var laid = function (el) {
       var x = 0, y = 0;
