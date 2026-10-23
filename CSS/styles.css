@@ -319,6 +319,8 @@ em { font-style: normal; color: var(--gold); }
 .to-top { transform: translateY(8px); }
 .show-top [data-relaunch] { transform: translateY(-8px); }
 .show-top .to-top { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+/* Back to top is just the arrow, a square box in the same corner slot */
+.to-top { right: auto; width: 48px; padding: 0; }
 /* Relaunch: the page dims to the night sky before the countdown comes back (veil added by the script) */
 .relaunch-veil {
   position: fixed;
@@ -1400,8 +1402,10 @@ em { font-style: normal; color: var(--gold); }
   text-align: center;
   /* On its own indigo text box so the question reads over the sky and the wisps */
   padding: 20px 28px 22px;
-  background: rgba(17, 27, 49, .9);
-  box-shadow: inset 0 0 0 1px rgba(230, 184, 92, .4), 0 10px 30px rgba(12, 16, 32, .4);
+  background: rgba(24, 25, 54, .84);
+  box-shadow: inset 0 0 0 1px rgba(230, 184, 92, .55), 0 12px 36px rgba(12, 16, 32, .42);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   opacity: 0;
   visibility: hidden;
   transform: translate(-50%, 20px);
@@ -1414,6 +1418,16 @@ em { font-style: normal; color: var(--gold); }
   text-shadow: 0 2px 18px rgba(12, 16, 32, .8);
 }
 .gate-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.intro-gate [data-launch="bright"] {
+  --fill: #bd7048;
+  --edge: #f0c17b;
+}
+.intro-gate [data-launch="bright"]:hover { --fill: #d18a58; --edge: #f0c17b; }
+.intro-gate [data-launch="dark"] {
+  --fill: rgba(38, 49, 91, .94);
+  --edge: rgba(166, 184, 232, .72);
+}
+.intro-gate [data-launch="dark"]:hover { --fill: #485c9a; --edge: #a6b8e8; }
 .intro-skip {
   position: absolute;
   right: 32px;
@@ -1424,7 +1438,8 @@ em { font-style: normal; color: var(--gold); }
   font: 500 .73rem/1 var(--hud);
   letter-spacing: .2em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--text);
+  text-shadow: 0 1px 8px rgba(12, 16, 32, .8);
   cursor: pointer;
   transition: opacity .4s;
 }

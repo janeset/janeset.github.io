@@ -313,6 +313,8 @@ button.pill { cursor: pointer; font-family: var(--sans); }
 .to-top { transform: translateY(8px); }
 .show-top [data-relaunch] { transform: translateY(-8px); }
 .show-top .to-top { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+/* Back to top is just the arrow, a round button in the same corner slot */
+.to-top { right: auto; width: 48px; padding: 0; }
 /* Relaunch: the page fades to black before the launch pad comes up (veil added by the script) */
 .relaunch-veil {
   position: fixed;
